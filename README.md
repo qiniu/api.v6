@@ -1,7 +1,7 @@
 Qiniu Resource (Cloud) Storage SDK for Golang
 ===
 
-[![Build Status](https://api.travis-ci.org/qiniu/ruby-sdk.png?branch=master)](https://travis-ci.org/qiniu/ruby-sdk)
+[![Build Status](https://api.travis-ci.org/qiniu/api.png?branch=master)](https://travis-ci.org/qiniu/api)
 
 [![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
 
