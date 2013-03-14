@@ -10,6 +10,7 @@ type upload struct {
 	Rotate int `uri:"rotate"`
 	A int64 `uri:"-"`
 	C string `uri:"-"`
+	B bool `uri:"b"`
 }
 
 func TestMarshal(t *testing.T) {
@@ -18,6 +19,7 @@ func TestMarshal(t *testing.T) {
 		MimeType: "image/png",
 		Rotate: 2,
 		A: 3,
+		B: true,
 		C: "not allow to display",
 	}
 	
@@ -27,7 +29,7 @@ func TestMarshal(t *testing.T) {
 		return
 	}
 	
-	target := "/YTp2dnY=/mimeType/aW1hZ2UvcG5n/rotate/2"
+	target := "/YTp2dnY=/mimeType/aW1hZ2UvcG5n/rotate/2/b"
 	if string(uri) != target {
 		t.Error(uri)
 		return

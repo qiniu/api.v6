@@ -34,6 +34,10 @@ func Marshal(i interface{}) (uri string, err error) {
 		if strings.Index(opts, ",encoded") != -1 {
 			value = base64.URLEncoding.EncodeToString([]byte(value))
 		}
+		
+		if f.Type.Kind() == reflect.Bool {
+			continue
+		}
 		uri += "/" + value
 	}
 	return

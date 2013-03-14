@@ -54,7 +54,7 @@ func ImageExif(l rpc.Logger, imageURL string) (exif ExifImage, err error) {
 	return
 }
 
-type MogrifyOptions struct {
+type ViewOption struct {
 	Mode int `uri:""`
 	Width int `uri:"w"`
 	Height int `uri:"h"`
@@ -62,10 +62,34 @@ type MogrifyOptions struct {
 	Format string `uri:"format"`
 }
 
+type Gravity string
+const (
+	NorthWest = "NorthWest"
+	North = "North"
+	NorthEast = "NorthEast"
+	West = "West"
+	Center = "Center"
+	East = "East"
+	SouthWest = "SouthWest"
+	South = "South"
+	SouthEast = "SouthEast"
+)
+
+type MogrifyOption struct {
+	AutoOrient bool `uri:"auto-orient"`
+	Thumbnail string `uri:"thumbnail"`
+	Gravity Gravity `uri:"gravity"`
+	Crop string `uri:"crop"`
+	Quality uint `uri:"quality"`
+	Rotate uint `uri:"rotate"`
+	Format string `uri:"format"`
+	SaveAs string `uri:"save-as,encoded"`
+}
+
 func ImageMogrifyForPreview(
-	imageURL string, mogrifyOptions MogrifyOptions) (previewURL string) {
-	opts, _ := encodeuri.Marshal(mogrifyOptions)
-	return imageURL + "?imageView" + opts
+	imageURL string, mogrifyOption MogrifyOption) (previewURL string) {
+	opts, _ := encodeuri.Marshal(mogrifyOption)
+	return imageURL + "?imageMogr" + opts
 }
 
 // -----------------------------------------------------------------------------
@@ -86,3 +110,29 @@ func (fop *Client) get(entryURI string) (url string, err error) {
 	}
 	return
 }
+
+func (fop *Client) SaveAs(l rpc.Logger,
+	entryURISrc, entryURIDest, opStr string) (ret rs.Entry, err error) {
+	
+	encodedEntryURIDest := rs.EncodeURI(entryURIDest)
+    saveAsString := "/save-as/" + encodedEntryURIDest
+    sourceUrl, err := fop.get(entryURISrc)
+    if err != nil {
+    	return
+    }
+    newUrl := sourceUrl + "?imageMogr" + opStr + saveAsString
+    err = fop.Conn.Call(nil, &ret, newUrl)
+    return
+}
+
+func (fop *Client) ImageMogrifySaveAs(l rpc.Logger, 
+	entryURISrc, entryURIDest string, opts MogrifyOption) (ret rs.Entry, err error) {
+
+	opStr, err := encodeuri.Marshal(opts)
+	if err != nil {
+		return
+	}
+	
+	return fop.SaveAs(l, entryURISrc, entryURIDest, opStr)
+}
+
