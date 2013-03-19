@@ -16,6 +16,21 @@ func init() {
 	SECRET_KEY = "zhbiA6gcQMEi22uZ8CBGvmbnD2sR8SO-5S8qlLCG"
 }
 
+func TestMarshalUploadAction(t *testing.T) {
+	ua := UploadAction {
+		EntryURI: bucketName + ":" + key,
+		MimeType: "text/plain",
+		Crc32: 1981979434,
+		Rotate: 2,
+	}
+	
+	uri := MarshalUploadAction(ua)
+	
+	if uri != "YTpjY2Nk/mimeType/dGV4dC9wbGFpbg==/crc32/1981979434/rotate/2/" {
+		t.Error("fail")
+	}
+}
+
 func Test(t *testing.T) {
 	policy := rs.PutPolicy {
 		Scope: bucketName,

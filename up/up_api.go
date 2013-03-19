@@ -8,14 +8,15 @@ import (
 	"bytes"
 	"os"
 	"path"
+	"strconv"
 	
 	. "github.com/qiniu/api/conf"
+	"github.com/qiniu/api/rs"
 	"github.com/qiniu/api/auth/up"
 	"github.com/qiniu/rpc"
-	"github.com/qiniu/api/encodeuri"
 )
 
-// ----------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 type Client struct {
 	Conn rpc.Client
@@ -40,14 +41,14 @@ func NewEx(upToken, host string, t http.RoundTripper) Client {
 	return Client{rpc.Client{client}, host, upToken}
 }
 
-// ----------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 type UploadAction struct {
-	EntryURI string `uri:",encoded"`
-	MimeType string `uri:"mimeType,encoded"`
-	CustomMeta string `uri:"meta,encoded"`
-	Crc32 int `uri:"crc32"`
-	Rotate uint `uri:"rotate"`
+	EntryURI string
+	MimeType string
+	CustomMeta string
+	Crc32 int
+	Rotate uint
 }
 
 type PutRet struct {
@@ -57,11 +58,7 @@ type PutRet struct {
 func (up Client) Put(l rpc.Logger,
 	fileName string, ua UploadAction, reader io.Reader) (ret PutRet, err error) {
 	
-	actionUri, err := encodeuri.Marshal(ua)
-	if err != nil {
-		return
-	}
-	action := "/rs-put" + actionUri
+	action := "/rs-put/" + MarshalUploadAction(ua)
 	url := up.Host + "/upload"
 	
 	bodyBuf := bytes.NewBuffer(nil)
@@ -92,4 +89,40 @@ func (up Client) PutFile(l rpc.Logger,
 	defer f.Close()
 	
 	return up.Put(l, fileName, ua, f)
+}
+
+// -----------------------------------------------------------------------------
+
+func MarshalUploadAction(ua UploadAction) (uri string) {
+	buf := bytes.NewBuffer(make([]byte, 0, bytes.MinRead))
+	if ua.EntryURI != "" {
+		buf.WriteString(rs.EncodeURI(ua.EntryURI))
+		buf.WriteByte('/')
+	}
+	
+	if ua.MimeType != "" {
+		buf.WriteString("mimeType/")
+		buf.WriteString(rs.EncodeURI(ua.MimeType))
+		buf.WriteByte('/')
+	}
+	
+	if ua.CustomMeta != "" {
+		buf.WriteString("meta/")
+		buf.WriteString(rs.EncodeURI(ua.CustomMeta))
+		buf.WriteByte('/')
+	}
+	
+	if ua.Crc32 != 0 {
+		buf.WriteString("crc32/")
+		buf.Write(strconv.AppendInt([]byte{}, int64(ua.Crc32), 10))
+		buf.WriteByte('/')
+	}
+	
+	if ua.Rotate != 0 {
+		buf.WriteString("rotate/")
+		buf.Write(strconv.AppendInt([]byte{}, int64(ua.Rotate), 10))
+		buf.WriteByte('/')
+	}
+	
+	return string(buf.Bytes())
 }
