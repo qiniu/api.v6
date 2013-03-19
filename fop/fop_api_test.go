@@ -21,6 +21,10 @@ func init() {
 	client = New()
 }
 
+func TestMarshalMogrifyOption(t *testing.T) {
+	
+}
+
 func TestImageInfo(t *testing.T) {
 	_, err := ImageInfo(nil, "http://cheneya.qiniudn.com/ffdfd_9")
 	if err != nil {
@@ -39,12 +43,13 @@ func TestImageExif(t *testing.T) {
 
 func TestImageMogrifyForPreview(t *testing.T) {
 	url := "http://qiniuphotos.qiniudn.com/gogopher.jpg"
-	opts := MogrifyOptions {
-		Mode: 2,
-		Height: 200,
+	opts := MogrifyOption {
+		AutoOrient: true,
+		Gravity: "North",
+		Thumbnail: "haha",
 	}
 	u := ImageMogrifyForPreview(url, opts)
-	if url + "?imageView/2/h/200" != u {
+	if url + "?imageMogr/auto-orient/thumbnail/haha/gravity/North" != u {
 		t.Error(u)
 	}
 }
@@ -54,4 +59,31 @@ func TestGet(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+func TestSaveAs(t *testing.T) {
+	ret, err := client.SaveAs(nil, "a:ffdfd_9", "a:cdca1", "/rotate/25")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	
+	if ret.Hash == "" {
+		t.Error("miss hash")
+		return
+	}
+}
+
+func TestImageMogrifySaveAs(t *testing.T) {
+	src := "a:ffdfd_9"
+	dest := "a:cdca2"
+	opts := MogrifyOption {
+		Rotate: 90,
+	}
+	_, err := client.ImageMogrifySaveAs(nil, src, dest, opts)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	
 }
