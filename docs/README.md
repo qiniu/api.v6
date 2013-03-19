@@ -35,7 +35,7 @@ Qiniu Resource (Cloud) Storage SDK for Golang
 	- [3.4 云处理](#34-)
 		- [3.4.1 图像](#341-)
 			- [3.4.1.1 查看图像属性](#3411-)
-			- [3.4.1.2 查看图片EXIF信息](#3412-)
+			- [3.4.1.2 查看图片EXIF信息](#3412-exif)
 			- [3.4.1.3 图像在线处理（缩略、裁剪、旋转、转化）](#3413-)
 			- [3.4.1.4 图像在线处理（缩略、裁剪、旋转、转化）后并持久化存储](#3414-)
 - [4. 贡献代码](#4-)
@@ -474,10 +474,10 @@ func main() {
 	imageUrl := "http://domain/key"
 	opts := fop.MogrifyOption {
 		AutoOrient: true,
-		Gravity: North,
+		Gravity: "North",
 		Thumbnail: "hello",
 	}
-	previewUrl := ImageMogrifyForPreview(url, opts) // string
+	previewUrl := ImageMogrifyForPreview(url, opts) // string, 图片地址
 }
 ```
 附 `fop.MogrifyOption` 结构
@@ -485,25 +485,12 @@ func main() {
 type MogrifyOption struct {
 	AutoOrient bool
 	Thumbnail string
-	Gravity Gravity
+	Gravity string
 	Crop string
 	Quality uint
 	Rotate uint
 	Format string
-	SaveAs string
 }
-type Gravity string
-const (
-	NorthWest = "NorthWest"
-	North = "North"
-	NorthEast = "NorthEast"
-	West = "West"
-	Center = "Center"
-	East = "East"
-	SouthWest = "SouthWest"
-	South = "South"
-	SouthEast = "SouthEast"
-)
 ```
 #### 3.4.1.4 图像在线处理（缩略、裁剪、旋转、转化）后并持久化存储
 
