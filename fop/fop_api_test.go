@@ -22,7 +22,15 @@ func init() {
 }
 
 func TestMarshalMogrifyOption(t *testing.T) {
-	
+	mo := MogrifyOption {
+		AutoOrient: true,
+		Thumbnail: "thumbnail",
+		Rotate: 1,
+	}
+	uri := MarshalMogrifyOption(mo)
+	if uri != "/auto-orient/thumbnail/thumbnail/rotate/1" {
+		t.Error("fail")
+	}
 }
 
 func TestImageInfo(t *testing.T) {
