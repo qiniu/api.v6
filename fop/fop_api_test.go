@@ -18,7 +18,19 @@ var client Client
 func init() {
 	ACCESS_KEY = "tGf47MBl1LyT9uaNv-NZV4XZe7sKxOIa9RE2Lp8B"
 	SECRET_KEY = "zhbiA6gcQMEi22uZ8CBGvmbnD2sR8SO-5S8qlLCG"
-	client = New(policy.Token())
+	client = New()
+}
+
+func TestMarshalMogrifyOption(t *testing.T) {
+	mo := MogrifyOption {
+		AutoOrient: true,
+		Thumbnail: "thumbnail",
+		Rotate: 1,
+	}
+	uri := MarshalMogrifyOption(mo)
+	if uri != "/auto-orient/thumbnail/thumbnail/rotate/1" {
+		t.Error("fail")
+	}
 }
 
 func TestImageInfo(t *testing.T) {
@@ -41,7 +53,7 @@ func TestImageMogrifyForPreview(t *testing.T) {
 	url := "http://qiniuphotos.qiniudn.com/gogopher.jpg"
 	opts := MogrifyOption {
 		AutoOrient: true,
-		Gravity: North,
+		Gravity: "North",
 		Thumbnail: "haha",
 	}
 	u := ImageMogrifyForPreview(url, opts)
@@ -76,11 +88,10 @@ func TestImageMogrifySaveAs(t *testing.T) {
 	opts := MogrifyOption {
 		Rotate: 90,
 	}
-	ret, err := client.ImageMogrifySaveAs(nil, src, dest, opts)
+	_, err := client.ImageMogrifySaveAs(nil, src, dest, opts)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	
-	t.Error(ret)
 }

@@ -2,33 +2,33 @@ package fop
 
 import (
 	"net/http"
+	"bytes"
+	"strconv"
 	
 	. "github.com/qiniu/api/conf"
 	"github.com/qiniu/rpc"
 	"github.com/qiniu/api/rs"
-	"github.com/qiniu/api/encodeuri"
 	"github.com/qiniu/api/auth/digest"
 )
 
-// ----------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 type Client struct {
 	Conn rpc.Client
-	DownloadToken string
 }
 
-func New(downloadToken string) Client {
+func New() Client {
 	t := digest.NewTransport(ACCESS_KEY, SECRET_KEY, nil)
 	client := &http.Client{Transport: t}
-	return Client{rpc.Client{client}, downloadToken}
+	return Client{rpc.Client{client}}
 }
 
-func NewEx(downloadToken string, t http.RoundTripper) Client {
+func NewEx(t http.RoundTripper) Client {
 	client := &http.Client{Transport: t}
-	return Client{rpc.Client{client}, downloadToken}
+	return Client{rpc.Client{client}}
 }
 
-// ----------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 type InfoImage struct {
 	Format string
@@ -62,34 +62,59 @@ type ViewOption struct {
 	Format string `uri:"format"`
 }
 
-type Gravity string
-const (
-	NorthWest = "NorthWest"
-	North = "North"
-	NorthEast = "NorthEast"
-	West = "West"
-	Center = "Center"
-	East = "East"
-	SouthWest = "SouthWest"
-	South = "South"
-	SouthEast = "SouthEast"
-)
-
 type MogrifyOption struct {
-	AutoOrient bool `uri:"auto-orient"`
-	Thumbnail string `uri:"thumbnail"`
-	Gravity Gravity `uri:"gravity"`
-	Crop string `uri:"crop"`
-	Quality uint `uri:"quality"`
-	Rotate uint `uri:"rotate"`
-	Format string `uri:"format"`
-	SaveAs string `uri:"save-as,encoded"`
+	AutoOrient bool
+	Thumbnail string
+	Gravity string
+	Crop string
+	Quality uint
+	Rotate uint
+	Format string
+}
+
+func MarshalMogrifyOption(mo MogrifyOption) (uri string) {
+	buf := bytes.NewBuffer(make([]byte, 0, bytes.MinRead))
+	if mo.AutoOrient {
+		buf.WriteString("/auto-orient")
+	}
+	
+	if mo.Thumbnail != "" {
+		buf.WriteString("/thumbnail/")
+		buf.WriteString(mo.Thumbnail)
+	}
+	
+	if mo.Gravity != "" {
+		buf.WriteString("/gravity/")
+		buf.WriteString(mo.Gravity)
+	}
+	
+	if mo.Crop != "" {
+		buf.WriteString("/crop/")
+		buf.WriteString(mo.Crop)
+	}
+	
+	if mo.Rotate != 0 {
+		buf.WriteString("/rotate/")
+		buf.Write(strconv.AppendInt([]byte{}, int64(mo.Rotate), 10))
+	}
+	
+	if mo.Quality > 0 {
+		buf.WriteString("/quality/")
+		buf.Write(strconv.AppendInt([]byte{}, int64(mo.Quality), 10))
+		buf.WriteByte('/')
+	}
+	
+	if mo.Format != "" {
+		buf.WriteString("/format/")
+		buf.WriteString(mo.Format)
+	}
+	return string(buf.Bytes())
 }
 
 func ImageMogrifyForPreview(
 	imageURL string, mogrifyOption MogrifyOption) (previewURL string) {
-	opts, _ := encodeuri.Marshal(mogrifyOption)
-	return imageURL + "?imageMogr" + opts
+
+	return imageURL + "?imageMogr" + MarshalMogrifyOption(mogrifyOption)
 }
 
 // -----------------------------------------------------------------------------
@@ -128,11 +153,6 @@ func (fop *Client) SaveAs(l rpc.Logger,
 func (fop *Client) ImageMogrifySaveAs(l rpc.Logger, 
 	entryURISrc, entryURIDest string, opts MogrifyOption) (ret rs.Entry, err error) {
 
-	opStr, err := encodeuri.Marshal(opts)
-	if err != nil {
-		return
-	}
-	
-	return fop.SaveAs(l, entryURISrc, entryURIDest, opStr)
+	return fop.SaveAs(l, entryURISrc, entryURIDest, MarshalMogrifyOption(opts))
 }
 
