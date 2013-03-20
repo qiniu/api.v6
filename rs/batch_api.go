@@ -18,6 +18,13 @@ type Batcher struct {
 	ret []BatchItemRet
 }
 
+func NewBatcher(ncap int) *Batcher {
+	return &Batcher{
+		op: make([]string, 0, ncap),
+		ret: make([]BatchItemRet, 0, ncap),
+	}
+}
+
 func (b *Batcher) Reset() {
 	b.op = nil
 	b.ret = nil
@@ -52,6 +59,50 @@ func (b *Batcher) Do(l rpc.Logger, rs Client) (ret []BatchItemRet, err error) {
 	err = rs.Conn.CallWithForm(l, &b.ret, RS_HOST+"/batch", map[string][]string{"op": b.op})
 	ret = b.ret
 	return
+}
+
+// ----------------------------------------------------------
+
+type EntryPath struct {
+	Bucket string
+	Key string
+}
+
+type EntryPathPair struct {
+	Src EntryPath
+	Dest EntryPath
+}
+
+func (rs Client) BatchStat(l rpc.Logger, entries []EntryPath) (ret []BatchItemRet, err error) {
+	b := NewBatcher(len(entries))
+	for _, e := range entries {
+		b.Stat(e.Bucket, e.Key)
+	}
+	return b.Do(l, rs)
+}
+
+func (rs Client) BatchDelete(l rpc.Logger, entries []EntryPath) (ret []BatchItemRet, err error) {
+	b := NewBatcher(len(entries))
+	for _, e := range entries {
+		b.Delete(e.Bucket, e.Key)
+	}
+	return b.Do(l, rs)
+}
+
+func (rs Client) BatchMove(l rpc.Logger, entries []EntryPathPair) (ret []BatchItemRet, err error) {
+	b := NewBatcher(len(entries))
+	for _, e := range entries {
+		b.Move(e.Src.Bucket, e.Src.Key, e.Dest.Bucket, e.Dest.Key)
+	}
+	return b.Do(l, rs)
+}
+
+func (rs Client) BatchCopy(l rpc.Logger, entries []EntryPathPair) (ret []BatchItemRet, err error) {
+	b := NewBatcher(len(entries))
+	for _, e := range entries {
+		b.Copy(e.Src.Bucket, e.Src.Key, e.Dest.Bucket, e.Dest.Key)
+	}
+	return b.Do(l, rs)
 }
 
 // ----------------------------------------------------------
