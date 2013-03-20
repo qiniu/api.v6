@@ -1,8 +1,8 @@
 package rs
 
 import (
+	"os"
 	"testing"
-	
 	. "github.com/qiniu/api/conf"
 )
 
@@ -11,34 +11,27 @@ var bucketName = "a"
 var client Client
 
 func init() {
-	ACCESS_KEY = "tGf47MBl1LyT9uaNv-NZV4XZe7sKxOIa9RE2Lp8B"
-	SECRET_KEY = "zhbiA6gcQMEi22uZ8CBGvmbnD2sR8SO-5S8qlLCG"
+	ACCESS_KEY = os.Getenv("QINIU_ACCESS_KEY")
+	SECRET_KEY = os.Getenv("QINIU_SECRET_KEY")
+	if ACCESS_KEY == "" || SECRET_KEY == "" {
+		panic("require ACCESS_KEY & SECRET_KEY")
+	}
 	client = New()
 }
 
 func TestBatch(t *testing.T) {
-	batch := NewBatcher()
-	batch.Add(URIStat(bucketName + ":" + key))
-	a := new([]BatchStatResult)
-	err := client.DoBatch(nil, a, batch)
+	b, err := client.BatchStat(nil, []EntryPath{
+		{bucketName, key},
+	})
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatal(err)
 	}
-	
-	b, err := client.BatchStat(nil, bucketName + ":" + key)
-	if err != nil {
-		t.Error(err)
-		return
+	if len(b) != 1 {
+		t.Fatal("BatchStat failed: len(result) =", len(b))
 	}
-	
-	c, _ := client.Stat(nil, bucketName + ":" + key)
-	
-	if (*a)[0].Data != b[0].Data {
-		t.Error("result not match")
-	}
-	
-	if c != b[0].Data {
+	c, err := client.Stat(nil, bucketName, key)
+	if b[0].Data != c {
 		t.Error("result not match")
 	}
 }
+
