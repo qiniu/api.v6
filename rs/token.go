@@ -31,7 +31,7 @@ type PutPolicy struct {
 	AsyncOps         string `json:"asyncOps,omitempty"`
 	Expires          uint32 `json:"deadline"` 			// 截止时间（以秒为单位）
 	Escape           uint16 `json:"escape,omitempty"`	// 是否允许存在转义符号
-	DetectMime       uint16	`json:"detectMime",omitempty`
+	DetectMime       uint16	`json:"detectMime,omitempty"`
 }
 
 func (r PutPolicy) Token() string {
