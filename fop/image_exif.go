@@ -11,7 +11,11 @@ type ValType struct {
 
 type ImageExifRet map[string] ValType
 
-func ImageExif(l rpc.Logger, url string) (ret ImageExifRet, err error) {
- 	err = New().Conn.Call(l, &ret, url + "?exif")
-	return
+type ImageExif struct {
+	
+}
+
+func (this ImageExif) Call(l rpc.Logger, url string) (ret ImageExifRet, err error) {
+ 	err = rpc.DefaultClient.Call(l, &ret, url + "?exif")
+ 	return
 }

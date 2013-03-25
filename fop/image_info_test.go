@@ -13,7 +13,8 @@ func init() {
 }
 
 func TestImageInfo(t *testing.T) {
-	ret, err := ImageInfo(nil, "http://cheneya.qiniudn.com/ffdfd_9")
+	info := ImageInfo{}
+	ret, err := info.Call(nil, "http://cheneya.qiniudn.com/ffdfd_9")
 	if err != nil {
 		t.Error(err)
 		return

@@ -29,21 +29,6 @@ func NewEx(t http.RoundTripper) Client {
 
 // ----------------------------------------------------------
 
-type FileProfile struct {
-	Expires int
-	Url string
-	MimeType string
-	Hash string
-	Fsize int64
-}
-
-func (fop *Client) get(entryURI string) (profile FileProfile, err error) {
-	err = fop.Conn.Call(nil, &profile, RS_HOST + "/get/" + encodeURI(entryURI))
-	return
-}
-
-// ----------------------------------------------------------
-
 func encodeURI(uri string) string {
 	return base64.URLEncoding.EncodeToString([]byte(uri))
 }

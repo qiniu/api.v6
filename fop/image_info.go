@@ -11,7 +11,11 @@ type ImageInfoRet struct {
 	ColorModel string
 }
 
-func ImageInfo(l rpc.Logger, url string) (ret ImageInfoRet, err error) {
-	err = New().Conn.Call(l, &ret, url + "?imageInfo")
+type ImageInfo struct {
+	
+}
+
+func (this ImageInfo) Call(l rpc.Logger, url string) (ret ImageInfoRet, err error) {
+	err = rpc.DefaultClient.Call(l, &ret, url + "?imageInfo")
 	return
 }

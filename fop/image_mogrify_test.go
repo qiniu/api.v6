@@ -22,7 +22,7 @@ func TestMakeRequest(t *testing.T) {
 		Rotate: 1,
 		Format: "png",
 	}
-	uri := mogrify.Marshal()
+	uri := mogrify.marshal()
 	if uri != "/auto-orient/thumbnail/!256x256r/gravity/North/crop/!256x256/quality/80/rotate/1/format/png" {
 		t.Error("result not match")
 	}
@@ -31,18 +31,7 @@ func TestMakeRequest(t *testing.T) {
 		Gravity: "South",
 		Rotate: 1,
 	}
-	if mogrify.Marshal() != "/gravity/South/rotate/1" {
+	if mogrify.marshal() != "/gravity/South/rotate/1" {
 		t.Error("result not match")
-	}
-}
-
-func TestSaveAs(t *testing.T) {
-	m := ImageMogrify {
-		Format: "jpeg",
-	}
-	_, err := m.SaveAs(nil, "a:ffdfd_9", "a:ddd")
-	if err != nil {
-		t.Error(err)
-		return
 	}
 }
