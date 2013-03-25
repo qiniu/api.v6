@@ -4,34 +4,14 @@ import (
 	"github.com/qiniu/rpc"
 )
 
-type ValType struct {
+type ExifValType struct {
 	Val  string `json:"val"`
 	Type int    `json:"type"`
 }
 
-type ImageExifRet struct {
-	Model             ValType `json:"Model"`
-	ColorSpace        ValType `json:"ColorSpace"`
-	ImageLength       ValType `json:"ImageLength"`
-	YResolution       ValType `json:"YResolution"`
-	ExifVersion       ValType `json:"ExifVersion"`
-	ResolutionUnit    ValType `json:"ResolutionUnit"`
-	FlashPixVersion   ValType `json:"FlashPixVersion"`
-	Software          ValType `json:"Software"`
-	Orientation       ValType `json:"Orientation"`
-	Make              ValType `json:"Make"`
-	DateTimeOriginal  ValType `json:"DateTimeOriginal"`
-	UserComment       ValType `json:"UserComment"`
-	YCbCrPositioning  ValType `json:"YCbCrPositioning"`
-	XResolution       ValType `json:"XResolution"`
-	ImageWidth        ValType `json:"ImageWidth"`
-	DateTime          ValType `json:"DateTime"`
-	DateTimeDigitized ValType `json:"DateTimeDigitized"`
-}
+type ImageExifRet map[string] ExifValType
 
-type ImageExif struct {
-	
-}
+type ImageExif struct {}
 
 func (this ImageExif) MakeRequest(url string) string {
 	return url + "?exif"

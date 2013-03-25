@@ -11,9 +11,7 @@ type ImageInfoRet struct {
 	ColorModel string
 }
 
-type ImageInfo struct {
-	
-}
+type ImageInfo struct {}
 
 func (this ImageInfo) MakeRequest(url string) string {
 	return url + "?imageInfo"	
