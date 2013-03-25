@@ -5,11 +5,29 @@ import (
 )
 
 type ValType struct {
-	Val string
-	Type int
+	Val  string `json:"val"`
+	Type int    `json:"type"`
 }
 
-type ImageExifRet map[string] ValType
+type ImageExifRet struct {
+	Model             ValType `json:"Model"`
+	ColorSpace        ValType `json:"ColorSpace"`
+	ImageLength       ValType `json:"ImageLength"`
+	YResolution       ValType `json:"YResolution"`
+	ExifVersion       ValType `json:"ExifVersion"`
+	ResolutionUnit    ValType `json:"ResolutionUnit"`
+	FlashPixVersion   ValType `json:"FlashPixVersion"`
+	Software          ValType `json:"Software"`
+	Orientation       ValType `json:"Orientation"`
+	Make              ValType `json:"Make"`
+	DateTimeOriginal  ValType `json:"DateTimeOriginal"`
+	UserComment       ValType `json:"UserComment"`
+	YCbCrPositioning  ValType `json:"YCbCrPositioning"`
+	XResolution       ValType `json:"XResolution"`
+	ImageWidth        ValType `json:"ImageWidth"`
+	DateTime          ValType `json:"DateTime"`
+	DateTimeDigitized ValType `json:"DateTimeDigitized"`
+}
 
 type ImageExif struct {
 	
