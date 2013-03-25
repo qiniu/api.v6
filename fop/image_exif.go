@@ -15,7 +15,11 @@ type ImageExif struct {
 	
 }
 
+func (this ImageExif) MakeRequest(url string) string {
+	return url + "?exif"
+}
+
 func (this ImageExif) Call(l rpc.Logger, url string) (ret ImageExifRet, err error) {
- 	err = rpc.DefaultClient.Call(l, &ret, url + "?exif")
+ 	err = rpc.DefaultClient.Call(l, &ret, this.MakeRequest(url))
  	return
 }
