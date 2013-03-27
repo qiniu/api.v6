@@ -5,9 +5,9 @@ import (
 )
 
 type ImageInfoRet struct {
+	Width int
+	Height int
 	Format string
-	Width uint
-	Height uint
 	ColorModel string
 }
 

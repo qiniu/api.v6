@@ -9,8 +9,8 @@ type ImageMogrify struct {
 	Thumbnail string
 	Gravity string
 	Crop string
-	Quality uint
-	Rotate uint
+	Quality int
+	Rotate int
 	Format string
 }
 
