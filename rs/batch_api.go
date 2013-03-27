@@ -15,8 +15,8 @@ func (rs Client) Batch(l rpc.Logger, ret interface{}, op []string) (err error) {
 
 type BatchStatItemRet struct {
 	Data  Entry       `json:"data"`
-	Code  int         `json:"code"`
 	Error string      `json:"error"`
+	Code  int         `json:"code"`
 }
 
 type EntryPath struct {
@@ -36,8 +36,8 @@ func (rs Client) BatchStat(l rpc.Logger, entries []EntryPath) (ret []BatchStatIt
 // ----------------------------------------------------------
 
 type BatchItemRet struct {
-	Code  int         `json:"code"`
 	Error string      `json:"error"`
+	Code  int         `json:"code"`
 }
 
 func (rs Client) BatchDelete(l rpc.Logger, entries []EntryPath) (ret []BatchItemRet, err error) {

@@ -5,7 +5,7 @@ import (
 )
 
 func TestImageExif(t *testing.T) {
-	ie := ImageExif{}
+	ie := Exif{}
 	url := "http://cheneya.qiniudn.com/hello_jpg"
 	_, err := ie.Call(nil, url)
 	if err != nil {

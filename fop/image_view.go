@@ -8,11 +8,11 @@ import (
 // ----------------------------------------------------------
 
 type ImageView struct {
-	Mode    uint    // 1或2
-	Width   uint
-	Height  uint
-	Quality uint    // 质量, 1-100
-	Format  string  // 输出格式, jpg, gif, png, tif 等图片格式
+	Mode int    // 缩略模式
+	Width int    // Width = 0 表示不限定宽度
+	Height int    // Height = 0 表示不限定高度
+	Quality int    // 质量, 1-100
+	Format string  // 输出格式，如jpg, gif, png, tif等等
 }
 
 func (this ImageView) MakeRequest(url string) (reqUrl string, err error) {
