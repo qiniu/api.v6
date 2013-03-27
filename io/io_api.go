@@ -18,7 +18,8 @@ type PutExtra struct {
 }
 
 type PutRet struct {
-    Hash            string  // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
+	// 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
+    Hash string `json:"hash"`
 }
 
 func Put(l rpc.Logger, ret interface{}, uptoken, bucket, key string,

@@ -38,7 +38,7 @@ func randomBoundary() string {
 func TestPut(t *testing.T) {
 	key := "test_put_" + randomBoundary()
 	buf := bytes.NewBuffer(nil)
-	ret := new(interface{})
+	ret := new(PutRet)
 
 	buf.WriteString("hello! new Put")
 	err := Put(nil, ret, 
@@ -46,16 +46,24 @@ func TestPut(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	
+	if (ret.Hash == "") {
+		t.Error("miss hash")
+	}
 }
 
 func TestPutFile(t *testing.T) {
-	var ret interface{}
+	ret := new(PutRet)
 	localFile := "./io_api_test.go"
 	key := "test_put_file_" + randomBoundary()
 
 	err := PutFile(nil, &ret, policy.Token(), bucket, key, localFile, extra)
 	if err != nil {
 		t.Error(err)
+	}
+	
+	if (ret.Hash == "") {
+		t.Error("miss hash")
 	}
 }
 
