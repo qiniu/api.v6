@@ -3,7 +3,6 @@ package io
 import (
 	"io"
 	"os"
-	"bytes"
 	"encoding/base64"
 	"mime/multipart"
 	
@@ -24,50 +23,52 @@ type PutRet struct {
 }
 
 func Put(l rpc.Logger, ret interface{}, uptoken, key string,
-	data io.Reader, fsize int64, extra *PutExtra) (err error) {
+	data io.Reader, extra *PutExtra) (err error) {
 
 	url := UP_HOST + "/upload"
-	body := bytes.NewBuffer(make([]byte, 0, bytes.MinRead + fsize))
-	writer := multipart.NewWriter(body)
-
-	// action
-	writer.WriteField("auth", uptoken)
-	w, err := writer.CreateFormField("action")
-	if err != nil {
-		return
-	}
-	io.WriteString(w, "/rs-put/")
-	io.WriteString(w, encodeURI(extra.Bucket + ":" + key))
-
-	if extra.MimeType != "" {
-		io.WriteString(w, "/mimeType/")
-		io.WriteString(w, encodeURI(extra.MimeType))
-	}
-
-	if extra.CustomMeta != "" {
-		io.WriteString(w, "/meta/")
-		io.WriteString(w, encodeURI(extra.CustomMeta))
-	}
-
-	// params
-	if extra.CallbackParams != "" {
-		writer.WriteField("params", extra.CallbackParams)
-	}
-
-	// file
-	w, err = writer.CreateFormFile("file", key)
-	if err != nil {
-		return
-	}
+	r, w := io.Pipe()
+	writer := multipart.NewWriter(w)
 	
-	// calculate body size, 8 means '\r\n--<boundary>--\r\n'
-	fsize += int64(body.Len() + len(writer.Boundary()) + 8)
+	go func() {
+		defer w.Close()
+		defer writer.Close()
+		
+		// auth
+		writer.WriteField("auth", uptoken)
+		
+		// action
+		_, err := writer.CreateFormField("action")
+		if err != nil {
+			return
+		}
+		io.WriteString(w, "/rs-put/")
+		io.WriteString(w, encodeURI(extra.Bucket + ":" + key))
 	
-	body.ReadFrom(data)
-	writer.Close()
+		if extra.MimeType != "" {
+			io.WriteString(w, "/mimeType/")
+			io.WriteString(w, encodeURI(extra.MimeType))
+		}
+	
+		if extra.CustomMeta != "" {
+			io.WriteString(w, "/meta/")
+			io.WriteString(w, encodeURI(extra.CustomMeta))
+		}
+	
+		// params
+		if extra.CallbackParams != "" {
+			writer.WriteField("params", extra.CallbackParams)
+		}
+	
+		// file
+		_, err = writer.CreateFormFile("file", key)
+		if err != nil {
+			return
+		}
+		io.Copy(w, data)
+	}()
 	
 	contentType := writer.FormDataContentType()
-	return rpc.DefaultClient.CallWith64(l, ret, url, contentType, body, fsize)
+	return rpc.DefaultClient.CallWith64(l, ret, url, contentType, r, 0)
 }
 
 func PutFile(l rpc.Logger, ret interface{},
@@ -79,13 +80,7 @@ func PutFile(l rpc.Logger, ret interface{},
 	}
 	defer f.Close()
 	
-	stat, err := f.Stat()
-	if err != nil {
-		return
-	}
-	fsize := stat.Size()
-	
-	return Put(l, ret, uptoken, key, f, fsize, extra)
+	return Put(l, ret, uptoken, key, f, extra)
 }
 
 // ----------------------------------------------------------
