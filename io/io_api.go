@@ -79,7 +79,7 @@ func PutFile(l rpc.Logger, ret interface{},
 	}
 	defer f.Close()
 	
-	stat, err := os.Stat(localFile)
+	stat, err := f.Stat()
 	if err != nil {
 		return
 	}
