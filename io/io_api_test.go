@@ -53,29 +53,6 @@ func TestPut(t *testing.T) {
 	}
 }
 
-func TestPutFile(t *testing.T) {
-	ret := new(PutRet)
-	localFile := "./io_api_test_demo"
-	key := "test_put_file_" + randomBoundary()
-	f, err := os.Create(localFile)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	f.Write([]byte("hello! new PutFile"))
-	f.Close()
-
-	err = PutFile(nil, &ret, policy.Token(), key, localFile, extra)
-	if err != nil {
-		t.Error(err)
-	}
-	
-	if (ret.Hash != "FpNz8gyuNLmEiAoJ4V4cfblnp9Z-") {
-		t.Error("miss hash")
-	}
-	os.Remove(localFile)
-}
-
 func TestGetUrl(t *testing.T) {
 	domain := "http://cheneya.qiniudn.com"
 	key := "hello_jpg"
