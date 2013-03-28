@@ -13,6 +13,7 @@ import (
 
 type PutExtra struct {
     CallbackParams  string  // 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
+    Bucket          string
     CustomMeta      string  // 可选。用户自定义 Meta，不能超过 256 字节
     MimeType        string  // 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
 }
@@ -22,7 +23,7 @@ type PutRet struct {
     Hash string `json:"hash"`
 }
 
-func Put(l rpc.Logger, ret interface{}, uptoken, bucket, key string,
+func Put(l rpc.Logger, ret interface{}, uptoken, key string,
 	data io.Reader, fsize int64, extra *PutExtra) (err error) {
 
 	url := UP_HOST + "/upload"
@@ -36,7 +37,7 @@ func Put(l rpc.Logger, ret interface{}, uptoken, bucket, key string,
 		return
 	}
 	io.WriteString(w, "/rs-put/")
-	io.WriteString(w, encodeURI(bucket + ":" + key))
+	io.WriteString(w, encodeURI(extra.Bucket + ":" + key))
 
 	if extra.MimeType != "" {
 		io.WriteString(w, "/mimeType/")
@@ -70,7 +71,7 @@ func Put(l rpc.Logger, ret interface{}, uptoken, bucket, key string,
 }
 
 func PutFile(l rpc.Logger, ret interface{},
-	uptoken, bucket, key string, localFile string, extra *PutExtra) (err error) {
+	uptoken, key string, localFile string, extra *PutExtra) (err error) {
 
 	f, err := os.Open(localFile)
 	if err != nil {
@@ -84,7 +85,7 @@ func PutFile(l rpc.Logger, ret interface{},
 	}
 	fsize := stat.Size()
 	
-	return Put(l, ret, uptoken, bucket, key, f, fsize, extra)
+	return Put(l, ret, uptoken, key, f, fsize, extra)
 }
 
 // ----------------------------------------------------------

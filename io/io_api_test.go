@@ -18,6 +18,7 @@ var policy = rs.PutPolicy {
 }
 var extra = &PutExtra {
 	MimeType: "text/plain",
+	Bucket: bucket,
 	CallbackParams: "hello=yes",
 }
 
@@ -42,29 +43,37 @@ func TestPut(t *testing.T) {
 
 	buf.WriteString("hello! new Put")
 	err := Put(nil, ret, 
-		policy.Token(), bucket, key, buf, int64(buf.Len()), extra)
+		policy.Token(), key, buf, int64(buf.Len()), extra)
 	if err != nil {
 		t.Error(err)
 	}
 	
-	if (ret.Hash == "") {
+	if (ret.Hash != "FsqT8gw5b4TDw_eD5UTXip9VMCQy") {
 		t.Error("miss hash")
 	}
 }
 
 func TestPutFile(t *testing.T) {
 	ret := new(PutRet)
-	localFile := "./io_api_test.go"
+	localFile := "./io_api_test_demo"
 	key := "test_put_file_" + randomBoundary()
+	f, err := os.Create(localFile)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	f.Write([]byte("hello! new PutFile"))
+	f.Close()
 
-	err := PutFile(nil, &ret, policy.Token(), bucket, key, localFile, extra)
+	err = PutFile(nil, &ret, policy.Token(), key, localFile, extra)
 	if err != nil {
 		t.Error(err)
 	}
 	
-	if (ret.Hash == "") {
+	if (ret.Hash != "FpNz8gyuNLmEiAoJ4V4cfblnp9Z-") {
 		t.Error("miss hash")
 	}
+	os.Remove(localFile)
 }
 
 func TestGetUrl(t *testing.T) {
