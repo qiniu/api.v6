@@ -91,7 +91,11 @@ func PutFile(l rpc.Logger, ret interface{},
 // ----------------------------------------------------------
 
 func GetUrl(domain string, key string, dntoken string) (downloadUrl string) {
-	return domain + "/" + key + "?token=" + dntoken
+	url := domain + "/" + key
+	if dntoken == "" {
+		return url
+	}
+	return url + "?token=" + dntoken
 }
 
 // ----------------------------------------------------------
