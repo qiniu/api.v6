@@ -1,5 +1,9 @@
 package fop
 
+import (
+	"strconv"
+)
+
 type ImageView struct {
 	Mode int    // 缩略模式
 	Width int    // Width = 0 表示不限定宽度
@@ -9,18 +13,18 @@ type ImageView struct {
 }
 
 func (this ImageView) MakeRequest(url string) string {
-	url += "?imageView/" + itoa(this.Mode)
+	url += "?imageView/" + strconv.Itoa(this.Mode)
 	
 	if this.Width > 0 {
-		url += "/w/" + itoa(this.Width)
+		url += "/w/" + strconv.Itoa(this.Width)
 	}
 	
 	if this.Height > 0 {
-		url += "/h/" + itoa(this.Height)
+		url += "/h/" + strconv.Itoa(this.Height)
 	}
 	
 	if this.Quality > 0 {
-		url += "/q/" + itoa(this.Quality)
+		url += "/q/" + strconv.Itoa(this.Quality)
 	}
 	
 	if this.Format != "" {
