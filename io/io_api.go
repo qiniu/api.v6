@@ -22,41 +22,49 @@ type PutRet struct {
     Hash string `json:"hash"`
 }
 
-func Put(l rpc.Logger, ret interface{}, uptoken, key string,
-	data io.Reader, extra *PutExtra) (err error) {
+func Put(l rpc.Logger, ret interface{},
+	uptoken, key string, data io.Reader, extra *PutExtra) error {
 
 	url := UP_HOST + "/upload"
 	r, w := io.Pipe()
 	writer := multipart.NewWriter(w)
 	
 	go func() {
-		defer w.Close()
-		defer writer.Close()
+		var err error = nil
+		defer func() {
+			writer.Close()
+			w.CloseWithError(err)
+		}()
 		
 		// auth
-		writer.WriteField("auth", uptoken)
-		
-		// action
-		_, err := writer.CreateFormField("action")
+		err = writer.WriteField("auth", uptoken)
 		if err != nil {
 			return
 		}
-		io.WriteString(w, "/rs-put/")
-		io.WriteString(w, encodeURI(extra.Bucket + ":" + key))
-	
-		if extra.MimeType != "" {
-			io.WriteString(w, "/mimeType/")
-			io.WriteString(w, encodeURI(extra.MimeType))
+		
+		// action
+		_, err = writer.CreateFormField("action")
+		if err != nil {
+			return
 		}
-	
+		action := "/rs-put/" + encodeURI(extra.Bucket + ":" + key)
+		if extra.MimeType != "" {
+			action += "/mimeType/" + encodeURI(extra.MimeType)
+		}
 		if extra.CustomMeta != "" {
-			io.WriteString(w, "/meta/")
-			io.WriteString(w, encodeURI(extra.CustomMeta))
+			action += "/meta/" + encodeURI(extra.CustomMeta)
+		}
+		_, err = io.WriteString(w, action)
+		if err != nil {
+			return
 		}
 	
 		// params
 		if extra.CallbackParams != "" {
-			writer.WriteField("params", extra.CallbackParams)
+			err = writer.WriteField("params", extra.CallbackParams)
+			if err != nil {
+				return
+			}
 		}
 	
 		// file
@@ -64,7 +72,7 @@ func Put(l rpc.Logger, ret interface{}, uptoken, key string,
 		if err != nil {
 			return
 		}
-		io.Copy(w, data)
+		_, err = io.Copy(w, data)
 	}()
 	
 	contentType := writer.FormDataContentType()
