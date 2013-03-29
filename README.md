@@ -78,7 +78,7 @@ func main() {
 上传文件需要提供上传授权凭证来验证身份, 通过实现 `github.com/api/rs/PutPolicy` 来生成Token, 具体代码如下
 
 ```{go}
-import "github.com/api/rs"
+import "github.com/qiniu/api/rs"
 
 func main() {
 	// 填充ACCESS_KEY和SECRET_KEY, 参考 配置密钥
@@ -165,7 +165,7 @@ func main() {
 	}
 	key := "fileKey"
 	
-	ret, err := io.Put(logger, uploadToken, key, f, extra) // PutRet, error
+	err := io.Put(logger, ret, uploadToken, key, f, extra) // PutRet, error
 	if err != nil {
 		// 上传失败
 		return
