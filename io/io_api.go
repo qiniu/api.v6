@@ -52,6 +52,9 @@ func Put(l rpc.Logger, ret interface{},
 			action += "/meta/" + encodeURI(extra.CustomMeta)
 		}
 		err = writer.WriteField("action", action)
+		if err != nil {
+			return
+		}
 	
 		// params
 		if extra.CallbackParams != "" {
