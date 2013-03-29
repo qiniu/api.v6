@@ -9,15 +9,15 @@ type ExifValType struct {
 	Type int    `json:"type"`
 }
 
-type ImageExifRet map[string] ExifValType
+type ExifRet map[string] ExifValType
 
-type ImageExif struct {}
+type Exif struct {}
 
-func (this ImageExif) MakeRequest(url string) string {
+func (this Exif) MakeRequest(url string) string {
 	return url + "?exif"
 }
 
-func (this ImageExif) Call(l rpc.Logger, url string) (ret ImageExifRet, err error) {
+func (this Exif) Call(l rpc.Logger, url string) (ret ExifRet, err error) {
  	err = rpc.DefaultClient.Call(l, &ret, this.MakeRequest(url))
  	return
 }
