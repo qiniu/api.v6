@@ -8,25 +8,24 @@ type ImageView struct {
 	Format string  // 输出格式，如jpg, gif, png, tif等等
 }
 
-func (this ImageView) MakeRequest(url string) (reqUrl string, err error) {
-	query := "?imageView/" + itoa(this.Mode)
+func (this ImageView) MakeRequest(url string) string {
+	url += "?imageView/" + itoa(this.Mode)
 	
 	if this.Width > 0 {
-		query += "/w/" + itoa(this.Width)
+		url += "/w/" + itoa(this.Width)
 	}
 	
 	if this.Height > 0 {
-		query += "/h/" + itoa(this.Height)
+		url += "/h/" + itoa(this.Height)
 	}
 	
 	if this.Quality > 0 {
-		query += "/q/" + itoa(this.Quality)
+		url += "/q/" + itoa(this.Quality)
 	}
 	
 	if this.Format != "" {
-		query += "/format/" + this.Format
+		url += "/format/" + this.Format
 	}
 	
-	reqUrl = url + query
-	return
+	return url
 }
