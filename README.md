@@ -510,7 +510,11 @@ import (
 func main() {
 	imageUrl := "http://domain/key"
 	iv := fop.ImageView{
-		
+		Mode: 1,       // 缩略模式
+		Width: 200,    // Width = 0 表示不限定宽度
+		Height: 200,   // Height = 0 表示不限定高度
+		Quality: 80,   // 质量, 1-100
+		Format: "jpg”, // 输出文件格式
 	}
 	previewUrl := iv.MakeRequest(logger, imageUrl)
 }
