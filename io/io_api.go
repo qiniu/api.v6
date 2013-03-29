@@ -44,10 +44,6 @@ func Put(l rpc.Logger, ret interface{},
 		}
 		
 		// action
-		writer_buf, err := writer.CreateFormField("action")
-		if err != nil {
-			return
-		}
 		action := "/rs-put/" + encodeURI(extra.Bucket + ":" + key)
 		if extra.MimeType != "" {
 			action += "/mimeType/" + encodeURI(extra.MimeType)
@@ -55,10 +51,7 @@ func Put(l rpc.Logger, ret interface{},
 		if extra.CustomMeta != "" {
 			action += "/meta/" + encodeURI(extra.CustomMeta)
 		}
-		_, err = io.WriteString(writer_buf, action)
-		if err != nil {
-			return
-		}
+		err = writer.WriteField("action", action)
 	
 		// params
 		if extra.CallbackParams != "" {
@@ -69,7 +62,7 @@ func Put(l rpc.Logger, ret interface{},
 		}
 	
 		// file
-		writer_buf, err = writer.CreateFormFile("file", key)
+		writer_buf, err := writer.CreateFormFile("file", key)
 		if err != nil {
 			return
 		}
