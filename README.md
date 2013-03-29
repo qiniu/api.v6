@@ -61,9 +61,8 @@ Qiniu Resource (Cloud) Storage SDK for Golang
 在获取到 Access Key 和 Secret Key 之后，您可以在您的程序中调用如下两行代码进行初始化对接, 要确保`ACCESS_KEY` 和 `SECRET_KEY` 在调用所有七牛API服务之前均已赋值：
 
 ```{go}
-import (
-	. "github.com/qiniu/api/conf"
-)
+import . "github.com/qiniu/api/conf"
+
 func main() {
 	ACCESS_KEY = "YOUR_APP_ACCESS_KEY"
 	SECRET_KEY = "YOUR_APP_SECRET_KEY"
@@ -79,9 +78,8 @@ func main() {
 上传文件需要提供上传授权凭证来验证身份, 通过实现 `github.com/api/rs/PutPolicy` 来生成Token, 具体代码如下
 
 ```{go}
-import (
-	"github.com/api/rs"
-)
+import "github.com/api/rs"
+
 func main() {
 	// 填充ACCESS_KEY和SECRET_KEY, 参考 配置密钥
 	
@@ -141,6 +139,7 @@ import (
 	"os"
 	"github.com/qiniu/api/io"
 )
+
 func main() {
 	// 1. 配置 ACCESS_KEY 和 SECRET_KEY
 	// 2. 生成 uploadToken
@@ -206,6 +205,7 @@ import (
 	"github.com/qiniu/api/rs"
 	"github.com/qiniu/api/io"
 )
+
 func main() {
 	// 配置 ACCESS_KEY 和 SECRET_KEY
 	policy := rs.GetPolicy {
@@ -233,9 +233,8 @@ func main() {
 <a name=rs-stat></a>
 #### 3.3.1 查看单个文件属性信息
 ```{go}
-import (
-	"github.com/qiniu/api/rs"
-)
+import "github.com/qiniu/api/rs"
+
 func main() {
 	// 配置 ACCESS_KEY 和 SECRET_KEY
 	rsClient := rs.New()
@@ -256,9 +255,8 @@ type Entry struct {
 <a name=rs-copy></a>
 #### 3.3.2 复制单个文件
 ```{go}
-import (
-	"github.com/qiniu/api/rs"
-)
+import "github.com/qiniu/api/rs"
+
 func main() {
 	// 配置 ACCESS_KEY 和 SECRET_KEY
 	rsClient := rs.New()
@@ -271,9 +269,8 @@ func main() {
 <a name=rs-move></a>
 #### 3.3.3 移动单个文件
 ```{go}
-import (
-	"github.com/qiniu/api/rs"
-)
+import "github.com/qiniu/api/rs"
+
 func main() {
 	// 配置 ACCESS_KEY 和 SECRET_KEY
 	rsClient := rs.New()
@@ -285,9 +282,8 @@ func main() {
 <a name=rs-delete></a>
 #### 3.3.4 删除单个文件
 ```{go}
-import (
-	"github.com/qiniu/api/rs"
-)
+import "github.com/qiniu/api/rs"
+
 func main() {
 	// 配置 ACCESS_KEY 和 SECRET_KEY
 	rsClient := rs.New()
@@ -301,9 +297,8 @@ func main() {
 <a name=batch-stat></a>
 ##### 3.3.5.1 批量获取文件属性信息
 ```{go}
-import (
-	"github.com/qiniu/api/rs"
-)
+import "github.com/qiniu/api/rs"
+
 func main() {
 	// 配置 ACCESS_KEY 和 SECRET_KEY
 	rsClient = rs.New()
@@ -332,9 +327,8 @@ type BatchStatResult struct {
 <a name=batch-copy></a>
 ##### 3.3.5.2 批量复制文件
 ```{go}
-import (
-	"github.com/qiniu/api/rs"
-)
+import "github.com/qiniu/api/rs"
+
 func main() {
 	// 配置 ACCESS_KEY 和 SECRET_KEY
 	rsClient = rs.New()
@@ -376,9 +370,8 @@ type BatchItemRet struct {
 <a name=batch-move></a>
 ##### 3.3.5.3 批量移动文件
 ```{go}
-import (
-	"github.com/qiniu/api/rs"
-)
+import "github.com/qiniu/api/rs"
+
 func main() {
 	// 配置 ACCESS_KEY 和 SECRET_KEY
 	rsClient = rs.New()
@@ -412,9 +405,8 @@ func main() {
 <a name=batch-delete></a>
 ##### 3.3.5.4 批量删除文件
 ```{go}
-import (
-	"github.com/qiniu/api/rs"
-)
+import "github.com/qiniu/api/rs"
+
 func main() {
 	// 配置 ACCESS_KEY 和 SECRET_KEY
 	rsClient = rs.New()
@@ -436,9 +428,8 @@ func main() {
 ##### 3.3.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
 ```{go}
-import (
-	"github.com/qiniu/api/rs"
-)
+import "github.com/qiniu/api/rs"
+
 func main() {
 	ops := []string {
 		rs.URICopy(bucket, key1, bucket, key2), // 复制key1到key2
@@ -461,9 +452,8 @@ func main() {
 <a name=fop-image-info></a>
 #### 3.4.1.1 查看图像属性
 ```{go}
-import (
-	"github.com/qiniu/api/fop"
-)
+import "github.com/qiniu/api/fop"
+
 func main() {
 	imageUrl := "http://domain/key"
 	ii := fop.ImageInfo{}
@@ -483,9 +473,8 @@ type ImageInfoRet struct {
 <a name=fop-exif></a>
 #### 3.4.1.2 查看图片EXIF信息
 ```{go}
-import (
-	"github.com/qiniu/api/fop"
-)
+import "github.com/qiniu/api/fop"
+
 func main() {
 	imageUrl := "http://domain/key"
 	exif := fop.Exif{}
@@ -504,9 +493,8 @@ type ExifRet map[string] ExifValType
 <a name=fop-image-view></a>
 #### 3.4.1.3 生成图片预览
 ```{go}
-import (
-	"github.com/qiniu/api/fop"
-)
+import "github.com/qiniu/api/fop"
+
 func main() {
 	imageUrl := "http://domain/key"
 	iv := fop.ImageView{
