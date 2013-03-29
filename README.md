@@ -165,7 +165,7 @@ func main() {
 	}
 	key := "fileKey"
 	
-	ret, err := io.Put(logger, ret, uploadToken, key, f, extra) // PutRet, error
+	err := io.Put(logger, ret, uploadToken, key, f, extra) // PutRet, error
 	if err != nil {
 		// 上传失败
 		return
