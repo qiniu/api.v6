@@ -21,13 +21,6 @@ func TestImageViewRequest(t *testing.T) {
 		return
 	}
 	
-	iv.Mode = 0
-	_, err = iv.MakeRequest("a")
-	if err == nil {
-		t.Error("could not catch error")
-		return
-	}
-	
 	iv.Mode = 2
 	iv.Height = 250
 	iv.Quality = 80
