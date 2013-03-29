@@ -27,6 +27,7 @@ func Put(l rpc.Logger, ret interface{},
 
 	url := UP_HOST + "/upload"
 	r, w := io.Pipe()
+	defer r.Close()
 	writer := multipart.NewWriter(w)
 	
 	go func() {
@@ -43,7 +44,7 @@ func Put(l rpc.Logger, ret interface{},
 		}
 		
 		// action
-		_, err = writer.CreateFormField("action")
+		writer_buf, err := writer.CreateFormField("action")
 		if err != nil {
 			return
 		}
@@ -54,7 +55,7 @@ func Put(l rpc.Logger, ret interface{},
 		if extra.CustomMeta != "" {
 			action += "/meta/" + encodeURI(extra.CustomMeta)
 		}
-		_, err = io.WriteString(w, action)
+		_, err = io.WriteString(writer_buf, action)
 		if err != nil {
 			return
 		}
@@ -68,11 +69,11 @@ func Put(l rpc.Logger, ret interface{},
 		}
 	
 		// file
-		_, err = writer.CreateFormFile("file", key)
+		writer_buf, err = writer.CreateFormFile("file", key)
 		if err != nil {
 			return
 		}
-		_, err = io.Copy(w, data)
+		_, err = io.Copy(writer_buf, data)
 	}()
 	
 	contentType := writer.FormDataContentType()
