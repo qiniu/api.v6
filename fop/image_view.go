@@ -1,11 +1,8 @@
 package fop
 
 import (
-	"bytes"
-	"errors"
+	"strconv"
 )
-
-// ----------------------------------------------------------
 
 type ImageView struct {
 	Mode int    // 缩略模式
@@ -15,35 +12,24 @@ type ImageView struct {
 	Format string  // 输出格式，如jpg, gif, png, tif等等
 }
 
-func (this ImageView) MakeRequest(url string) (reqUrl string, err error) {
-	buf := bytes.NewBuffer(make([]byte, 0, bytes.MinRead))
-	if this.Mode != 1 && this.Mode != 2 {
-		err = errors.New("mode only can be 1 or 2")
-		return
-	}
-	buf.WriteByte('/')
-	buf.Write(itoa(this.Mode))
+func (this ImageView) MakeRequest(url string) string {
+	url += "?imageView/" + strconv.Itoa(this.Mode)
 	
 	if this.Width > 0 {
-		buf.WriteString("/w/")
-		buf.Write(itoa(this.Width))
+		url += "/w/" + strconv.Itoa(this.Width)
 	}
 	
 	if this.Height > 0 {
-		buf.WriteString("/h/")
-		buf.Write(itoa(this.Height))
+		url += "/h/" + strconv.Itoa(this.Height)
 	}
 	
 	if this.Quality > 0 {
-		buf.WriteString("/q/")
-		buf.Write(itoa(this.Quality))
+		url += "/q/" + strconv.Itoa(this.Quality)
 	}
 	
 	if this.Format != "" {
-		buf.WriteString("/format/")
-		buf.WriteString(this.Format)
+		url += "/format/" + this.Format
 	}
 	
-	reqUrl = url + "?imageView" + string(buf.Bytes())
-	return
+	return url
 }
