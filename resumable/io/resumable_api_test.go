@@ -2,9 +2,7 @@ package io
 
 import (
 	"os"
-	"fmt"
 	"testing"
-	"sync"
 	"math/rand"
 	. "github.com/qiniu/api/conf"
 	"github.com/qiniu/api/rs"
@@ -43,7 +41,6 @@ func TestPut(t *testing.T) {
 
 	var mockerr bool
 	blockNotify := func (blkIdx int, blkSize int, ret *BlkputRet) {
-		fmt.Println(blkIdx, ret.Ctx)
 		if rand.Int()%3 == 0 && mockerr == false {
 			if ret.Ctx != "" {
 				ret.Ctx = ""
@@ -60,14 +57,8 @@ func TestPut(t *testing.T) {
 	}
 	defer rs.New().Delete(nil, bucket, testkey)
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		err := Put(nil, &ret, policy.Token(), testkey, f, fi.Size(), extra)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}()
-	wg.Wait()
+	err = Put(nil, &ret, policy.Token(), testkey, f, fi.Size(), extra)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
