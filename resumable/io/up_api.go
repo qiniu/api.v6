@@ -160,7 +160,7 @@ func Mkfile(
 		url += "/params/" + encodeURI(extra.CallbackParams)
 	}
 
-	buf := make([]byte, 176 * len(extra.Progresses), 0)
+	buf := make([]byte, 0, 176 * len(extra.Progresses))
 	for _, prog := range extra.Progresses {
 		buf = append(buf, prog.Ctx...)
 		buf = append(buf, ',')

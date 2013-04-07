@@ -18,10 +18,10 @@ const (
 )
 
 type Settings struct {
-    TaskQsize   int     // 可选。任务队列大小。为 0 表示取 Workers * 4。 
-    Workers     int     // 并行 Goroutine 数目。
-	ChunkSize	int		// 默认的Chunk大小，不设定则为256k
-	TryTimes	int		// 默认的尝试次数，不设定则为3
+	TaskQsize   int     // 可选。任务队列大小。为 0 表示取 Workers * 4。 
+	Workers     int     // 并行 Goroutine 数目。
+	ChunkSize   int		// 默认的Chunk大小，不设定则为256k
+	TryTimes    int		// 默认的尝试次数，不设定则为3
 }
 
 var settings = Settings{
@@ -60,7 +60,7 @@ func worker(tasks chan func()) {
 
 func initWorkers() {
 
-	tasks := make(chan func(), settings.TaskQsize)
+	tasks = make(chan func(), settings.TaskQsize)
 	for i := 0; i < settings.Workers; i++ {
 		go worker(tasks)
 	}
@@ -95,11 +95,11 @@ type PutExtra struct {
 	Bucket          string
 	CustomMeta      string  // 可选。用户自定义 Meta，不能超过 256 字节
 	MimeType        string  // 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
-	ChunkSize		int		// 可选。每次上传的Chunk大小
-	TryTimes		int		// 可选。尝试次数
-	Progresses		[]BlkputRet // 可选。上传进度
-	Notify			func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
-	NotifyErr		func(blkIdx int, blkSize int, err error)
+	ChunkSize	int	// 可选。每次上传的Chunk大小
+	TryTimes	int	// 可选。尝试次数
+	Progresses	[]BlkputRet // 可选。上传进度
+	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
+	NotifyErr	func(blkIdx int, blkSize int, err error)
 }
 
 type PutRet struct {
@@ -155,7 +155,8 @@ func Put(
 		task := func() {
 			defer wg.Done()
 			tryTimes := extra.TryTimes
-lzRetry:	err := ResumableBlockput(c, l, &extra.Progresses[i], f, blkIdx, blkSize1, extra)
+lzRetry:
+			err := ResumableBlockput(c, l, &extra.Progresses[blkIdx], f, blkIdx, blkSize1, extra)
 			if err != nil {
 				if tryTimes > 1 {
 					tryTimes--
