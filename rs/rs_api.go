@@ -55,7 +55,7 @@ func (rs Client) Copy(l rpc.Logger, bucketSrc, keySrc, bucketDest, keyDest strin
 // ----------------------------------------------------------
 
 func encodeURI(uri string) string {
-n	return base64.URLEncoding.EncodeToString([]byte(uri))
+	return base64.URLEncoding.EncodeToString([]byte(uri))
 }
 
 func URIDelete(bucket, key string) string {
