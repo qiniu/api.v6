@@ -54,23 +54,8 @@ func (rs Client) Copy(l rpc.Logger, bucketSrc, keySrc, bucketDest, keyDest strin
 
 // ----------------------------------------------------------
 
-func (rs Client) Mkbucket(l rpc.Logger, bucket string) (err error) {
-	return rs.Conn.Call(l, nil, RS_HOST+"/mkbucket/"+bucket)
-}
-
-func (rs Client) Drop(l rpc.Logger, bucket string) (err error) {
-	return rs.Conn.Call(l, nil, RS_HOST+"/drop/"+bucket)
-}
-
-func (rs Client) Buckets(l rpc.Logger) (buckets []string, err error) {
-	err = rs.Conn.Call(l, &buckets, RS_HOST+"/buckets")
-	return
-}
-
-// ----------------------------------------------------------
-
 func encodeURI(uri string) string {
-	return base64.URLEncoding.EncodeToString([]byte(uri))
+n	return base64.URLEncoding.EncodeToString([]byte(uri))
 }
 
 func URIDelete(bucket, key string) string {
