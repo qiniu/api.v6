@@ -44,8 +44,6 @@ Qiniu Resource (Cloud) Storage SDK for Golang
 ## 1. 安装
 在命令行下执行
 
-	go get github.com/qiniu/bytes
-	go get github.com/qiniu/rpc
 	go get github.com/qiniu/api
 
 <a name=setup></a>
