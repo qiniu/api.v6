@@ -19,44 +19,6 @@ func init() {
 	client = New()
 }
 
-func TestBucket(t *testing.T) {
-	newbucket := bucketName + "_bak"
-	err := client.Mkbucket(nil, newbucket)
-	if err != nil {
-		t.Fatal(err)
-	}
-	buckets, err := client.Buckets(nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	var found bool
-	for _, buk := range buckets {
-		if buk == newbucket {
-			found = true
-		}
-	}
-	if found == false {
-		t.Fatal("bucketName not found!")
-	}
-	err = client.Drop(nil, newbucket)
-	if err != nil {
-		t.Fatal(err)
-	}
-	buckets, err = client.Buckets(nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	found = false
-	for _, buk := range buckets {
-		if buk == newbucket {
-			found = true
-		}
-	}
-	if found == true {
-		t.Fatal("found???")
-	}
-}
-
 func TestBatch(t *testing.T) {
 	b, err := client.BatchStat(nil, []EntryPath{
 		{bucketName, key},
