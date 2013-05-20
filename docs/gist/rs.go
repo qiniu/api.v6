@@ -1,4 +1,4 @@
-package main
+package gist
 
 // @gist import
 import "github.com/qiniu/api/rs"

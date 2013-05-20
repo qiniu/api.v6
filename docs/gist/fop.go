@@ -1,14 +1,13 @@
-package main
+package gist
 // @gist import
 import "github.com/qiniu/api/fop"
 // @endgist
 import "github.com/qiniu/rpc"
 
-var logger rpc.Logger
-var bucketName = "<bucketName>"
-var key = "<key>"
 
-func main() {
+func fopDemo() {
+	var logger rpc.Logger
+	
 	// @gist imageurl
 	imageUrl := "http://domain/key"
 	// @endgist

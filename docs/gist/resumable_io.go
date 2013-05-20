@@ -1,4 +1,4 @@
-package main
+package gist
 
 // @gist import
 import resumable_io "github.com/qiniu/api/resumable/io"
@@ -8,11 +8,11 @@ import "github.com/qiniu/rpc"
 import "github.com/qiniu/api/rs"
 import "bytes"
 
-var logger rpc.Logger
-var bucketName = "<bucketName>"
-var key = "<key>"
-
-func main() {
+func resumableIoDemo() {
+	var logger rpc.Logger
+	var bucketName = "<bucketName>"
+	var key = "<key>"
+	
 	// @gist put_policy
 	putPolicy := rs.PutPolicy {
 		Scope: bucketName,

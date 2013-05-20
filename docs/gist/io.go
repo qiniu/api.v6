@@ -1,4 +1,4 @@
-package main
+package gist
 
 // @gist import
 import qiniu_io "github.com/qiniu/api/io"
@@ -9,11 +9,11 @@ import "github.com/qiniu/api/rs"
 import "bytes"
 import "github.com/qiniu/rpc"
 
-var logger rpc.Logger
-var bucketName = "<bucketName>"
-var key = "<key>"
 
-func main() {
+func ioDemo() {
+	var logger rpc.Logger
+	var bucketName = "<bucketName>"
+	
 	// @gist put_policy
 	putPolicy := rs.PutPolicy {
 		Scope: bucketName,
