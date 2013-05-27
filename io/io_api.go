@@ -87,17 +87,6 @@ func PutFile(l rpc.Logger, ret interface{}, uptoken, key string, localFile strin
 
 // ----------------------------------------------------------
 
-func GetUrl(domain string, key string, dntoken string) (downloadUrl string) {
-
-	url := domain + "/" + key
-	if dntoken == "" {
-		return url
-	}
-	return url + "?token=" + dntoken
-}
-
-// ----------------------------------------------------------
-
 func encodeURI(uri string) string {
 	return base64.URLEncoding.EncodeToString([]byte(uri))
 }
