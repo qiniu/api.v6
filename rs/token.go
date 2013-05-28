@@ -3,6 +3,7 @@ package rs
 import (
 	"time"
 	"strings"
+	"github.com/qiniu/api/url"
 	"github.com/qiniu/api/auth/digest"
 	. "github.com/qiniu/api/conf"
 )
@@ -29,6 +30,11 @@ func (r GetPolicy) MakeRequest(baseUrl string) (privateUrl string) {
 		return baseUrl + "&token=" + token
 	}
 	return baseUrl + "?token=" + token
+}
+
+func MakeBaseUrl(domain, key string) (baseUrl string) {
+
+	return "http://" + domain + "/" + url.Escape(key)
 }
 
 // --------------------------------------------------------------------------------
