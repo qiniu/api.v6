@@ -1,13 +1,12 @@
 package io
 
 import (
-	"testing"
 	"bytes"
 	"os"
 	"io"
-	"crypto/rand"
 	"fmt"
-
+	"testing"
+	"crypto/rand"
 	"github.com/qiniu/api/rs"
 	. "github.com/qiniu/api/conf"
 )
@@ -53,12 +52,3 @@ func TestPut(t *testing.T) {
 	}
 }
 
-func TestGetUrl(t *testing.T) {
-	domain := "http://cheneya.qiniudn.com"
-	key := "hello_jpg"
-	dntoken := "<dnToken>"
-	downloadUrl := GetUrl(domain, key, dntoken)
-	if downloadUrl != "http://cheneya.qiniudn.com/hello_jpg?token=<dnToken>" {
-		t.Error("result not match")
-	}
-}

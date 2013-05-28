@@ -2,6 +2,8 @@ package rs
 
 import (
 	"time"
+	"strings"
+	"github.com/qiniu/api/url"
 	"github.com/qiniu/api/auth/digest"
 	. "github.com/qiniu/api/conf"
 )
@@ -13,7 +15,7 @@ type GetPolicy struct {
 	Expires		uint32 `json:"E"`
 }
 
-func (r GetPolicy) Token() string {
+func (r GetPolicy) token() string {
 	if r.Expires == 0 {
 		r.Expires = 3600
 	}
@@ -21,20 +23,34 @@ func (r GetPolicy) Token() string {
 	return digest.SignJson(ACCESS_KEY, []byte(SECRET_KEY), &r)
 }
 
-// ----------------------------------------------------------
+func (r GetPolicy) MakeRequest(baseUrl string) (privateUrl string) {
+
+	token := r.token()
+	if strings.Contains(baseUrl, "?") {
+		return baseUrl + "&token=" + token
+	}
+	return baseUrl + "?token=" + token
+}
+
+func MakeBaseUrl(domain, key string) (baseUrl string) {
+
+	return "http://" + domain + "/" + url.Escape(key)
+}
+
+// --------------------------------------------------------------------------------
 
 type PutPolicy struct {
 	Scope            string `json:"scope,omitempty"`
 	CallbackUrl      string `json:"callbackUrl,omitempty"`
-	CallbackBodyType string `json:"callbackBodyType,omitempty"`
-	Customer         string `json:"customer,omitempty"`
+	CallbackBody     string `json:"callbackBody,omitempty"`
+	ReturnUrl        string `json:"returnUrl,omitempty"`
+	ReturnBody       string `json:"returnBody,omitempty"`
 	AsyncOps         string `json:"asyncOps,omitempty"`
+	EndUser          string `json:"endUser,omitempty"`
 	Expires          uint32 `json:"deadline"` 			// 截止时间（以秒为单位）
-	Escape           uint16 `json:"escape,omitempty"`	// 是否允许存在转义符号
-	DetectMime       uint16	`json:"detectMime,omitempty"`
 }
 
-func (r PutPolicy) Token() string {
+func (r *PutPolicy) Token() string {
 	if r.Expires == 0 {
 		r.Expires = 3600
 	}
