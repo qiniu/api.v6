@@ -230,18 +230,7 @@ func main() {
 
 <a name=make-downtoken></a>
 #### 4.1.2 下载授权downtoken
-downtoken的原理同上，用来生成downtoken的GetPolicy
-
-```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-	@gist(gist/rs.go#get_policy)
-}
-```
-参阅 `rs.GetPolicy`
+当想要下载私密bucket的资源时，需要提供download token，在SDK中，将不对外提供直接获取Token的接口，具体可以参照[4.3.2 私有资源下载](#private-download)
 
 <a name=upload></a>
 ### 4.2 文件上传
@@ -331,27 +320,6 @@ func main() {
 	[GET] http://<domain>/<key>
 
 其中<domain>可以到[七牛云存储开发者自助网站](https://dev.qiniutek.com/buckets)绑定, 域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
-
-<a name=private-download></a>
-#### 4.3.2 私有资源下载
-私有资源必须通过临时下载授权凭证(downloadToken)下载，如下：
-
-	[GET] http://<domain>/<key>?token=<downloadToken>
-
-注意，尖括号不是必需，代表替换项。  
-`downloadToken` 可以使用 SDK 提供的如下方法生成：
-
-```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-@gist(gist/io.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-	@gist(gist/io.go#download)
-}
-```
-参阅: `rs.GetPolicy`, `io.GetUrl`
 
 <a name=fop-api></a>
 ## 5. 数据处理接口
