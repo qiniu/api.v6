@@ -1,4 +1,4 @@
-Qiniu Resource (Cloud) Storage SDK for Golang
+Qiniu Resource Storage SDK for Golang
 ===
 
 # Go SDK 使用指南
