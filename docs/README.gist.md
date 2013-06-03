@@ -234,14 +234,13 @@ func main() {
 ```{go}
 @gist(gist/conf.go#import)
 @gist(gist/rs.go#import)
-@gist(gist/io.go#import)
 
 func main() {
 	@gist(gist/conf.go#init)
 	@gist(gist/io.go#download)
 }
 ```
-参阅: `rs.GetPolicy`, `io.GetUrl`
+参阅: `rs.GetPolicy`, `rs.GetPolicy.MakeRequest`, `rs.MakeBaseUrl`
 
 <a name="rs-api"></a>
 ## 4. 资源管理接口
