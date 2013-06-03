@@ -94,7 +94,7 @@ func main() {
 
 <a name=make-downtoken></a>
 #### 3.1.2 下载授权downtoken
-当想要下载私密bucket的资源时，需要提供download token，在SDK中，将不对外提供直接获取Token的接口，具体可以参照[4.3.2 私有资源下载](#private-download)
+当想要下载私密bucket的资源时，需要提供download token，在SDK中，将不对外提供直接获取Token的接口，具体可以参照[私有资源下载](#private-download)
 
 <a name=upload></a>
 ### 3.2 文件上传
@@ -209,6 +209,32 @@ func main() {
 	[GET] http://<domain>/<key>
 
 其中<domain>可以到[七牛云存储开发者自助网站](https://dev.qiniutek.com/buckets)绑定, 域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
+
+<a name=private-download></a>
+#### 3.3.2 私有资源下载
+私有资源必须通过临时下载授权凭证(downloadToken)下载，如下：
+
+	[GET] http://<domain>/<key>?token=<downloadToken>
+
+注意，尖括号不是必需，代表替换项。  
+`downloadToken` 可以使用 SDK 提供的如下方法生成：
+
+```{go}
+import ."github.com/qiniu/api/conf"
+import "github.com/qiniu/api/rs"
+import qiniu_io "github.com/qiniu/api/io"
+
+func main() {
+	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
+	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
+	policy := rs.GetPolicy {
+		Scope: "<bucketName>",
+	}
+	// 生成下载连接, sourceUrl 为资源原有下载链接
+	downloadUrl := policy.MakeRequest(rs.MakeBaseUrl("<domain>", "<key>"))
+}
+```
+参阅: `rs.GetPolicy`, `io.GetUrl`
 
 <a name=rs-api></a>
 ## 4. 资源管理接口
