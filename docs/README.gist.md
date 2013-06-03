@@ -11,6 +11,14 @@ title: Go SDK 使用指南 | 七牛云存储
 - [安装](#install)
 - [初始化](#setup)
 	- [配置密钥](#setup-key)
+- [上传下载接口](#get-and-put-api)
+	- [上传流程](#io-put-flow)
+	- [生成上传授权uptoken](#make-uptoken)
+	- [上传代码](#upload-code)
+	- [断点续上传、分块并行上传](#resumable-io-put)
+	- [上传策略](#io-put-policy)
+	- [公有资源下载](#public-download)
+	- [私有资源下载](#private-download)
 - [资源管理接口](#rs-api)
 	- [查看单个文件属性信息](#rs-stat)
 	- [复制单个文件](#rs-copy)
@@ -21,16 +29,6 @@ title: Go SDK 使用指南 | 七牛云存储
 		- [批量复制文件](#batch-copy)
 		- [批量移动文件](#batch-move)
 		- [批量删除文件](#batch-delete)
-- [上传下载接口](#get-and-put-api)
-	- [上传下载授权](#token)
-		- [生成uptoken](#make-uptoken)
-		- [生成downtoken](#make-downtoken)
-	- [文件上传](#upload)
-		- [普通上传](#io-upload)
-		- [断点续上传](#resumable-io-upload)
-	- [文件下载](#io-download)
-		- [公有资源下载](#public-download)
-		- [私有资源下载](#private-download)
 - [数据处理接口](#fop-api)
 	- [图像](#fop-image)
 		- [查看图像属性](#fop-image-info)
@@ -41,15 +39,15 @@ title: Go SDK 使用指南 | 七牛云存储
 
 ----
 
-<a name=install></a>
+<a name="install"></a>
 ## 1. 安装
 在命令行下执行
 
 	go get github.com/qiniu/api
 
-<a name=setup></a>
+<a name="setup"></a>
 ## 2. 初始化
-<a name=setup-key></a>
+<a name="setup-key"></a>
 ### 2.1 配置密钥
 
 要接入七牛云存储，您需要拥有一对有效的 Access Key 和 Secret Key 用来进行签名认证。可以通过如下步骤获得：
@@ -67,7 +65,7 @@ func main() {
 }
 ```
 
-<a name=get-and-put-api></a>
+<a name="get-and-put-api"></a>
 ## 3. 上传下载接口
 
 为了尽可能地改善终端用户的上传体验，七牛云存储首创了客户端直传功能。一般云存储的上传流程是：
@@ -82,6 +80,8 @@ func main() {
 
 **注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](/v3/tools/qrsync/) 上传工具。
 文件上传有两种方式，一种是以普通方式直传文件，简称普通上传，另一种方式是断点续上传，断点续上传在网络条件很一般的情况下也能有出色的上传速度，而且对大文件的传输非常友好。
+
+
 
 <a name="io-put-flow"></a>
 ### 3.1 上传流程
@@ -100,6 +100,9 @@ func main() {
 2. 凭借 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 上传文件到七牛
 3. 善后工作，比如保存相关的一些信息
 
+
+
+<a name="make-uptoken"></a>
 ### 3.2 生成上传授权uptoken
 uptoken是一个字符串，作为http协议Header的一部分（Authorization字段）发送到我们七牛的服务端，表示这个http请求是经过认证的。
 
@@ -114,6 +117,7 @@ func main() {
 ```
 参阅 `rs.PutPolicy`
 
+<a name="upload-code"></a>
 ### 3.3 上传代码
 直接上传二进制流
 ```{go}
@@ -147,9 +151,7 @@ func main() {
 }
 ```
 
-
 <a name="resumable-io-put"></a>
-
 ### 3.4 断点续上传、分块并行上传
 
 除了基本的上传外，七牛还支持你将文件切成若干块（除最后一块外，每个块固定为4M大小），每个块可独立上传，互不干扰；每个分块块内则能够做到断点上续传。
@@ -190,7 +192,6 @@ func main() {
 
 但实际上 `resumable.io.PutExtra` 多了不少配置项，其中最重要的是两个回调函数：`Notify` 与 `NotifyErr`，它们用来通知使用者有更多的数据被传输成功，或者有些数据传输失败。在 `Notify` 回调函数中，比较常见的做法是将传输的状态进行持久化，以便于在软件退出后下次再进来还可以继续进行断点续上传。但不传入 `Notify` 回调函数并不表示不能断点续上传，只要程序没有退出，上传失败自动进行续传和重试操作。
 
-
 <a name="io-put-policy"></a>
 ### 3.5 上传策略
 
@@ -206,38 +207,23 @@ func main() {
 
 关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
 
-<a name=make-downtoken></a>
-#### 3.1.2 下载授权downtoken
-当想要下载私密bucket的资源时，需要提供download token，在SDK中，将不对外提供直接获取Token的接口，具体可以参照[私有资源下载](#private-download)
-
-<a name=upload></a>
-### 3.2 文件上传
-
-<a name=io-upload></a>
-### 3.2.1 普通上传
-普通上传的接口在 `github.com/qiniu/api/io` 里，如下：
-
-
-<a name=resumable-io-upload></a>
-### 3.2.2 断点续上传
-<a name=io-download></a>
-### 3.3 文件下载
+### 3.6 文件下载
 七牛云存储上的资源下载分为 公有资源下载 和 私有资源下载 。
 
 私有（private）是 Bucket（空间）的一个属性，一个私有 Bucket 中的资源为私有资源，私有资源不可匿名下载。
 
 新创建的空间（Bucket）缺省为私有，也可以将某个 Bucket 设为公有，公有 Bucket 中的资源为公有资源，公有资源可以匿名下载。
 
-<a name=public-download></a>
-#### 3.3.1 公有资源下载
+<a name="public-download"></a>
+### 3.7 公有资源下载
 如果在给bucket绑定了域名的话，可以通过以下地址访问。
 
 	[GET] http://<domain>/<key>
 
 其中<domain>可以到[七牛云存储开发者自助网站](https://dev.qiniutek.com/buckets)绑定, 域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
 
-<a name=private-download></a>
-#### 3.3.2 私有资源下载
+<a name="private-download"></a>
+#### 3.8 私有资源下载
 私有资源必须通过临时下载授权凭证(downloadToken)下载，如下：
 
 	[GET] http://<domain>/<key>?token=<downloadToken>
@@ -257,13 +243,13 @@ func main() {
 ```
 参阅: `rs.GetPolicy`, `io.GetUrl`
 
-<a name=rs-api></a>
+<a name="rs-api"></a>
 ## 4. 资源管理接口
 
-文件管理包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。
+文件管理包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
 该节调用的函数第一个参数都为 `logger`, 用于记录log, 如果无需求, 可以设置为nil. 具体接口可以查阅 `github.com/qiniu/rpc`
 
-<a name=rs-stat></a>
+<a name="rs-stat"></a>
 ### 4.1 查看单个文件属性信息
 ```{go}
 @gist(gist/conf.go#import)
@@ -277,7 +263,7 @@ func main() {
 参阅: `rs.Entry`, `rs.Client.Stat`
 
 
-<a name=rs-copy></a>
+<a name="rs-copy"></a>
 ### 4.2 复制单个文件
 ```{go}
 @gist(gist/conf.go#import)
@@ -291,7 +277,7 @@ func main() {
 ```
 参阅: `rs.Client.Copy`
 
-<a name=rs-move></a>
+<a name="rs-move"></a>
 ### 4.3 移动单个文件
 ```{go}
 @gist(gist/conf.go#import)
@@ -305,7 +291,7 @@ func main() {
 ```
 参阅: `rs.Client.Move`
 
-<a name=rs-delete></a>
+<a name="rs-delete"></a>
 ### 4.4 删除单个文件
 ```{go}
 @gist(gist/conf.go#import)
@@ -319,10 +305,10 @@ func main() {
 ```
 参阅: `rs.Client.Delete`
 
-<a name=batch></a>
+<a name="batch"></a>
 ### 4.5 批量操作
 当您需要一次性进行多个操作时, 可以使用批量操作.
-<a name=batch-stat></a>
+<a name="batch-stat"></a>
 #### 4.5.1 批量获取文件属性信息
 ```{go}
 @gist(gist/conf.go#import)
@@ -338,7 +324,7 @@ func main() {
 
 参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
 
-<a name=batch-copy></a>
+<a name="batch-copy"></a>
 #### 4.5.2 批量复制文件
 ```{go}
 @gist(gist/conf.go#import)
@@ -354,7 +340,7 @@ func main() {
 
 参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
 
-<a name=batch-move></a>
+<a name="batch-move"></a>
 #### 4.5.3 批量移动文件
 ```{go}
 @gist(gist/conf.go#import)
@@ -369,7 +355,7 @@ func main() {
 ```
 参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
-<a name=batch-delete></a>
+<a name="batch-delete"></a>
 #### 4.5.4 批量删除文件
 ```{go}
 @gist(gist/conf.go#import)
@@ -384,7 +370,7 @@ func main() {
 ```
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
-<a name=batch-advanced></a>
+<a name="batch-advanced"></a>
 #### 4.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
 ```{go}
@@ -399,13 +385,13 @@ func main() {
 ```
 参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
-<a name=fop-api></a>
+<a name="fop-api"></a>
 ## 5. 数据处理接口
 七牛支持在云端对图像, 视频, 音频等富媒体进行个性化处理
 
-<a name=fop-image></a>
+<a name="fop-image"></a>
 ### 5.1 图像
-<a name=fop-image-info></a>
+<a name="fop-image-info"></a>
 ### 5.1.1 查看图像属性
 ```{go}
 @gist(gist/conf.go#import)
@@ -418,7 +404,7 @@ func main() {
 ```
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
-<a name=fop-exif></a>
+<a name="fop-exif"></a>
 ### 5.1.2 查看图片EXIF信息
 ```{go}
 @gist(gist/conf.go#import)
@@ -431,7 +417,7 @@ func main() {
 ```
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
-<a name=fop-image-view></a>
+<a name="fop-image-view"></a>
 ### 5.1.3 生成图片预览
 ```{go}
 @gist(gist/conf.go#import)
@@ -444,7 +430,7 @@ func main() {
 ```
 参阅: `fop.ImageView`
 
-<a name=contribution></a>
+<a name="contribution"></a>
 ## 6. 贡献代码
 
 1. Fork
@@ -453,7 +439,7 @@ func main() {
 4. 将您的修改记录提交到远程 `git` 仓库 (`git push origin my-new-feature`)
 5. 然后到 github 网站的该 `git` 远程仓库的 `my-new-feature` 分支下发起 Pull Request
 
-<a name=license></a>
+<a name="license"></a>
 ## 7. 许可证
 
 Copyright (c) 2013 qiniu.com
