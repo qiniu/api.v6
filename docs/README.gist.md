@@ -70,6 +70,19 @@ func main() {
 <a name=get-and-put-api></a>
 ## 3. 上传下载接口
 
+为了尽可能地改善终端用户的上传体验，七牛云存储首创了客户端直传功能。一般云存储的上传流程是：
+
+    客户端（终端用户） => 业务服务器 => 云存储服务
+
+这样多了一次上传的流程，和本地存储相比，会相对慢一些。但七牛引入了客户端直传，将整个上传过程调整为：
+
+    客户端（终端用户） => 七牛 => 业务服务器
+
+客户端（终端用户）直接上传到七牛的服务器，通过DNS智能解析，七牛会选择到离终端用户最近的ISP服务商节点，速度会比本地存储快很多。文件上传成功以后，七牛的服务器使用回调功能，只需要将非常少的数据（比如Key）传给应用服务器，应用服务器进行保存即可。
+
+**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](/v3/tools/qrsync/) 上传工具。
+文件上传有两种方式，一种是以普通方式直传文件，简称普通上传，另一种方式是断点续上传，断点续上传在网络条件很一般的情况下也能有出色的上传速度，而且对大文件的传输非常友好。
+
 <a name="io-put-flow"></a>
 ### 3.1 上传流程
 
@@ -135,22 +148,6 @@ func main() {
 ```
 
 
-<a name="io-put-policy"></a>
-
-### 3.3 上传策略
-
-[uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 实际上是用 AccessKey/SecretKey 进行数字签名的上传策略(`rs.PutPolicy`)，它控制则整个上传流程的行为。让我们快速过一遍你都能够决策啥：
-
-* `expires` 指定 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 有效期（默认1小时）。一个 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 可以被用于多次上传（只要它还没有过期）。
-* `scope` 限定客户端的权限。如果 `scope` 是 bucket，则客户端只能新增文件到指定的 bucket，不能修改文件。如果 `scope` 为 bucket:key，则客户端可以修改指定的文件。
-* `callbackUrl` 设定业务服务器的回调地址，这样业务服务器才能感知到上传行为的发生。可选。
-* `asyncOps` 可指定上传完成后，需要自动执行哪些数据处理。这是因为有些数据处理操作（比如音视频转码）比较慢，如果不进行预转可能第一次访问的时候效果不理想，预转可以很大程度改善这一点。
-* `returnBody` 可调整返回给客户端的数据包（默认情况下七牛返回文件内容的 `hash`，也就是下载该文件时的 `etag`）。这只在没有 `callbackUrl` 时有效。
-* `escape` 为真（非0）时，表示客户端传入的 `callbackParams` 中含有转义符。通过这个特性，可以很方便地把上传文件的某些元信息如 `fsize`（文件大小）、`imageInfo.width/height`（图片宽度/高度）、`exif`（图片EXIF信息）等传给业务服务器。
-* `detectMime` 为真（非0）时，表示服务端忽略客户端传入的 `mimeType`，自己自行检测。
-
-关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
-
 <a name="resumable-io-put"></a>
 
 ### 3.4 断点续上传、分块并行上传
@@ -193,25 +190,28 @@ func main() {
 
 但实际上 `resumable.io.PutExtra` 多了不少配置项，其中最重要的是两个回调函数：`Notify` 与 `NotifyErr`，它们用来通知使用者有更多的数据被传输成功，或者有些数据传输失败。在 `Notify` 回调函数中，比较常见的做法是将传输的状态进行持久化，以便于在软件退出后下次再进来还可以继续进行断点续上传。但不传入 `Notify` 回调函数并不表示不能断点续上传，只要程序没有退出，上传失败自动进行续传和重试操作。
 
+
+<a name="io-put-policy"></a>
+### 3.5 上传策略
+
+[uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 实际上是用 AccessKey/SecretKey 进行数字签名的上传策略(`rs.PutPolicy`)，它控制则整个上传流程的行为。让我们快速过一遍你都能够决策啥：
+
+* `Expires` 指定 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 有效期（默认1小时）。一个 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 可以被用于多次上传（只要它还没有过期）。
+* `Scope` 限定客户端的权限。如果 `scope` 是 bucket，则客户端只能新增文件到指定的 bucket，不能修改文件。如果 `scope` 为 bucket:key，则客户端可以修改指定的文件。
+* `CallbackUrl` 设定业务服务器的回调地址，这样业务服务器才能感知到上传行为的发生。可选。
+* `AsyncOps` 可指定上传完成后，需要自动执行哪些数据处理。这是因为有些数据处理操作（比如音视频转码）比较慢，如果不进行预转可能第一次访问的时候效果不理想，预转可以很大程度改善这一点。
+* `ReturnBody` 可调整返回给客户端的数据包（默认情况下七牛返回文件内容的 `hash`，也就是下载该文件时的 `etag`）。这只在没有 `CallbackUrl` 时有效。
+* `Escape` 为真（非0）时，表示客户端传入的 `CallbackParams` 中含有转义符。通过这个特性，可以很方便地把上传文件的某些元信息如 `fsize`（文件大小）、`ImageInfo.width/height`（图片宽度/高度）、`exif`（图片EXIF信息）等传给业务服务器。
+* `DetectMime` 为真（非0）时，表示服务端忽略客户端传入的 `MimeType`，自己自行检测。
+
+关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
+
 <a name=make-downtoken></a>
 #### 3.1.2 下载授权downtoken
 当想要下载私密bucket的资源时，需要提供download token，在SDK中，将不对外提供直接获取Token的接口，具体可以参照[私有资源下载](#private-download)
 
 <a name=upload></a>
 ### 3.2 文件上传
-
-为了尽可能地改善终端用户的上传体验，七牛云存储首创了客户端直传功能。一般云存储的上传流程是：
-
-    客户端（终端用户） => 业务服务器 => 云存储服务
-
-这样多了一次上传的流程，和本地存储相比，会相对慢一些。但七牛引入了客户端直传，将整个上传过程调整为：
-
-    客户端（终端用户） => 七牛 => 业务服务器
-
-客户端（终端用户）直接上传到七牛的服务器，通过DNS智能解析，七牛会选择到离终端用户最近的ISP服务商节点，速度会比本地存储快很多。文件上传成功以后，七牛的服务器使用回调功能，只需要将非常少的数据（比如Key）传给应用服务器，应用服务器进行保存即可。
-
-**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](/v3/tools/qrsync/) 上传工具。
-文件上传有两种方式，一种是以普通方式直传文件，简称普通上传，另一种方式是断点续上传，断点续上传在网络条件很一般的情况下也能有出色的上传速度，而且对大文件的传输非常友好。
 
 <a name=io-upload></a>
 ### 3.2.1 普通上传
