@@ -42,13 +42,13 @@ func ioDemo() {
 }
 
 func download() {
-	// @gist download
-	policy := rs.GetPolicy {
-		Scope: "<bucketName>",
-	}
-	// 生成下载连接, sourceUrl 为资源原有下载链接
-	downloadUrl := policy.MakeRequest(rs.MakeBaseUrl("<domain>", "<key>"))
-	// @endgist
-	
-	_ = downloadUrl
+        // @gist download
+        policy := rs.GetPolicy {
+                Scope: "<bucketName>",
+        }
+        // 生成下载连接, sourceUrl 为资源原有下载链接
+        downloadUrl := policy.MakeRequest(rs.MakeBaseUrl("<domain>", "<key>"))
+        // @endgist
+
+        _ = downloadUrl
 }
