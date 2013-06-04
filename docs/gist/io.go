@@ -44,10 +44,10 @@ func ioDemo() {
 func download() {
 	// @gist download
 	policy := rs.GetPolicy {
-		Scope: "<bucketName>",
+	        Scope: "<bucketName>",
 	}
 	// 生成下载连接, sourceUrl 为资源原有下载链接
-	downloadUrl := qiniu_io.GetUrl("<domain>", "<key>", policy.Token())
+	downloadUrl := policy.MakeRequest(rs.MakeBaseUrl("<domain>", "<key>"))
 	// @endgist
 	
 	_ = downloadUrl
