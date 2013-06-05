@@ -23,3 +23,6 @@ _testmain.go
 
 # Mac
 .DS_Store
+
+# for vim
+*.swp

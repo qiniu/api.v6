@@ -122,13 +122,6 @@ func token() {
 	}
 	putPolicy.Token() // UpToken
 	// @endgist
-	
-	// @gist get_policy
-	getPolicy := rs.GetPolicy {
-		Scope: bucketName,
-	}
-	getPolicy.Token() // DnToken
-	// @endgist
 }
 
 
