@@ -1,15 +1,18 @@
 package rs
 
 import (
-	. "github.com/qiniu/api/conf"
 	"os"
+	"fmt"
 	"testing"
+	"net/http"
+	. "github.com/qiniu/api/conf"
 )
 
 var key = "aa"
 var newkey1 = "bbbb"
 var newkey2 = "cccc"
 var bucketName = "a"
+var domain = "aatest.qiniudn.com"
 var client Client
 
 func init() {
@@ -19,6 +22,27 @@ func init() {
 		panic("require ACCESS_KEY & SECRET_KEY")
 	}
 	client = New(nil)
+}
+
+func TestGetPrivateUrl(t *testing.T) {
+
+	baseUrl := MakeBaseUrl(domain, key)
+
+	policy := GetPolicy{}
+	privateUrl := policy.MakeRequest(baseUrl, nil)
+	fmt.Println("privateUrl:", privateUrl)
+
+	resp, err := http.Get(privateUrl)
+	if err != nil {
+		t.Fatal("http.Get failed:", err)
+	}
+	defer resp.Body.Close()
+
+	etag := resp.Header.Get("Etag")
+	fmt.Println("Etag:", etag)
+	if etag != "\"FsqT8gw5b4TDw_eD5UTXip9VMCQy\"" {
+		t.Fatal("http.Get etag failed:", etag)
+	}
 }
 
 func TestEntry(t *testing.T) {
