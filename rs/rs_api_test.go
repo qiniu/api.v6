@@ -3,7 +3,10 @@ package rs
 import (
 	"os"
 	"fmt"
+	"io"
 	"testing"
+	"crypto/sha1"
+	"encoding/base64"
 	"net/http"
 	. "github.com/qiniu/api/conf"
 )
@@ -38,10 +41,13 @@ func TestGetPrivateUrl(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
+	h := sha1.New()
+	io.Copy(h, resp.Body)
+	etagExpected := base64.URLEncoding.EncodeToString(h.Sum([]byte{'\x16'}))
+
 	etag := resp.Header.Get("Etag")
-	fmt.Println("Etag:", etag)
-	if etag != "\"FsqT8gw5b4TDw_eD5UTXip9VMCQy\"" {
-		t.Fatal("http.Get etag failed:", etag)
+	if etag[1:len(etag)-1] != etagExpected {
+		t.Fatal("http.Get etag failed:", etag, etagExpected)
 	}
 }
 
