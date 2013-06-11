@@ -32,8 +32,8 @@ func ioDemo() {
 	uptoken := putPolicy.Token(nil)
 	putErr := io.Put(logger, &ret, uptoken, "<key>", buf, extra)
 	// @endgist
-
-{	// @gist put_file
+{
+	// @gist put_file
 	localFile := "<path/to/file>"
 	uptoken := putPolicy.Token(nil)
 	putFileErr := io.PutFile(logger, &ret, uptoken, "<key>", localFile, extra)

@@ -117,7 +117,7 @@ func main() {
 	putPolicy := rs.PutPolicy {
 		Scope: bucketName,
 	}
-	putPolicy.Token() // UpToken
+	uptoken := putPolicy.Token(nil)
 }
 ```
 参阅 `rs.PutPolicy`
@@ -128,7 +128,7 @@ func main() {
 ```{go}
 import ."github.com/qiniu/api/conf"
 import "github.com/qiniu/api/rs"
-import qiniu_io "github.com/qiniu/api/io"
+import "github.com/qiniu/api/io"
 
 func main() {
 	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
@@ -137,12 +137,13 @@ func main() {
 	putPolicy := rs.PutPolicy {
 		Scope: bucketName,
 	}
-	extra := &qiniu_io.PutExtra {
+	extra := &io.PutExtra {
 		Bucket: bucketName,
 	}
 
 	buf := bytes.NewBufferString("data")
-	putErr := qiniu_io.Put(logger, &ret, putPolicy.Token(), "<key>", buf, extra)
+	uptoken := putPolicy.Token(nil)
+	putErr := io.Put(logger, &ret, uptoken, "<key>", buf, extra)
 }
 ```
 
@@ -150,7 +151,7 @@ func main() {
 ```{go}
 import ."github.com/qiniu/api/conf"
 import "github.com/qiniu/api/rs"
-import qiniu_io "github.com/qiniu/api/io"
+import "github.com/qiniu/api/io"
 
 func main() {
 	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
@@ -159,12 +160,13 @@ func main() {
 	putPolicy := rs.PutPolicy {
 		Scope: bucketName,
 	}
-	extra := &qiniu_io.PutExtra {
+	extra := &io.PutExtra {
 		Bucket: bucketName,
 	}
 
 	localFile := "<path/to/file>"
-	putFileErr := qiniu_io.PutFile(logger, &ret, putPolicy.Token(), "<key>", localFile, extra)
+	uptoken := putPolicy.Token(nil)
+	putFileErr := io.PutFile(logger, &ret, uptoken, "<key>", localFile, extra)
 }
 ```
 
@@ -179,7 +181,7 @@ func main() {
 ```{go}
 import ."github.com/qiniu/api/conf"
 import "github.com/qiniu/api/rs"
-import resumable_io "github.com/qiniu/api/resumable/io"
+import "github.com/qiniu/api/resumable/io"
 
 func main() {
 	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
@@ -187,12 +189,13 @@ func main() {
 	putPolicy := rs.PutPolicy {
 		Scope: bucketName,
 	}
-	extra := &resumable_io.PutExtra {
+	extra := &io.PutExtra {
 		Bucket: bucketName,
 	}
 	buf := bytes.NewReader([]byte("data"))
-	var fsize int64 = 4
-	putErr := resumable_io.Put(logger, &ret, putPolicy.Token(), key, buf, fsize, extra)
+	fsize := int64(buf.Len())
+	uptoken := putPolicy.Token(nil)
+	putErr := io.Put(logger, &ret, uptoken, key, buf, fsize, extra)
 }
 ```
 参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
@@ -201,7 +204,7 @@ func main() {
 ```{go}
 import ."github.com/qiniu/api/conf"
 import "github.com/qiniu/api/rs"
-import resumable_io "github.com/qiniu/api/resumable/io"
+import "github.com/qiniu/api/resumable/io"
 
 func main() {
 	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
@@ -209,11 +212,12 @@ func main() {
 	putPolicy := rs.PutPolicy {
 		Scope: bucketName,
 	}
-	extra := &resumable_io.PutExtra {
+	extra := &io.PutExtra {
 		Bucket: bucketName,
 	}
 	localFile := "<path/to/file>"
-	putFileErr := resumable_io.PutFile(logger, &ret, putPolicy.Token(), key, localFile, extra)
+	uptoken := putPolicy.Token(nil)
+	putFileErr := io.PutFile(logger, &ret, uptoken, key, localFile, extra)
 }
 ```
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
@@ -268,11 +272,9 @@ import "github.com/qiniu/api/rs"
 func main() {
 	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
 	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-	policy := rs.GetPolicy {
-	        Scope: "<bucketName>",
-	}
-	// 生成下载连接, sourceUrl 为资源原有下载链接
-	downloadUrl := policy.MakeRequest(rs.MakeBaseUrl("<domain>", "<key>"))
+	baseUrl := rs.MakeBaseUrl("<domain>", "<key>")
+	policy := rs.GetPolicy{}
+	downloadUrl := policy.MakeRequest(baseUrl, nil)
 }
 ```
 参阅: `rs.GetPolicy`, `rs.GetPolicy.MakeRequest`, `rs.MakeBaseUrl`
@@ -292,7 +294,7 @@ import "github.com/qiniu/api/rs"
 func main() {
 	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
 	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-	rs.New().Stat(logger, bucketName, key) // 返回: rs.Entry, error
+	rs.New(nil).Stat(logger, bucketName, key) // 返回: rs.Entry, error
 }
 ```
 参阅: `rs.Entry`, `rs.Client.Stat`
@@ -309,7 +311,7 @@ func main() {
 	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 
 	// 返回值 error, 操作成功时err为nil
-	rs.New().Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
+	rs.New(nil).Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
 }
 ```
 参阅: `rs.Client.Copy`
@@ -325,7 +327,7 @@ func main() {
 	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 
 	// 返回值 error, 操作成功时err为nil
-	rs.New().Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
+	rs.New(nil).Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
 }
 ```
 参阅: `rs.Client.Move`
@@ -340,7 +342,7 @@ func main() {
 	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
 	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 
-	rs.New().Delete(logger, bucketName, key) // 返回值 error, 操作成功时err为nil
+	rs.New(nil).Delete(logger, bucketName, key) // 返回值 error, 操作成功时err为nil
 }
 ```
 参阅: `rs.Client.Delete`
@@ -368,7 +370,7 @@ func main() {
 			Key: key2,
 		},
 	}
-	rs.New().BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
+	rs.New(nil).BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
 }
 ```
 
@@ -406,7 +408,7 @@ func main() {
 			},
 		},
 	}
-	rs.New().BatchCopy(logger, entryPairs) 
+	rs.New(nil).BatchCopy(logger, entryPairs)
 	// []rs.BatchResult, error
 }
 ```
@@ -445,7 +447,7 @@ func main() {
 			},
 		},
 	}
-	rs.New().BatchMove(logger, entryPairs)
+	rs.New(nil).BatchMove(logger, entryPairs)
 	// []rs.BatchResult, error
 }
 ```
@@ -471,7 +473,7 @@ func main() {
 			Key: key2,
 		},
 	}
-	rs.New().BatchDelete(logger, entryPathes)
+	rs.New(nil).BatchDelete(logger, entryPathes)
 	// []rs.BatchResult, error
 }
 ```
@@ -495,7 +497,7 @@ func main() {
 		rs.URIMove(bucketName, key2, bucketName, key1), //将key2移动到key1
 	}
 	rets := new([]rs.BatchItemRet)
-	rs.New().Batch(logger, rets, ops) // 执行操作, 返回error
+	rs.New(nil).Batch(logger, rets, ops) // 执行操作, 返回error
 }
 ```
 参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
