@@ -26,21 +26,21 @@ var keyDest = "<keyDest>"
 
 func main() {
 	// @gist stat
-	rs.New().Stat(logger, bucketName, key) // 返回: rs.Entry, error
+	rs.New(nil).Stat(logger, bucketName, key) // 返回: rs.Entry, error
 	// @endgist
-	
+
 	// @gist copy
 	// 返回值 error, 操作成功时err为nil
-	rs.New().Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
+	rs.New(nil).Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
 	// @endgist
-	
+
 	// @gist move
 	// 返回值 error, 操作成功时err为nil
-	rs.New().Move(logger, bucketSrc, keySrc, bucketDest, keyDest) 
+	rs.New(nil).Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
 	// @endgist
-	
+
 	// @gist delete
-	rs.New().Delete(logger, bucketName, key) // 返回值 error, 操作成功时err为nil
+	rs.New(nil).Delete(logger, bucketName, key) // 返回值 error, 操作成功时err为nil
 	// @endgist
 }
 
@@ -57,7 +57,7 @@ func batch() {
 		},
 	}
 	// @endgist
-	
+
 	// @gist entry_path_pairs
 	// 每个复制操作都含有源文件和目标文件
 	entryPairs := []rs.EntryPathPair {
@@ -82,27 +82,27 @@ func batch() {
 		},
 	}
 	// @endgist
-	
+
 	// @gist batch_stat
-	rs.New().BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
+	rs.New(nil).BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
 	// @endgist
-	
-	
+
+
 	// @gist batch_copy
-	rs.New().BatchCopy(logger, entryPairs) 
+	rs.New(nil).BatchCopy(logger, entryPairs)
 	// []rs.BatchResult, error
 	// @endgist
-	
+
 	// @gist batch_move
-	rs.New().BatchMove(logger, entryPairs)
+	rs.New(nil).BatchMove(logger, entryPairs)
 	// []rs.BatchResult, error
 	// @endgist
-	
+
 	// @gist batch_delete
-	rs.New().BatchDelete(logger, entryPathes)
+	rs.New(nil).BatchDelete(logger, entryPathes)
 	// []rs.BatchResult, error
 	// @endgist
-	
+
 	// @gist batch_adv
 	ops := []string {
 		rs.URIStat(bucketName, key1),
@@ -111,7 +111,7 @@ func batch() {
 		rs.URIMove(bucketName, key2, bucketName, key1), //将key2移动到key1
 	}
 	rets := new([]rs.BatchItemRet)
-	rs.New().Batch(logger, rets, ops) // 执行操作, 返回error
+	rs.New(nil).Batch(logger, rets, ops) // 执行操作, 返回error
 	// @endgist
 }
 
@@ -120,8 +120,8 @@ func token() {
 	putPolicy := rs.PutPolicy {
 		Scope: bucketName,
 	}
-	putPolicy.Token() // UpToken
+	uptoken := putPolicy.Token(nil)
 	// @endgist
+	_ = uptoken
 }
-
 

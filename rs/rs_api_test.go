@@ -18,7 +18,7 @@ func init() {
 	if ACCESS_KEY == "" || SECRET_KEY == "" {
 		panic("require ACCESS_KEY & SECRET_KEY")
 	}
-	client = New()
+	client = New(nil)
 }
 
 func TestEntry(t *testing.T) {

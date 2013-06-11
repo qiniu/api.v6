@@ -1,7 +1,7 @@
 package gist
 
 // @gist import
-import resumable_io "github.com/qiniu/api/resumable/io"
+import "github.com/qiniu/api/resumable/io"
 // @endgist
 
 import "github.com/qiniu/rpc"
@@ -12,32 +12,34 @@ func resumableIoDemo() {
 	var logger rpc.Logger
 	var bucketName = "<bucketName>"
 	var key = "<key>"
-	
+
 	// @gist put_policy
 	putPolicy := rs.PutPolicy {
 		Scope: bucketName,
 	}
 	// @endgist
-	
-	
+
 	// @gist put_extra
-	extra := &resumable_io.PutExtra {
+	extra := &io.PutExtra {
 		Bucket: bucketName,
 	}
 	// @endgist
-	
+
 	var ret interface{}
-	
+
 	// @gist put
 	buf := bytes.NewReader([]byte("data"))
-	var fsize int64 = 4
-	putErr := resumable_io.Put(logger, &ret, putPolicy.Token(), key, buf, fsize, extra)
+	fsize := int64(buf.Len())
+	uptoken := putPolicy.Token(nil)
+	putErr := io.Put(logger, &ret, uptoken, key, buf, fsize, extra)
 	// @endgist
-	
-	// @gist put_file
+
+{	// @gist put_file
 	localFile := "<path/to/file>"
-	putFileErr := resumable_io.PutFile(logger, &ret, putPolicy.Token(), key, localFile, extra)
+	uptoken := putPolicy.Token(nil)
+	putFileErr := io.PutFile(logger, &ret, uptoken, key, localFile, extra)
 	// @endgist
-	
+
 	_, _ = putFileErr, putErr
-}
+}}
+

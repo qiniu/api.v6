@@ -42,11 +42,11 @@ func TestPut(t *testing.T) {
 
 	buf.WriteString("hello! new Put")
 	err := Put(nil, ret, 
-		policy.Token(), key, buf, extra)
+		policy.Token(nil), key, buf, extra)
 	if err != nil {
 		t.Error(err)
 	}
-	
+
 	if (ret.Hash != "FsqT8gw5b4TDw_eD5UTXip9VMCQy") {
 		t.Error("wrong hash")
 	}
