@@ -1,12 +1,14 @@
 package rs
 
 import (
+	. "github.com/qiniu/api/conf"
 	"os"
 	"testing"
-	. "github.com/qiniu/api/conf"
 )
 
 var key = "aa"
+var newkey1 = "bbbb"
+var newkey2 = "cccc"
 var bucketName = "a"
 var client Client
 
@@ -16,37 +18,21 @@ func init() {
 	if ACCESS_KEY == "" || SECRET_KEY == "" {
 		panic("require ACCESS_KEY & SECRET_KEY")
 	}
-	client = New()
-}
-
-func TestBatch(t *testing.T) {
-	b, err := client.BatchStat(nil, []EntryPath{
-		{bucketName, key},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(b) != 1 {
-		t.Fatal("BatchStat failed: len(result) =", len(b))
-	}
-	c, err := client.Stat(nil, bucketName, key)
-	if b[0].Data != c {
-		t.Error("result not match")
-	}
+	client = New(nil)
 }
 
 func TestEntry(t *testing.T) {
+
 	einfo, err := client.Stat(nil, bucketName, key)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	newkey := key + "11111"
-	err = client.Copy(nil, bucketName, key, bucketName, newkey)
+	err = client.Copy(nil, bucketName, key, bucketName, newkey1)
 	if err != nil {
 		t.Fatal(err)
 	}
-	enewinfo, err := client.Stat(nil, bucketName, newkey)
+	enewinfo, err := client.Stat(nil, bucketName, newkey1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,8 +40,7 @@ func TestEntry(t *testing.T) {
 		t.Fatal("invalid entryinfo:", einfo, enewinfo)
 	}
 
-	newkey2 := key + "22222"
-	err = client.Move(nil, bucketName, newkey, bucketName, newkey2)
+	err = client.Move(nil, bucketName, newkey1, bucketName, newkey2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,6 +53,144 @@ func TestEntry(t *testing.T) {
 	}
 
 	err = client.Delete(nil, bucketName, newkey2)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestBatchStat(t *testing.T) {
+
+	entryPath := EntryPath{
+		Bucket: bucketName,
+		Key:    key,
+	}
+
+	rets, err := client.BatchStat(nil, []EntryPath{entryPath, entryPath, entryPath})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(rets) != 3 {
+		t.Fatal("BatchStat failed: len(result) = ", len(rets))
+	}
+
+	stat, _ := client.Stat(nil, bucketName, key)
+
+	if rets[0].Data != stat || rets[1].Data != stat || rets[2].Data != stat {
+		t.Error("BatchStat failed : returns err")
+	}
+}
+
+func TestBatchMove(t *testing.T) {
+	stat0, err := client.Stat(nil, bucketName, key)
+	entryPair1 := EntryPathPair{
+		Src: EntryPath{
+			Bucket: bucketName,
+			Key:    key,
+		},
+		Dest: EntryPath{
+			Bucket: bucketName,
+			Key:    newkey1,
+		},
+	}
+
+	entryPair2 := EntryPathPair{
+		Src: EntryPath{
+			Bucket: bucketName,
+			Key:    newkey1,
+		},
+		Dest: EntryPath{
+			Bucket: bucketName,
+			Key:    newkey2,
+		},
+	}
+
+	_, err = client.BatchMove(nil, []EntryPathPair{entryPair1, entryPair2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer client.Move(nil, bucketName, newkey2, bucketName, key)
+
+	stat1, _ := client.Stat(nil, bucketName, newkey2)
+
+	if stat0 != stat1 {
+		t.Error("BatchMove failed : Move err")
+	}
+}
+
+func TestBatchCopy(t *testing.T) {
+	entryPair1 := EntryPathPair{
+		Src: EntryPath{
+			Bucket: bucketName,
+			Key:    key,
+		},
+		Dest: EntryPath{
+			Bucket: bucketName,
+			Key:    newkey1,
+		},
+	}
+
+	entryPair2 := EntryPathPair{
+		Src: EntryPath{
+			Bucket: bucketName,
+			Key:    newkey1,
+		},
+		Dest: EntryPath{
+			Bucket: bucketName,
+			Key:    newkey2,
+		},
+	}
+
+	_, err := client.BatchCopy(nil, []EntryPathPair{entryPair1, entryPair2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer client.Delete(nil, bucketName, newkey1)
+	defer client.Delete(nil, bucketName, newkey2)
+
+	stat0, _ := client.Stat(nil, bucketName, key)
+	stat1, _ := client.Stat(nil, bucketName, newkey1)
+	stat2, _ := client.Stat(nil, bucketName, newkey2)
+	if stat0.Hash != stat1.Hash || stat0.Hash != stat2.Hash {
+		t.Error("BatchCopy failed : Copy err")
+	}
+}
+
+func TestBatchDelete(t *testing.T) {
+	client.Copy(nil, bucketName, key, bucketName, newkey1)
+	client.Copy(nil, bucketName, key, bucketName, newkey2)
+
+	entryPath1 := EntryPath{
+		Bucket: bucketName,
+		Key:    newkey1,
+	}
+	entryPath2 := EntryPath{
+		Bucket: bucketName,
+		Key:    newkey2,
+	}
+
+	_, err := client.BatchDelete(nil, []EntryPath{entryPath1, entryPath2})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err1 := client.Stat(nil, bucketName, newkey1)
+	_, err2 := client.Stat(nil, bucketName, newkey2)
+
+	//这里 err1 != nil，否则文件没被成功删除
+	if err1 == nil || err2 == nil {
+		t.Error("BatchDelete failed : File do not delete")
+	}
+}
+
+func TestBatch(t *testing.T) {
+	ops := []string{
+		URICopy(bucketName, key, bucketName, newkey1),
+		URIDelete(bucketName, key),
+		URIMove(bucketName, newkey1, bucketName, key),
+	}
+	rets := new([]BatchItemRet)
+	err := client.Batch(nil, rets, ops)
 	if err != nil {
 		t.Fatal(err)
 	}

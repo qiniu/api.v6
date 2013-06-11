@@ -55,9 +55,9 @@ func TestPut(t *testing.T) {
 		MimeType: "text/plain",
 		Notify: blockNotify,
 	}
-	defer rs.New().Delete(nil, bucket, testkey)
+	defer rs.New(nil).Delete(nil, bucket, testkey)
 
-	err = Put(nil, &ret, policy.Token(), testkey, f, fi.Size(), extra)
+	err = Put(nil, &ret, policy.Token(nil), testkey, f, fi.Size(), extra)
 	if err != nil {
 		t.Fatal(err)
 	}
