@@ -3,33 +3,34 @@ package rs
 import (
 	"time"
 	"strings"
+	"strconv"
+	"encoding/json"
 	"github.com/qiniu/api/url"
 	"github.com/qiniu/api/auth/digest"
-	. "github.com/qiniu/api/conf"
 )
 
 // ----------------------------------------------------------
 
 type GetPolicy struct {
-	Scope		string `json:"S"`
-	Expires		uint32 `json:"E"`
+	Expires	uint32
 }
 
-func (r GetPolicy) token() string {
+func (r GetPolicy) MakeRequest(baseUrl string, mac *digest.Mac) (privateUrl string) {
+
 	if r.Expires == 0 {
 		r.Expires = 3600
 	}
-	r.Expires += uint32(time.Now().Unix())
-	return digest.SignJson(ACCESS_KEY, []byte(SECRET_KEY), &r)
-}
+	deadline := time.Now().Unix() + int64(r.Expires)
 
-func (r GetPolicy) MakeRequest(baseUrl string) (privateUrl string) {
-
-	token := r.token()
 	if strings.Contains(baseUrl, "?") {
-		return baseUrl + "&token=" + token
+		baseUrl += "&e="
+	} else {
+		baseUrl += "?e="
 	}
-	return baseUrl + "?token=" + token
+	baseUrl += strconv.FormatInt(deadline, 10)
+
+	token := digest.Sign(mac, []byte(baseUrl))
+	return baseUrl + "&token=" + token
 }
 
 func MakeBaseUrl(domain, key string) (baseUrl string) {
@@ -50,12 +51,13 @@ type PutPolicy struct {
 	Expires          uint32 `json:"deadline"` 			// 截止时间（以秒为单位）
 }
 
-func (r *PutPolicy) Token() string {
+func (r *PutPolicy) Token(mac *digest.Mac) string {
 	if r.Expires == 0 {
 		r.Expires = 3600
 	}
 	r.Expires += uint32(time.Now().Unix())
-	return digest.SignJson(ACCESS_KEY, []byte(SECRET_KEY), &r)
+	b, _ := json.Marshal(&r)
+	return digest.SignWithData(mac, b)
 }
 
 // ----------------------------------------------------------
