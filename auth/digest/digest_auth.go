@@ -7,13 +7,50 @@ import (
 	"crypto/sha1"
 	"crypto/hmac"
 	"github.com/qiniu/api/seekable"
+	. "github.com/qiniu/api/conf"
 )
 
-// ---------------------------------------------------------------------------------------
+// ----------------------------------------------------------
 
-func SignRequest(req *http.Request, secret []byte, incbody bool) (digest string, err error) {
+type Mac struct {
+	AccessKey string
+	SecretKey []byte
+}
 
-	h := hmac.New(sha1.New, secret)
+func (mac *Mac) Sign(data []byte) (token string) {
+
+	h := hmac.New(sha1.New, mac.SecretKey)
+	h.Write(data)
+
+	sign := base64.URLEncoding.EncodeToString(h.Sum(nil))
+	return mac.AccessKey + ":" + sign[:27]
+}
+
+func (mac *Mac) SignWithData(b []byte) (token string) {
+
+	blen := base64.URLEncoding.EncodedLen(len(b))
+
+	key := mac.AccessKey
+	nkey := len(key)
+	ret := make([]byte, nkey+30+blen)
+
+	base64.URLEncoding.Encode(ret[nkey+30:], b)
+
+	h := hmac.New(sha1.New, mac.SecretKey)
+	h.Write(ret[nkey+30:])
+	digest := h.Sum(nil)
+
+	copy(ret, key)
+	ret[nkey] = ':'
+	base64.URLEncoding.Encode(ret[nkey+1:], digest)
+	ret[nkey+29] = ':'
+
+	return string(ret)
+}
+
+func (mac *Mac) SignRequest(req *http.Request, incbody bool) (token string, err error) {
+
+	h := hmac.New(sha1.New, mac.SecretKey)
 
 	u := req.URL
 	data := u.Path
@@ -29,29 +66,37 @@ func SignRequest(req *http.Request, secret []byte, incbody bool) (digest string,
 		}
 		h.Write(s2.Bytes())
 	}
-	digest = base64.URLEncoding.EncodeToString(h.Sum(nil))
+
+	sign := base64.URLEncoding.EncodeToString(h.Sum(nil))
+	token = mac.AccessKey + ":" + sign
 	return
+}
+
+func Sign(mac *Mac, data []byte) string {
+
+	if mac == nil {
+		mac = &Mac{ACCESS_KEY, []byte(SECRET_KEY)}
+	}
+	return mac.Sign(data)
+}
+
+func SignWithData(mac *Mac, data []byte) string {
+
+	if mac == nil {
+		mac = &Mac{ACCESS_KEY, []byte(SECRET_KEY)}
+	}
+	return mac.SignWithData(data)
 }
 
 // ---------------------------------------------------------------------------------------
 
-// Transport implements http.RoundTripper. When configured with a valid
-// Config and Token it can be used to make authenticated HTTP requests.
-//
-//	c := NewClient(token, nil)
-//	r, _, err := c.Get("http://example.org/url/requiring/auth")
-//
 type Transport struct {
-	key string
-	secret []byte
-
-	// Transport is the HTTP transport to use when making requests.
-	// It will default to http.DefaultTransport if nil.
-	// (It should never be an oauth.Transport.)
+	mac Mac
 	transport http.RoundTripper
 }
 
 func incBody(req *http.Request) bool {
+
 	if req.Body == nil {
 		return false
 	}
@@ -64,27 +109,34 @@ func incBody(req *http.Request) bool {
 	return false
 }
 
-// RoundTrip executes a single HTTP transaction using the Transport's
-// Token as authorization headers.
 func (t *Transport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-	digest, err := SignRequest(req, t.secret, incBody(req))
+
+	token, err := t.mac.SignRequest(req, incBody(req))
 	if err != nil {
 		return
 	}
-	token := t.key + ":" + digest
 	req.Header.Set("Authorization", "QBox "+token)
 	return t.transport.RoundTrip(req)
 }
 
-func NewTransport(key, secret string, transport http.RoundTripper) *Transport {
+func NewTransport(mac *Mac, transport http.RoundTripper) *Transport {
+
 	if transport == nil {
 		transport = http.DefaultTransport
 	}
-	return &Transport{key, []byte(secret), transport}
+	t := &Transport{transport: transport}
+	if mac == nil {
+		t.mac.AccessKey = ACCESS_KEY
+		t.mac.SecretKey = []byte(SECRET_KEY)
+	} else {
+		t.mac = *mac
+	}
+	return t
 }
 
-func NewClient(key, secret string, transport http.RoundTripper) *http.Client {
-	t := NewTransport(key, secret, transport)
+func NewClient(mac *Mac, transport http.RoundTripper) *http.Client {
+
+	t := NewTransport(mac, transport)
 	return &http.Client{Transport: t}
 }
 
