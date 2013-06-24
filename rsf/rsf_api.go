@@ -44,10 +44,10 @@ func NewEx(t http.RoundTripper) Client {
 
 // ----------------------------------------------------------
 
-func (rsf Client) ListPrefix(bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error) {
+func (rsf Client) ListPrefix(l rpc.Logger, bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error) {
 	URL := makeListURL(bucket, prefix, marker, limit)
 	listRet := ListRet{}
-	err = rsf.Conn.Call(nil, &listRet, URL)
+	err = rsf.Conn.Call(l, &listRet, URL)
 	return listRet.Items, listRet.Marker, err
 }
 
