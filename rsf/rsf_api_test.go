@@ -20,14 +20,14 @@ func init() {
 
 func TestList(t *testing.T) {
 
-	ret, marker, err := client.ListPrefix(bucketName, "", "", 5)
+	ret, marker, err := client.ListPrefix(nil, bucketName, "", "", 5)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(ret) != 5 {
 		t.Fatal("ret num err")
 	}
-	ret, _, err = client.ListPrefix(bucketName, "", marker, 100)
+	ret, _, err = client.ListPrefix(nil, bucketName, "", marker, 100)
 	if err != nil {
 		t.Fatal(err)
 	}
