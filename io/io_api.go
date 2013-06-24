@@ -37,7 +37,7 @@ type PutRet struct {
 
 // ----------------------------------------------------------
 
-func Put(ret interface{}, uptoken, key string, data io.Reader, extra *PutExtra) error {
+func Put(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, extra *PutExtra) error {
 
 	// CheckCrc == 1: 对于 Put 等同于 CheckCrc == 2
 	var extra1 PutExtra
@@ -47,10 +47,10 @@ func Put(ret interface{}, uptoken, key string, data io.Reader, extra *PutExtra) 
 			extra1.CheckCrc = 2
 		}
 	}
-	return putEx(ret, uptoken, key, key, data, &extra1)
+	return putEx(l, ret, uptoken, key, key, data, &extra1)
 }
 
-func putEx(ret interface{}, uptoken, key, localFile string, data io.Reader, extra *PutExtra) error {
+func putEx(l rpc.Logger, ret interface{}, uptoken, key, localFile string, data io.Reader, extra *PutExtra) error {
 	r, w := io.Pipe()
 	defer r.Close()
 	writer := multipart.NewWriter(w)
@@ -62,10 +62,10 @@ func putEx(ret interface{}, uptoken, key, localFile string, data io.Reader, extr
 	}()
 
 	contentType := writer.FormDataContentType()
-	return rpc.DefaultClient.CallWith64(nil, ret, UP_HOST, contentType, r, 0)
+	return rpc.DefaultClient.CallWith64(l, ret, UP_HOST, contentType, r, 0)
 }
 
-func PutFile(ret interface{}, uptoken, key string, localFile string, extra *PutExtra) (err error) {
+func PutFile(l rpc.Logger, ret interface{}, uptoken, key string, localFile string, extra *PutExtra) (err error) {
 
 	f, err := os.Open(localFile)
 	if err != nil {
@@ -73,7 +73,7 @@ func PutFile(ret interface{}, uptoken, key string, localFile string, extra *PutE
 	}
 	defer f.Close()
 
-	return putEx(ret, uptoken, key, localFile, f, extra)
+	return putEx(l, ret, uptoken, key, localFile, f, extra)
 }
 
 

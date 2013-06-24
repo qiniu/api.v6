@@ -27,13 +27,13 @@ func ioDemo() {
 	// @gist put
 	buf := bytes.NewBufferString("data")
 	uptoken := putPolicy.Token(nil)
-	putErr := io.Put(&ret, uptoken, "<key>", buf, extra)
+	putErr := io.Put(nil, &ret, uptoken, "<key>", buf, extra)
 	// @endgist
 {
 	// @gist put_file
 	localFile := "<path/to/file>"
 	uptoken := putPolicy.Token(nil)
-	putFileErr := io.PutFile(&ret, uptoken, "<key>", localFile, extra)
+	putFileErr := io.PutFile(nil, &ret, uptoken, "<key>", localFile, extra)
 	// @endgist
 
 	_, _ = putErr, putFileErr
