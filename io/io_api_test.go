@@ -67,7 +67,7 @@ func TestPut(t *testing.T) {
 			key = "?"
 		}
 		buf.WriteString(upString)
-		err := Put(ret, policy.Token(nil), key, buf, v)
+		err := Put(nil, ret, policy.Token(nil), key, buf, v)
 		if err != nil {
 			t.Fatal(err)
 		}
