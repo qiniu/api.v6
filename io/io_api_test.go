@@ -24,7 +24,11 @@ var extra =  []*PutExtra {
 	},
 	&PutExtra {
 		MimeType: "text/plain",
-		CheckCrc: 0,
+		CheckCrc: 1,
+	},
+	&PutExtra {
+		MimeType: "text/plain",
+		CheckCrc: 2,
 	},
 	nil,
 }
