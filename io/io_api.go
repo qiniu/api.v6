@@ -133,7 +133,7 @@ func writeMultipart(writer *multipart.Writer, uptoken, key string, data io.Reade
 		fileName = key
 	}
 	head.Set("Content-Disposition",
-		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,"file" , escapeQuotes(fileName)))
+		fmt.Sprintf(`form-data; name="file"; filename="%s"`, escapeQuotes(fileName)))
 	if  extra.MimeType != "" {
 		head.Set("Content-Type", extra.MimeType)
 	}
