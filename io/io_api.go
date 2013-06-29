@@ -3,13 +3,12 @@ package io
 import (
 	"io"
 	"os"
-	"mime/multipart"
 	"fmt"
-	"hash/crc32"
-	"net/textproto"
 	"strconv"
 	"strings"
-
+	"hash/crc32"
+	"net/textproto"
+	"mime/multipart"
 	"github.com/qiniu/rpc"
 	. "github.com/qiniu/api/conf"
 )
@@ -76,8 +75,6 @@ func PutFile(l rpc.Logger, ret interface{}, uptoken, key string, localFile strin
 
 	return put(l, ret, uptoken, key, f, extra)
 }
-
-
 
 /*
  * extra.CheckCrc:
