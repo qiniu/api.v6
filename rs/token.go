@@ -52,11 +52,12 @@ type PutPolicy struct {
 }
 
 func (r *PutPolicy) Token(mac *digest.Mac) string {
-	if r.Expires == 0 {
-		r.Expires = 3600
+	var rr = *r
+	if rr.Expires == 0 {
+		rr.Expires = 3600
 	}
-	r.Expires += uint32(time.Now().Unix())
-	b, _ := json.Marshal(&r)
+	rr.Expires += uint32(time.Now().Unix())
+	b, _ := json.Marshal(&rr)
 	return digest.SignWithData(mac, b)
 }
 
