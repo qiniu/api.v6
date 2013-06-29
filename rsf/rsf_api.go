@@ -3,6 +3,7 @@ package rsf
 import (
 	"errors"
 	"net/http"
+	"net/url"
 	"strconv"
 	"io"
 	"github.com/qiniu/rpc"
@@ -54,20 +55,10 @@ func (rsf Client) ListPrefix(l rpc.Logger, bucket, prefix, marker string, limit 
 		return 
 	}
 
-	params := map[string][]string{
-		"bucket": {bucket},
-	}
-	if prefix != "" {
-		params["prefix"] = []string{prefix}
-	}
-	if marker != "" {
-		params["marker"] = []string{marker}
-	}
-	if limit > 0 {
-		params["limit"] = []string{strconv.FormatInt(int64(limit), 10)}
-	}
+	URL := makeListURL(bucket, prefix, marker, limit)
 	listRet := ListRet{}
-	err = rsf.Conn.CallWithForm(l, &listRet, RSF_HOST + "/list", params)
+	err = rsf.Conn.Call(l, &listRet, URL)
+
 	if err != nil {
 		return 
 	}
@@ -75,4 +66,21 @@ func (rsf Client) ListPrefix(l rpc.Logger, bucket, prefix, marker string, limit 
 		return listRet.Items, "", io.EOF
 	}
 	return listRet.Items, listRet.Marker, err
+}
+
+func makeListURL(bucket, prefix, marker string, limit int) string {
+	query := make(url.Values)
+
+	query.Add("bucket", bucket)
+	if prefix != "" {
+		query.Add("prefix", prefix)
+	}
+	if marker != "" {
+		query.Add("marker", marker)
+	}
+	if limit > 0 {
+		query.Add("limit", strconv.FormatInt(int64(limit), 10))
+	}
+
+	return RSF_HOST + "/list?" + query.Encode()
 }
