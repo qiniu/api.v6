@@ -7,6 +7,7 @@
 - 遵循 [sdkspec v6.0.2](https://github.com/qiniu/sdkspec/tree/v6.0.2)
   - UserAgent 支持。增加 conf.SetUserAgent
   - io.Put/PutFile 调整为基于 up.qiniu.com 的协议，extra *PutExtra 参数可以为 nil
+  - io.Put/PutFile 支持支持 key = UNDEFINED_KEY，这样服务端将自动生成 key 并返回
   - io.Put/PutFile 支持自定义的 "x:" 参数(io.PutExtra.Params)、支持 Crc 检查
   - 增加 rsf api 的支持
 - 修复 PutPolicy.Token 调用多次出错的 bug
