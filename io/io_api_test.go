@@ -15,10 +15,13 @@ import (
 var bucket = "a"
 var policy = rs.PutPolicy {
 	Scope: bucket,
-	Expires: 360000,
 }
 var upString = "hello qiniu world"
 var extra =  []*PutExtra {
+	&PutExtra {
+		MimeType: "text/plain",
+		CheckCrc: 1,
+	},
 	&PutExtra {
 		MimeType: "text/plain",
 		CheckCrc: 1,
@@ -68,7 +71,7 @@ func TestPut(t *testing.T) {
 			key = "?"
 		}
 		buf.WriteString(upString)
-		t.Log(policy.Token(nil))
+		policy.Expires = 0
 		err := Put(nil, ret, policy.Token(nil), key, buf, v)
 		if err != nil {
 			t.Fatal(err)
