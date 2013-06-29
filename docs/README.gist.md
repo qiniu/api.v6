@@ -1,10 +1,10 @@
 ---
-title: Go SDK 使用指南 | 七牛云存储
+Go SDK 使用指南 | 七牛云存储
 ---
 
 # Go SDK 使用指南
 
-此 Golang SDK 适用于所有 >=go1 版本，基于 [七牛云存储官方API](http://docs.qiniutek.com/v3/api/) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
+此 Golang SDK 适用于所有 >=go1 版本，基于 [七牛云存储官方API](http://docs.qiniu.com) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
 
 目录
 ----
@@ -34,6 +34,8 @@ title: Go SDK 使用指南 | 七牛云存储
 		- [查看图像属性](#fop-image-info)
 		- [查看图片EXIF信息](#fop-exif)
 		- [生成图片预览](#fop-image-view)
+- [高级资源管理接口](#rsf-api)
+	- [批量获得文件列表](#rsf-listPrefix)
 - [贡献代码](#contribution)
 - [许可证](#license)
 
@@ -52,8 +54,8 @@ title: Go SDK 使用指南 | 七牛云存储
 
 要接入七牛云存储，您需要拥有一对有效的 Access Key 和 Secret Key 用来进行签名认证。可以通过如下步骤获得：
 
-1. [开通七牛开发者帐号](https://dev.qiniutek.com/signup)
-2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://dev.qiniutek.com/account/keys) 。
+1. [开通七牛开发者帐号](https://portal.qiniu.com/signup)
+2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://dev.qiniu.com/account/keys) 。
 
 在获取到 Access Key 和 Secret Key 之后，您可以在您的程序中调用如下两行代码进行初始化对接, 要确保`ACCESS_KEY` 和 `SECRET_KEY` 在调用所有七牛API服务之前均已赋值：
 
@@ -220,10 +222,10 @@ func main() {
 
 	[GET] http://<domain>/<key>
 
-其中<domain>可以到[七牛云存储开发者自助网站](https://dev.qiniutek.com/buckets)绑定, 域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
+其中<domain>可以到[七牛云存储开发者自助网站](https://dev.qiniu.com/buckets)绑定, 域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
 
 <a name="private-download"></a>
-#### 3.8 私有资源下载
+### 3.8 私有资源下载
 私有资源必须通过临时下载授权凭证(downloadToken)下载，如下：
 
 	[GET] http://<domain>/<key>?token=<downloadToken>
@@ -429,8 +431,25 @@ func main() {
 ```
 参阅: `fop.ImageView`
 
+<a name="rsf-api"></a>
+## 6. 高级资源管理接口(rsf)
+<a name="rsf-listPrefix"></a>
+批量获取文件列表
+```{go}
+@gist(gist/conf.go#import)
+@gist(gist/rsf.go#import)
+
+func main() {
+    ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
+    SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
+	@gist(gist/rsf.go#listPrefix)
+}
+```
+参阅: `rsf.ListPreFix`
+
+
 <a name="contribution"></a>
-## 6. 贡献代码
+## 7. 贡献代码
 
 1. Fork
 2. 创建您的特性分支 (`git checkout -b my-new-feature`)
@@ -439,7 +458,7 @@ func main() {
 5. 然后到 github 网站的该 `git` 远程仓库的 `my-new-feature` 分支下发起 Pull Request
 
 <a name="license"></a>
-## 7. 许可证
+## 8. 许可证
 
 Copyright (c) 2013 qiniu.com
 
