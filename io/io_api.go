@@ -40,17 +40,18 @@ type PutRet struct {
 func Put(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, extra *PutExtra) error {
 
 	// CheckCrc == 1: 对于 Put 等同于 CheckCrc == 2
-	var extra1 PutExtra
 	if extra != nil {
-		extra1 = *extra
-		if extra1.CheckCrc == 1 {
-			extra1.CheckCrc = 2
+		if extra.CheckCrc == 1 {
+			extra1 := *extra
+			extra = &extra1
+			extra.CheckCrc = 2
 		}
 	}
-	return put(l, ret, uptoken, key, data, &extra1)
+	return put(l, ret, uptoken, key, data, extra)
 }
 
 func put(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, extra *PutExtra) error {
+
 	r, w := io.Pipe()
 	defer r.Close()
 	writer := multipart.NewWriter(w)
@@ -106,11 +107,9 @@ func writeMultipart(writer *multipart.Writer, uptoken, key string, data io.Reade
 	// extra.Params
 	if extra.Params != nil {
 		for k, v := range extra.Params {
-			if strings.HasPrefix(k, "x:") {
-				err = writer.WriteField(k, v)
-				if err != nil {
-					return 
-				}
+			err = writer.WriteField(k, v)
+			if err != nil {
+				return 
 			}
 		}
 	}
