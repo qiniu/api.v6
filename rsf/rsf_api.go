@@ -1,6 +1,7 @@
 package rsf
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -45,6 +46,12 @@ func NewEx(t http.RoundTripper) Client {
 // ----------------------------------------------------------
 
 func (rsf Client) ListPrefix(l rpc.Logger, bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error) {
+
+	if bucket == "" {
+		err = errors.New("bucket could not be nil")
+		return 
+	}
+
 	URL := makeListURL(bucket, prefix, marker, limit)
 	listRet := ListRet{}
 	err = rsf.Conn.Call(l, &listRet, URL)
@@ -53,9 +60,7 @@ func (rsf Client) ListPrefix(l rpc.Logger, bucket, prefix, marker string, limit 
 
 func makeListURL(bucket, prefix, marker string, limit int) string {
 	query := make(url.Values)
-	if bucket != "" {
-		query.Add("bucket", bucket)
-	}
+	query.Add("bucket", bucket)
 	if prefix != "" {
 		query.Add("prefix", prefix)
 	}
