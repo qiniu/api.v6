@@ -6,11 +6,8 @@ import "github.com/qiniu/api/io"
 
 import "bytes"
 import "github.com/qiniu/api/rs"
-import "github.com/qiniu/rpc"
-
 
 func ioDemo() {
-	var logger rpc.Logger
 	var bucketName = "<bucketName>"
 
 	// @gist put_policy
@@ -21,7 +18,7 @@ func ioDemo() {
 
 	// @gist put_extra
 	extra := &io.PutExtra {
-		Bucket: bucketName,
+		Crc32: 1,
 	}
 	// @endgist
 
@@ -30,13 +27,13 @@ func ioDemo() {
 	// @gist put
 	buf := bytes.NewBufferString("data")
 	uptoken := putPolicy.Token(nil)
-	putErr := io.Put(logger, &ret, uptoken, "<key>", buf, extra)
+	putErr := io.Put(nil, &ret, uptoken, "<key>", buf, extra)
 	// @endgist
 {
 	// @gist put_file
 	localFile := "<path/to/file>"
 	uptoken := putPolicy.Token(nil)
-	putFileErr := io.PutFile(logger, &ret, uptoken, "<key>", localFile, extra)
+	putFileErr := io.PutFile(nil, &ret, uptoken, "<key>", localFile, extra)
 	// @endgist
 
 	_, _ = putErr, putFileErr
