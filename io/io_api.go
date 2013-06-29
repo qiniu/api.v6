@@ -47,16 +47,16 @@ func Put(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, ext
 			extra1.CheckCrc = 2
 		}
 	}
-	return putEx(l, ret, uptoken, key, key, data, &extra1)
+	return put(l, ret, uptoken, key, data, &extra1)
 }
 
-func putEx(l rpc.Logger, ret interface{}, uptoken, key, localFile string, data io.Reader, extra *PutExtra) error {
+func put(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, extra *PutExtra) error {
 	r, w := io.Pipe()
 	defer r.Close()
 	writer := multipart.NewWriter(w)
 
 	go func() {
-		err := writeMultipart(writer, uptoken, key, localFile, data, extra)
+		err := writeMultipart(writer, uptoken, key, data, extra)
 		writer.Close()
 		w.CloseWithError(err)
 	}()
@@ -73,7 +73,7 @@ func PutFile(l rpc.Logger, ret interface{}, uptoken, key string, localFile strin
 	}
 	defer f.Close()
 
-	return putEx(l, ret, uptoken, key, localFile, f, extra)
+	return put(l, ret, uptoken, key, f, extra)
 }
 
 
@@ -83,9 +83,9 @@ func PutFile(l rpc.Logger, ret interface{}, uptoken, key string, localFile strin
  *      0:     不进行crc32校验
  *      1:     以writeMultipart自动生成crc32的值，进行校验
  *      2:     以extra.Crc32的值，进行校验
- *      other: 和0一样，不进行crc32校验   
+ *      other: 和2一样， 以 extra.Crc32的值，进行校验   
  */
-func writeMultipart(writer *multipart.Writer, uptoken, key, localFile string, data io.Reader, extra *PutExtra) (err error) {
+func writeMultipart(writer *multipart.Writer, uptoken, key string, data io.Reader, extra *PutExtra) (err error) {
 
 	if extra == nil {
 		extra = &PutExtra{}
@@ -118,19 +118,22 @@ func writeMultipart(writer *multipart.Writer, uptoken, key, localFile string, da
 	//extra.CheckCrc 
 	h := crc32.NewIEEE()
 	data1 := data
-	var crc32 int64
 	if extra.CheckCrc == 1 {
 		data1 = io.TeeReader(data, h)
 	}
 
 	//file 
 	head := make(textproto.MIMEHeader)
-	if localFile == "" {
-		localFile = "renameit"
+
+	//default the filename is same as key , but  ""
+	var fileName string
+	if key == "" {
+		fileName = "index.html"
+	} else {
+		fileName = key
 	}
 	head.Set("Content-Disposition",
-		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
-			escapeQuotes("file"), escapeQuotes(localFile)))
+		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,"file" , escapeQuotes(fileName)))
 	if  extra.MimeType != "" {
 		head.Set("Content-Type", extra.MimeType)
 	}
@@ -143,14 +146,11 @@ func writeMultipart(writer *multipart.Writer, uptoken, key, localFile string, da
 
 	//extra.CheckCrc 
 	if extra.CheckCrc == 1 {
-		crc32 = int64(h.Sum32())
-		err = writer.WriteField("crc32", strconv.FormatInt(crc32, 10))
-	} else if extra.CheckCrc == 2 {
-		crc32 = int64(extra.Crc32)
-		err = writer.WriteField("crc32", strconv.FormatInt(crc32, 10))
+		extra.Crc32 = h.Sum32()
 	}
-	//extra.CheckCrc ==0 || extra.CheckCrc == other 
-	//do not CheckCrc so not write crc32 filed
+	if extra.CheckCrc != 0 {
+		err = writer.WriteField("crc32", strconv.FormatInt(int64(extra.Crc32), 10))
+	}
 	return 
 }
 
