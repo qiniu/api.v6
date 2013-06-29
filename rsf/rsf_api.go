@@ -1,6 +1,7 @@
 package rsf
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -48,10 +49,20 @@ func NewEx(t http.RoundTripper) Client {
 // 2. 无论 err 值如何，均应该先看 entries 是否有内容
 // 3. 如果后续没有更多数据，err 返回 EOF，markerOut 返回 ""（但不通过该特征来判断是否结束）
 func (rsf Client) ListPrefix(l rpc.Logger, bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error) {
+
+	if bucket == "" {
+		err = errors.New("bucket could not be nil")
+		return 
+	}
+
 	URL := makeListURL(bucket, prefix, marker, limit)
 	listRet := ListRet{}
 	err = rsf.Conn.Call(l, &listRet, URL)
-	if len(listRet.Items) == 0 || listRet.Marker == "" {
+
+	if err != nil {
+		return 
+	}
+	if listRet.Marker == "" {
 		return listRet.Items, "", io.EOF
 	}
 	return listRet.Items, listRet.Marker, err
@@ -59,9 +70,8 @@ func (rsf Client) ListPrefix(l rpc.Logger, bucket, prefix, marker string, limit 
 
 func makeListURL(bucket, prefix, marker string, limit int) string {
 	query := make(url.Values)
-	if bucket != "" {
-		query.Add("bucket", bucket)
-	}
+
+	query.Add("bucket", bucket)
 	if prefix != "" {
 		query.Add("prefix", prefix)
 	}
