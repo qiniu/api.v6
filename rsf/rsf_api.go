@@ -3,7 +3,6 @@ package rsf
 import (
 	"errors"
 	"net/http"
-	"net/url"
 	"strconv"
 	"io"
 	"github.com/qiniu/rpc"
