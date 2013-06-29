@@ -28,7 +28,7 @@ var extra =  []*PutExtra {
 	},
 	&PutExtra {
 		MimeType: "text/plain",
-		CheckCrc: 1,
+		CheckCrc: 2,
 	},
 	nil,
 }
@@ -71,7 +71,6 @@ func TestPut(t *testing.T) {
 			key = "?"
 		}
 		buf.WriteString(upString)
-		policy.Expires = 0
 		err := Put(nil, ret, policy.Token(nil), key, buf, v)
 		if err != nil {
 			t.Fatal(err)
