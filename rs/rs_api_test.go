@@ -6,6 +6,7 @@ import (
 	"io"
 	"testing"
 	"crypto/sha1"
+	"crypto/rand"
 	"encoding/base64"
 	"net/http"
 	. "github.com/qiniu/api/conf"
@@ -25,6 +26,19 @@ func init() {
 		panic("require ACCESS_KEY & SECRET_KEY")
 	}
 	client = New(nil)
+
+	newkey1 += randomBoundary()
+	newkey2 += randomBoundary()
+}
+
+func randomBoundary() string {
+
+	var buf [30]byte
+	_, err := io.ReadFull(rand.Reader, buf[:])
+	if err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("%x", buf[:])
 }
 
 func TestGetPrivateUrl(t *testing.T) {
