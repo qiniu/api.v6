@@ -55,7 +55,7 @@ Go SDK 使用指南 | 七牛云存储
 要接入七牛云存储，您需要拥有一对有效的 Access Key 和 Secret Key 用来进行签名认证。可以通过如下步骤获得：
 
 1. [开通七牛开发者帐号](https://portal.qiniu.com/signup)
-2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://dev.qiniu.com/account/keys) 。
+2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://portal.qiniu.com/setting/key)
 
 在获取到 Access Key 和 Secret Key 之后，您可以在您的程序中调用如下两行代码进行初始化对接, 要确保`ACCESS_KEY` 和 `SECRET_KEY` 在调用所有七牛API服务之前均已赋值：
 
@@ -222,7 +222,7 @@ func main() {
 
 	[GET] http://<domain>/<key>
 
-其中<domain>可以到[七牛云存储开发者自助网站](https://dev.qiniu.com/buckets)绑定, 域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
+其中<domain>可以到[七牛云存储开发者自助网站](https://portal.qiniu.com)绑定。步骤：首先选择需要绑定的空间，其次在空间设置标签下，点击域名绑定项，即可申请绑定自定义域名。域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
 
 <a name="private-download"></a>
 ### 3.8 私有资源下载
@@ -440,8 +440,7 @@ func main() {
 @gist(gist/rsf.go#import)
 
 func main() {
-    ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-    SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
+	@gist(gist/conf.go#init)
 	@gist(gist/rsf.go#listPrefix)
 }
 ```
