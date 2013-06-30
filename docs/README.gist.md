@@ -11,24 +11,27 @@ Go SDK 使用指南 | 七牛云存储
 - [安装](#install)
 - [初始化](#setup)
 	- [配置密钥](#setup-key)
-- [上传下载接口](#get-and-put-api)
+- [上传文件](#io-put)
 	- [上传流程](#io-put-flow)
-	- [生成上传授权uptoken](#make-uptoken)
-	- [上传代码](#upload-code)
-	- [断点续上传、分块并行上传](#resumable-io-put)
+	- [生成上传授权uptoken](#io-put-make-uptoken)
+	- [上传代码](#io-put-upload-code)
+	- [断点续上传、分块并行上传](#io-put-resumable)
 	- [上传策略](#io-put-policy)
-	- [公有资源下载](#public-download)
-	- [私有资源下载](#private-download)
-- [资源管理接口](#rs-api)
-	- [查看单个文件属性信息](#rs-stat)
-	- [复制单个文件](#rs-copy)
-	- [移动单个文件](#rs-move)
-	- [删除单个文件](#rs-delete)
-	- [批量操作](#batch)
-		- [批量获取文件属性信息](#batch-stat)
-		- [批量复制文件](#batch-copy)
-		- [批量移动文件](#batch-move)
-		- [批量删除文件](#batch-delete)
+- [下载文件](#io-get)
+	- [公有资源下载](#io-get-public)
+	- [私有资源下载](#io-get-private)
+	- [HTTPS支持](#io-get-https)
+	- [断点续下载](#io-get-resumable)
+- [资源操作](#rs)
+	- [获取文件信息](#rs-stat)
+	- [删除文件](#rs-delete)
+	- [复制/移动文件](#rs-copy-move)
+	- [批量操作](#rs-batch)
+		- [批量获取文件信息](#rs-batch-stat)
+		- [批量复制文件](#rs-batch-copy)
+		- [批量移动文件](#rs-batch-move)
+		- [批量删除文件](#rs-batch-delete)
+		- [高级批量操作](#rs-batch-advanced)
 - [数据处理接口](#fop-api)
 	- [图像](#fop-image)
 		- [查看图像属性](#fop-image-info)
@@ -60,15 +63,11 @@ Go SDK 使用指南 | 七牛云存储
 在获取到 Access Key 和 Secret Key 之后，您可以在您的程序中调用如下两行代码进行初始化对接, 要确保`ACCESS_KEY` 和 `SECRET_KEY` 在调用所有七牛API服务之前均已赋值：
 
 ```{go}
-@gist(gist/conf.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-}
+@gist(gist/server.go#init)
 ```
 
-<a name="get-and-put-api"></a>
-## 3. 上传下载接口
+<a name="io-put"></a>
+## 3. 上传文件
 
 为了尽可能地改善终端用户的上传体验，七牛云存储首创了客户端直传功能。一般云存储的上传流程是：
 
@@ -104,56 +103,28 @@ func main() {
 
 
 
-<a name="make-uptoken"></a>
+<a name="io-put-make-uptoken"></a>
 ### 3.2 生成上传授权uptoken
-uptoken是一个字符串，作为http协议Header的一部分（Authorization字段）发送到我们七牛的服务端，表示这个http请求是经过认证的。
+uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put.html#uploadToken)的代码如下:
 
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-	@gist(gist/rs.go#put_policy)
-}
+@gist(gist/server.go#uptoken)
 ```
 参阅 `rs.PutPolicy`
 
-<a name="upload-code"></a>
+<a name="io-put-upload-code"></a>
 ### 3.3 上传代码
 直接上传二进制流
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-@gist(gist/io.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-	
-	@gist(gist/io.go#put_policy)
-	@gist(gist/io.go#put_extra)
-
-	@gist(gist/io.go#put)
-}
+@gist(gist/client.go#uploadBuf)
 ```
 
 上传本地文件
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-@gist(gist/io.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-
-	@gist(gist/io.go#put_policy)
-	@gist(gist/io.go#put_extra)
-
-	@gist(gist/io.go#put_file)
-}
+@gist(gist/client.go#uploadFile)
 ```
 
-<a name="resumable-io-put"></a>
+<a name="io-put-resumable"></a>
 ### 3.4 断点续上传、分块并行上传
 
 除了基本的上传外，七牛还支持你将文件切成若干块（除最后一块外，每个块固定为4M大小），每个块可独立上传，互不干扰；每个分块块内则能够做到断点上续传。
@@ -162,30 +133,13 @@ func main() {
 
 上传二进制流
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-@gist(gist/resumable_io.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-	@gist(gist/resumable_io.go#put_policy)
-	@gist(gist/resumable_io.go#put_extra)
-	@gist(gist/resumable_io.go#put)
 }
 ```
 参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 上传本地文件
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-@gist(gist/resumable_io.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-	@gist(gist/resumable_io.go#put_policy)
-	@gist(gist/resumable_io.go#put_extra)
-	@gist(gist/resumable_io.go#put_file)
+@gist(gist/client.go#resumableUpload)
 }
 ```
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
@@ -209,180 +163,112 @@ func main() {
 
 关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
 
-### 3.6 文件下载
+<a name="io-get"></a>
+## 4 文件下载
 七牛云存储上的资源下载分为 公有资源下载 和 私有资源下载 。
 
 私有（private）是 Bucket（空间）的一个属性，一个私有 Bucket 中的资源为私有资源，私有资源不可匿名下载。
 
 新创建的空间（Bucket）缺省为私有，也可以将某个 Bucket 设为公有，公有 Bucket 中的资源为公有资源，公有资源可以匿名下载。
 
-<a name="public-download"></a>
-### 3.7 公有资源下载
+<a name="io-get-public"></a>
+### 4.1 公有资源下载
 如果在给bucket绑定了域名的话，可以通过以下地址访问。
 
 	[GET] http://<domain>/<key>
 
 其中<domain>可以到[七牛云存储开发者自助网站](https://portal.qiniu.com)绑定。步骤：首先选择需要绑定的空间，其次在空间设置标签下，点击域名绑定项，即可申请绑定自定义域名。域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
 
-<a name="private-download"></a>
-### 3.8 私有资源下载
-私有资源必须通过临时下载授权凭证(downloadToken)下载，如下：
+<a name="io-get-private"></a>
+### 4.2 私有资源下载
+如果某个 bucket 是私有的，那么这个 bucket 中的所有文件只能通过一个的临时有效的 downloadUrl 访问：
 
-	[GET] http://<domain>/<key>?token=<downloadToken>
-
+	[GET] http://<domain>/<key>?token=<dnToken>
 注意，尖括号不是必需，代表替换项。  
+其中 dntoken 是由业务服务器签发的一个[临时下载授权凭证](http://docs.qiniu.com/api/get.html#download-token)，deadline 是 dntoken 的有效期。dntoken不需要生成，GO-SDK 提供了生成完整 downloadUrl 的方法（包含了 dntoken），示例代码如下：
 `downloadToken` 可以使用 SDK 提供的如下方法生成：
 
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-	@gist(gist/io.go#download)
-}
+@gist(gist/server.go#downloadUrl)
 ```
+生成 downloadUrl 后，服务端下发 downloadUrl 给客户端。客户端收到 downloadUrl 后，和公有资源类似，直接用任意的 HTTP 客户端就可以下载该资源了。唯一需要注意的是，在 downloadUrl 失效却还没有完成下载时，需要重新向服务器申请授权。
+
+无论公有资源还是私有资源，下载过程中客户端并不需要七牛 GO-SDK 参与其中。
+
 参阅: `rs.GetPolicy`, `rs.GetPolicy.MakeRequest`, `rs.MakeBaseUrl`
 
-<a name="rs-api"></a>
-## 4. 资源管理接口
+<a name="io-get-https"></a>
+### 4.3 HTTPS支持
+
+几乎所有七牛云存储 API 都同时支持 HTTP 和 HTTPS，但 HTTPS 下载有些需要注意的点。如果你的资源希望支持 HTTPS 下载，有如下限制：
+
+1. 不能用 xxx.qiniudn.com 这样的二级域名，只能用 dn-xxx.qbox.me 域名。样例：https://dn-abc.qbox.me/1.txt
+2. 使用自定义域名是付费的。我们并不建议使用自定义域名，但如确有需要，请联系我们的销售人员。
+
+<a name="io-get-resumable"></a>
+### 4.4 断点续下载
+
+无论是公有资源还是私有资源，获得的下载 url 支持标准的 HTTP 断点续传协议。考虑到多数语言都有相应的断点续下载支持的成熟方法，七牛 GO-SDK 并不提供断点续下载相关代码。
+
+<a name="rs"></a>
+## 5. 资源操作
 
 文件管理包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
 该节调用的函数第一个参数都为 `logger`, 用于记录log, 如果无需求, 可以设置为nil. 具体接口可以查阅 `github.com/qiniu/rpc`
 
 <a name="rs-stat"></a>
-### 4.1 查看单个文件属性信息
+### 5.1 获取文件信息
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-	@gist(gist/rs.go#stat)
-}
 ```
 参阅: `rs.Entry`, `rs.Client.Stat`
 
 
-<a name="rs-copy"></a>
-### 4.2 复制单个文件
-```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-
-	@gist(gist/rs.go#copy)
-}
-```
-参阅: `rs.Client.Copy`
-
-<a name="rs-move"></a>
-### 4.3 移动单个文件
-```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-
-	@gist(gist/rs.go#move)
-}
-```
-参阅: `rs.Client.Move`
-
 <a name="rs-delete"></a>
-### 4.4 删除单个文件
+### 5.2 删除文件
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-
-	@gist(gist/rs.go#delete)
-}
 ```
 参阅: `rs.Client.Delete`
 
-<a name="batch"></a>
-### 4.5 批量操作
-当您需要一次性进行多个操作时, 可以使用批量操作.
-<a name="batch-stat"></a>
-#### 4.5.1 批量获取文件属性信息
+<a name="rs-copy-move"></a>
+### 5.3 复制/移动文件
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
+```
+参阅: `rs.Client.Move` `rs.Client.Copy`
 
-func main() {
-	@gist(gist/conf.go#init)
 
-	@gist(gist/rs.go#entry_pathes)
-	@gist(gist/rs.go#batch_stat)
-}
+<a name="rs-batch"></a>
+### 5.4 批量操作
+当您需要一次性进行多个操作时, 可以使用批量操作.
+<a name="rs-batch-stat"></a>
+#### 5.4.1 批量获取文件信息
+```{go}
 ```
 
 参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
 
-<a name="batch-copy"></a>
+<a name="rs-batch-copy"></a>
 #### 4.5.2 批量复制文件
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-
-	@gist(gist/rs.go#entry_path_pairs)
-	@gist(gist/rs.go#batch_copy)
-}
 ```
 
 参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
 
-<a name="batch-move"></a>
+<a name="rs-batch-move"></a>
 #### 4.5.3 批量移动文件
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-
-	@gist(gist/rs.go#entry_path_pairs)
-	@gist(gist/rs.go#batch_move)
-}
 ```
 参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
-<a name="batch-delete"></a>
+<a name="rs-batch-delete"></a>
 #### 4.5.4 批量删除文件
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-
-	@gist(gist/rs.go#entry_pathes)
-	@gist(gist/rs.go#batch_delete)
-}
 ```
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
-<a name="batch-advanced"></a>
+<a name="rs-batch-advanced"></a>
 #### 4.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rs.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-
-	@gist(gist/rs.go#batch_adv)
-}
 ```
 参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
@@ -395,39 +281,19 @@ func main() {
 <a name="fop-image-info"></a>
 #### 5.1.1 查看图像属性
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/fop.go#import)
 
-func main() {
-	@gist(gist/fop.go#imageurl)
-	@gist(gist/fop.go#image_info)
-}
 ```
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
 #### 5.1.2 查看图片EXIF信息
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/fop.go#import)
-
-func main() {
-	@gist(gist/fop.go#imageurl)
-	@gist(gist/fop.go#exif)
-}
 ```
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
 <a name="fop-image-view"></a>
 #### 5.1.3 生成图片预览
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/fop.go#import)
-
-func main() {
-	@gist(gist/fop.go#imageurl)
-	@gist(gist/fop.go#image_view)
-}
 ```
 参阅: `fop.ImageView`
 
@@ -438,13 +304,6 @@ func main() {
 ### 6.1 批量获取文件列表
 根据指定的前缀，获取对应前缀的文件列表
 ```{go}
-@gist(gist/conf.go#import)
-@gist(gist/rsf.go#import)
-
-func main() {
-	@gist(gist/conf.go#init)
-	@gist(gist/rsf.go#listPrefix)
-}
 ```
 参阅: `rsf.ListPreFix`
 
