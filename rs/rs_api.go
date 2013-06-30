@@ -2,7 +2,7 @@ package rs
 
 import (
 	"net/http"
-	"encoding/base64"	
+	"encoding/base64"
 	"github.com/qiniu/rpc"
 	"github.com/qiniu/api/auth/digest"
 	. "github.com/qiniu/api/conf"
