@@ -27,15 +27,8 @@ func init() {
 	client = New(nil)
 
 	// 删除 可能存在的 newkey1  newkey2 
-	delFile(newkey1)
-	delFile(newkey2)
-}
-
-func delFile(key string) {
-	if _, err := client.Stat(nil,bucketName, key); err == nil {
-		client.Delete(nil, bucketName, key)
-	}
-
+	client.Delete(nil, bucketName, newkey1)
+	client.Delete(nil, bucketName, newkey2)
 }
 
 func TestGetPrivateUrl(t *testing.T) {
