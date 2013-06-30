@@ -393,7 +393,7 @@ func main() {
 <a name="fop-image"></a>
 ### 5.1 图像
 <a name="fop-image-info"></a>
-### 5.1.1 查看图像属性
+#### 5.1.1 查看图像属性
 ```{go}
 @gist(gist/conf.go#import)
 @gist(gist/fop.go#import)
@@ -406,7 +406,7 @@ func main() {
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
-### 5.1.2 查看图片EXIF信息
+#### 5.1.2 查看图片EXIF信息
 ```{go}
 @gist(gist/conf.go#import)
 @gist(gist/fop.go#import)
@@ -419,7 +419,7 @@ func main() {
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
 <a name="fop-image-view"></a>
-### 5.1.3 生成图片预览
+#### 5.1.3 生成图片预览
 ```{go}
 @gist(gist/conf.go#import)
 @gist(gist/fop.go#import)
@@ -433,8 +433,10 @@ func main() {
 
 <a name="rsf-api"></a>
 ## 6. 高级资源管理接口(rsf)
+
 <a name="rsf-listPrefix"></a>
-批量获取文件列表
+### 6.1 批量获取文件列表
+根据指定的前缀，获取对应前缀的文件列表
 ```{go}
 @gist(gist/conf.go#import)
 @gist(gist/rsf.go#import)
