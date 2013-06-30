@@ -133,14 +133,12 @@ uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put
 
 上传二进制流
 ```{go}
-}
 ```
 参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 上传本地文件
 ```{go}
 @gist(gist/client.go#resumableUpload)
-}
 ```
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
