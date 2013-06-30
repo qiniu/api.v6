@@ -145,7 +145,6 @@ func uploadFile(l rpc.Logger, uptoken, key, localFile string) (ret io.PutRet, er
 
 上传二进制流
 ```{go}
-}
 ```
 参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
@@ -153,7 +152,6 @@ func uploadFile(l rpc.Logger, uptoken, key, localFile string) (ret io.PutRet, er
 ```{go}
 func resumableUpload(l rpc.Logger, uptoken, key, localFile string) error {
 	return rio.PutFile(l, nil, uptoken, key, localFile, nil)
-}
 }
 ```
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
