@@ -6,7 +6,6 @@ import (
 	"io"
 	"testing"
 	"crypto/sha1"
-	"crypto/rand"
 	"encoding/base64"
 	"net/http"
 	. "github.com/qiniu/api/conf"
@@ -27,18 +26,16 @@ func init() {
 	}
 	client = New(nil)
 
-	newkey1 += randomBoundary()
-	newkey2 += randomBoundary()
+	// 删除 可能存在的 newkey1  newkey2 
+	delFile(newkey1)
+	delFile(newkey2)
 }
 
-func randomBoundary() string {
-
-	var buf [30]byte
-	_, err := io.ReadFull(rand.Reader, buf[:])
-	if err != nil {
-		panic(err)
+func delFile(key string) {
+	if _, err := client.Stat(nil,bucketName, key); err == nil {
+		client.Delete(nil, bucketName, key)
 	}
-	return fmt.Sprintf("%x", buf[:])
+
 }
 
 func TestGetPrivateUrl(t *testing.T) {
