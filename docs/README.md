@@ -134,7 +134,14 @@ uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put
 ```{go}
 func uptoken(bucketName string) string {
 	putPolicy := rs.PutPolicy {
-		Scope: bucketName,
+		Scope:         bucketName,
+		//CallbackUrl: callbackBody   
+		//CallbackBody:callbackBody    
+		//ReturnUrl:   returnUrl    
+		//ReturnBody:  returnBody    
+		//AsyncOps:    asyncOps    
+		//EndUser:     endUser    
+		//Expires:     expires    
 	}
 	return  putPolicy.Token(nil)
 }
