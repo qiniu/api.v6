@@ -139,7 +139,7 @@ func uptoken(bucketName string) string {
 	return  putPolicy.Token(nil)
 }
 ```
-参阅 [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
+参阅 [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43) [policy参数](http://docs.qiniu.com/api/put.html#uploadToken-args)
 
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
@@ -285,7 +285,7 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash)
 ```
-参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
+参阅: [resumable.io.PutFile](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L184), [resumable.io.PutExtra](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L93), [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
 
 相比普通上传，断点上续传代码没有变复杂。基本上就只是将`io.PutExtra`改为`resumable.io.PutExtra`，`io.PutFile`改为`resumable.io.PutFile`。
 
