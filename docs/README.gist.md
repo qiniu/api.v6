@@ -143,7 +143,7 @@ uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put
 ```{go}
 @gist(gist/client.go#uploadBuf)
 ```
-参阅: [resumable.io.Put](http://docs.qiniu.com/api/put.html#uploadToken), resumable.io.PutExtra, rs.PutPolicy
+参阅: [io.Put](https://github.com/wangtuanjie/api/blob/develop/io/io_api.go#L61), [io.PutExtra](https://github.com/wangtuanjie/api/blob/develop/io/io_api.go#L12), [rs.PutRet](https://github.com/wangtuanjie/api/blob/develop/io/io_api.go#L19)
 
 上传本地文件,代码:
 ```{go}
