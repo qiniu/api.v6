@@ -1,5 +1,12 @@
 ## CHANGE LOG
 
+### v6.0.1
+
+2013-07-01 issue [#77](https://github.com/qiniu/api/pull/77)
+
+- 整理 sdk docs
+
+
 ### v6.0.0
 
 2013-06-29 issue [#73](https://github.com/qiniu/api/pull/73)
