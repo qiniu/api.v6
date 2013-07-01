@@ -235,7 +235,6 @@ log.Print(ret.Hash, ret.Key)
 
 断点续上传函数，最后一个选项是 resumable.io.PutExtra结构体，来细化用的，其成员及其含义如下：
 
-我们先看支持了断点上续传、分块并行上传的基本样例：
 ```{go}
 type PutExtra struct {
 	CallbackParams  string  // 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
@@ -250,6 +249,7 @@ type PutExtra struct {
 }
 ```
 
+我们先看支持了断点上续传、分块并行上传的基本样例：
 上传二进制流
 ```{go}
 var logger rpc.Logger 

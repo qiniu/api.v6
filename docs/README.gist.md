@@ -163,11 +163,11 @@ uptoken是一个字符串,业务服务器生成[uptoken](http://docs.qiniu.com/a
 
 断点续上传函数，最后一个选项是 resumable.io.PutExtra结构体，来细化用的，其成员及其含义如下：
 
-我们先看支持了断点上续传、分块并行上传的基本样例：
 ```{go}
 @gist(../resumable/io/resumable_api.go#PutExtra)
 ```
 
+我们先看支持了断点上续传、分块并行上传的基本样例：
 上传二进制流
 ```{go}
 @gist(gist/client.go#resumableUploadBuf)
