@@ -174,7 +174,7 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
 ```
-参阅: `[resumable.io.Put(http://docs.qiniu.com/api/put.html#uploadToken)]`, `resumable.io.PutExtra`, `rs.PutPolicy`
+参阅: `[resumable.io.Put](http://docs.qiniu.com/api/put.html#uploadToken)`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 上传本地文件,代码:
 ```{go}
