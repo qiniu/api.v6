@@ -128,7 +128,8 @@ GO-SDK 以开源方式提供。开发者可以随时从本文档提供的下载�
 
 <a name="io-put-make-uptoken"></a>
 ### 3.2 生成上传授权uptoken
-uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put.html#uploadToken)的代码如下:
+uptoken是一个字符串,业务服务器生成[uptoken](http://docs.qiniu.com/api/put.html#uploadToken)的代码如下:
+调用如下代码前，请确保Access Key 和 Secret Key已经被正确初始化
 
 ```{go}
 @gist(gist/server.go#uptoken)
@@ -137,7 +138,7 @@ uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put
 
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
-上传文件到七牛（通常是客户端完成，但也可以发生在服务端）：
+上传文件到七牛（通常是客户端完成，但也可以发生在业务服务器）：
 
 直接上传内存中的数据, 代码:
 ```{go}

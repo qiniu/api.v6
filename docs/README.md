@@ -129,19 +129,20 @@ SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 
 <a name="io-put-make-uptoken"></a>
 ### 3.2 生成上传授权uptoken
-uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put.html#uploadToken)的代码如下:
+uptoken是一个字符串,业务服务器生成[uptoken](http://docs.qiniu.com/api/put.html#uploadToken)的代码如下:
+调用如下代码前，请确保Access Key 和 Secret Key已经被正确初始化
 
 ```{go}
 func uptoken(bucketName string) string {
 	putPolicy := rs.PutPolicy {
 		Scope:         bucketName,
-		//CallbackUrl: callbackBody   
-		//CallbackBody:callbackBody    
-		//ReturnUrl:   returnUrl    
-		//ReturnBody:  returnBody    
-		//AsyncOps:    asyncOps    
-		//EndUser:     endUser    
-		//Expires:     expires    
+		//CallbackUrl: callbackUrl,   
+		//CallbackBody:callbackBody,    
+		//ReturnUrl:   returnUrl,  
+		//ReturnBody:  returnBody,    
+		//AsyncOps:    asyncOps,    
+		//EndUser:     endUser,    
+		//Expires:     expires,   
 	}
 	return  putPolicy.Token(nil)
 }
@@ -150,7 +151,7 @@ func uptoken(bucketName string) string {
 
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
-上传文件到七牛（通常是客户端完成，但也可以发生在服务端）：
+上传文件到七牛（通常是客户端完成，但也可以发生在业务服务器）：
 
 直接上传内存中的数据, 代码:
 ```{go}

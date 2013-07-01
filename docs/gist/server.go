@@ -16,13 +16,13 @@ func init() {
 func uptoken(bucketName string) string {
 	putPolicy := rs.PutPolicy {
 		Scope:         bucketName,
-		//CallbackUrl: callbackBody   
-		//CallbackBody:callbackBody    
-		//ReturnUrl:   returnUrl    
-		//ReturnBody:  returnBody    
-		//AsyncOps:    asyncOps    
-		//EndUser:     endUser    
-		//Expires:     expires    
+		//CallbackUrl: callbackUrl,   
+		//CallbackBody:callbackBody,    
+		//ReturnUrl:   returnUrl,  
+		//ReturnBody:  returnBody,    
+		//AsyncOps:    asyncOps,    
+		//EndUser:     endUser,    
+		//Expires:     expires,   
 	}
 	return  putPolicy.Token(nil)
 }
