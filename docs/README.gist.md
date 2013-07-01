@@ -161,8 +161,9 @@ uptoken是一个字符串,业务服务器生成[uptoken](http://docs.qiniu.com/a
 
 除了基本的上传外，七牛还支持你将文件切成若干块（除最后一块外，每个块固定为4M大小），每个块可独立上传，互不干扰；每个分块块内则能够做到断点上续传。
 
+断点续上传函数，最后一个选项是 resumable.io.PutExtra结构体，来细化用的，其成员及其含义如下：
+
 我们先看支持了断点上续传、分块并行上传的基本样例：
-同样断点续上传函数，最后一个选项是 resumable.io.PutExtra结构体，来细化用的，其成员及其含义如下：
 ```{go}
 @gist(../resumable/io/resumable_api.go#PutExtra)
 ```
