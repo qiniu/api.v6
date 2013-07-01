@@ -22,7 +22,7 @@ func uploadFileDemo(localFile, key, uptoken string) {
 
 	// logger    为rpc.Logger类型，日志参数
 	// ret       变量用于存取返回的信息，详情见 io.PutRet
-	// uptoken   为服务端生成的上传口令
+	// uptoken   为业务服务器生成的上传口令
 	// key       为文件存储的标识，当 key == "?"，则服务端自动生成key
 	// localFile 为本地文件名
 	// extra     为上传文件的额外信息, 可为空，详情见 io.PutExtra
@@ -53,7 +53,7 @@ func uploadBufDemo( r gio.Reader, key, uptoken string) {
 
 	// logger    为rpc.Logger类型，日志参数
 	// ret       变量用于存取返回的信息，详情见 io.PutRet
-	// uptoken   为服务端生成的上传口令
+	// uptoken   为业务服务器端生成的上传口令
 	// key       为文件存储的标识，当 key == "?"，则服务端自动生成key
 	// r         为io.Reader类型，用于从其读取数据
 	// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra
@@ -70,8 +70,44 @@ func uploadBufDemo( r gio.Reader, key, uptoken string) {
 // @endgist
 }
 
-func resumableUpload(localFile, key, uptoken string) {
-// @gist resumableUpload
+func resumableUploadFileDemo(localFile, key, uptoken string) {
+// @gist resumableUploadFile
+	var logger rpc.Logger 
+	var err error
+	var ret rio.PutRet
+	var extra = &rio.PutExtra {
+		//CallbackParams: callbackParams,
+		//Bucket:         bucket,
+		//CustomMeta:     customMeta,
+		//MimeType:       mieType,
+		//ChunkSize:      chunkSize,
+		//TryTimes:       tryTimes,	
+		//Progresses:     progresses,
+		//Notify:         notify,		
+		//NotifyErr:      NotifyErr,
+	}
+
+	// logger    为rpc.Logger类型，日志参数
+	// ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
+	// uptoken   为业务服务器生成的上传口令
+	// key       为文件存储的标识
+	// localFile 为本地文件名
+	// extra     为上传文件的额外信息,可为空， 详情见 resumable.io.PutExtra
+	err = rio.PutFile(logger, ret, uptoken, key, localFile, extra)
+
+	if err != nil {
+	//上传产生错误
+		log.Print("resumable.io.Put failed:", err)
+		return
+	}
+
+	//上传成功，处理返回值
+	log.Print(ret.Hash)
+// @endgist
+}
+
+func resumableUploadBufDemo(r gio.ReaderAt, fsize int64,  key, uptoken string) {
+// @gist resumableUploadBuf
 	var logger rpc.Logger 
 	var err error
 	var ret io.PutRet
@@ -89,11 +125,12 @@ func resumableUpload(localFile, key, uptoken string) {
 
 	// logger    为rpc.Logger类型，日志参数
 	// ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
-	// uptoken   为服务端生成的上传口令
+	// uptoken   为业务服务器生成的上传口令
 	// key       为文件存储的标识
-	// localFile 为本地文件名
+	// r         为io.ReaderAt,用于读取数据
+	// fsize     数据总字节数
 	// extra     为上传文件的额外信息,可为空， 详情见 resumable.io.PutExtra
-	err = rio.PutFile(logger, ret, uptoken, key, localFile, extra)
+	err = rio.Put(logger, ret, uptoken, key, r, fsize, extra)
 
 	if err != nil {
 	//上传产生错误
@@ -102,6 +139,6 @@ func resumableUpload(localFile, key, uptoken string) {
 	}
 
 	//上传成功，处理返回值
-	log.Print(ret.Hash, ret.Key)
+	log.Print(ret.Hash)
 // @endgist
 }

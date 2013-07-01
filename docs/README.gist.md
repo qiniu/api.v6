@@ -133,7 +133,7 @@ uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put
 ```{go}
 @gist(gist/server.go#uptoken)
 ```
-参阅 `rs.PutPolicy`
+参阅 [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
 
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
@@ -143,13 +143,13 @@ uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put
 ```{go}
 @gist(gist/client.go#uploadBuf)
 ```
-参阅: [io.Put](https://github.com/wangtuanjie/api/blob/develop/io/io_api.go#L61), [io.PutExtra](https://github.com/wangtuanjie/api/blob/develop/io/io_api.go#L12), [rs.PutRet](https://github.com/wangtuanjie/api/blob/develop/io/io_api.go#L19)
+参阅: [io.Put](https://github.com/qiniu/api/blob/develop/io/io_api.go#L39), [io.PutExtra](https://github.com/qiniu/api/blob/develop/io/io_api.go#L21), [io.PutRet](https://github.com/qiniu/api/blob/develop/io/io_api.go#L32)
 
 上传本地文件,代码:
 ```{go}
 @gist(gist/client.go#uploadFile)
 ```
-参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
+参阅: [io.PutFile](https://github.com/qiniu/api/blob/develop/io/io_api.go#L68), [io.PutExtra](https://github.com/qiniu/api/blob/develop/io/io_api.go#L21), [io.PutRet](https://github.com/qiniu/api/blob/develop/io/io_api.go#L32)
 
 <a name="io-put-resumable"></a>
 ### 3.4 断点续上传、分块并行上传
@@ -160,12 +160,13 @@ uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put
 
 上传二进制流
 ```{go}
+@gist(gist/client.go#resumableUploadBuf)
 ```
-参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
+参阅: [resumable.io.Put](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L114), [resumable.io.PutExtra](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L93), [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
 
 上传本地文件
 ```{go}
-@gist(gist/client.go#resumableUpload)
+@gist(gist/client.go#resumableUploadFile)
 ```
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 

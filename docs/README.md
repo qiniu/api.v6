@@ -139,7 +139,7 @@ func uptoken(bucketName string) string {
 	return  putPolicy.Token(nil)
 }
 ```
-参阅 `rs.PutPolicy`
+参阅 [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
 
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
@@ -159,7 +159,7 @@ var extra = &io.PutExtra {
 
 // logger    为rpc.Logger类型，日志参数
 // ret       变量用于存取返回的信息，详情见 io.PutRet
-// uptoken   为服务端生成的上传口令
+// uptoken   为业务服务器端生成的上传口令
 // key       为文件存储的标识，当 key == "?"，则服务端自动生成key
 // r         为io.Reader类型，用于从其读取数据
 // extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra
@@ -174,7 +174,7 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
 ```
-参阅: [io.Put](https://github.com/wangtuanjie/api/blob/develop/io/io_api.go#L61), [io.PutExtra](https://github.com/wangtuanjie/api/blob/develop/io/io_api.go#L12), [rs.PutRet](https://github.com/wangtuanjie/api/blob/develop/io/io_api.go#L19)
+参阅: [io.Put](https://github.com/qiniu/api/blob/develop/io/io_api.go#L39), [io.PutExtra](https://github.com/qiniu/api/blob/develop/io/io_api.go#L21), [io.PutRet](https://github.com/qiniu/api/blob/develop/io/io_api.go#L32)
 
 上传本地文件,代码:
 ```{go}
@@ -190,7 +190,7 @@ var extra = &io.PutExtra {
 
 // logger    为rpc.Logger类型，日志参数
 // ret       变量用于存取返回的信息，详情见 io.PutRet
-// uptoken   为服务端生成的上传口令
+// uptoken   为业务服务器生成的上传口令
 // key       为文件存储的标识，当 key == "?"，则服务端自动生成key
 // localFile 为本地文件名
 // extra     为上传文件的额外信息, 可为空，详情见 io.PutExtra
@@ -205,7 +205,7 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
 ```
-参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
+参阅: [io.PutFile](https://github.com/qiniu/api/blob/develop/io/io_api.go#L68), [io.PutExtra](https://github.com/qiniu/api/blob/develop/io/io_api.go#L21), [io.PutRet](https://github.com/qiniu/api/blob/develop/io/io_api.go#L32)
 
 <a name="io-put-resumable"></a>
 ### 3.4 断点续上传、分块并行上传
@@ -215,11 +215,6 @@ log.Print(ret.Hash, ret.Key)
 我们先看支持了断点上续传、分块并行上传的基本样例：
 
 上传二进制流
-```{go}
-```
-参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
-
-上传本地文件
 ```{go}
 var logger rpc.Logger 
 var err error
@@ -238,7 +233,44 @@ var extra = &rio.PutExtra {
 
 // logger    为rpc.Logger类型，日志参数
 // ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
-// uptoken   为服务端生成的上传口令
+// uptoken   为业务服务器生成的上传口令
+// key       为文件存储的标识
+// r         为io.ReaderAt,用于读取数据
+// fsize     数据总字节数
+// extra     为上传文件的额外信息,可为空， 详情见 resumable.io.PutExtra
+err = rio.Put(logger, ret, uptoken, key, r, fsize, extra)
+
+if err != nil {
+//上传产生错误
+	log.Print("resumable.io.Put failed:", err)
+	return
+}
+
+//上传成功，处理返回值
+log.Print(ret.Hash)
+```
+参阅: [resumable.io.Put](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L114), [resumable.io.PutExtra](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L93), [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
+
+上传本地文件
+```{go}
+var logger rpc.Logger 
+var err error
+var ret rio.PutRet
+var extra = &rio.PutExtra {
+	//CallbackParams: callbackParams,
+	//Bucket:         bucket,
+	//CustomMeta:     customMeta,
+	//MimeType:       mieType,
+	//ChunkSize:      chunkSize,
+	//TryTimes:       tryTimes,	
+	//Progresses:     progresses,
+	//Notify:         notify,		
+	//NotifyErr:      NotifyErr,
+}
+
+// logger    为rpc.Logger类型，日志参数
+// ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
+// uptoken   为业务服务器生成的上传口令
 // key       为文件存储的标识
 // localFile 为本地文件名
 // extra     为上传文件的额外信息,可为空， 详情见 resumable.io.PutExtra
@@ -251,7 +283,7 @@ if err != nil {
 }
 
 //上传成功，处理返回值
-log.Print(ret.Hash, ret.Key)
+log.Print(ret.Hash)
 ```
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
