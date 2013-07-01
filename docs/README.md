@@ -103,7 +103,7 @@ SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 
 客户端（终端用户）直接上传到七牛的服务器，通过DNS智能解析，七牛会选择到离终端用户最近的ISP服务商节点，速度会比本地存储快很多。文件上传成功以后，七牛的服务器使用回调功能，只需要将非常少的数据（比如Key）传给应用服务器，应用服务器进行保存即可。
 
-**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](/v3/tools/qrsync/) 上传工具。
+**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](http://docs.qiniu.com/tools/qrsync.html) 上传工具。
 文件上传有两种方式，一种是以普通方式直传文件，简称普通上传，另一种方式是断点续上传，断点续上传在网络条件很一般的情况下也能有出色的上传速度，而且对大文件的传输非常友好。
 
 
@@ -152,6 +152,19 @@ func uptoken(bucketName string) string {
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
 上传文件到七牛（通常是客户端完成，但也可以发生在业务服务器）：
+普通上传的文件和二进制，最后一个参数都是PutExtra类型，是用来细化上传功能用的，PutExtra的成员及其意义如下：
+```{go}
+type PutExtra struct {
+	Params   map[string]string    //可选，用户自定义参数，必须以 "x:" 开头
+	                              //若不以x:开头，则忽略
+	MimeType string               //可选，当为 "" 时候，服务端自动判断 
+	Crc32    uint32
+	CheckCrc uint32
+	        // CheckCrc == 0: 表示不进行 crc32 校验
+	        // CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
+	        // CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
+}
+```
 
 直接上传内存中的数据, 代码:
 ```{go}
@@ -165,12 +178,12 @@ var extra = &io.PutExtra {
 	//CheckCrc:  CheckCrc,
 }
 
-// logger    为rpc.Logger类型，日志参数
+// logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 io.PutRet
 // uptoken   为业务服务器端生成的上传口令
 // key       为文件存储的标识，当 key == "?"，则服务端自动生成key
 // r         为io.Reader类型，用于从其读取数据
-// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra
+// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
 err = io.Put(logger, &ret, uptoken, key, r, extra)
 
 if err != nil {
@@ -196,12 +209,12 @@ var extra = &io.PutExtra {
 	//CheckCrc:  CheckCrc,
 }
 
-// logger    为rpc.Logger类型，日志参数
+// logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 io.PutRet
 // uptoken   为业务服务器生成的上传口令
 // key       为文件存储的标识，当 key == "?"，则服务端自动生成key
 // localFile 为本地文件名
-// extra     为上传文件的额外信息, 可为空，详情见 io.PutExtra
+// extra     为上传文件的额外信息，详情见 io.PutExtra，可选
 err = io.PutFile(logger, &ret, uptoken, key, localFile, extra)
 
 if err != nil {
@@ -221,6 +234,20 @@ log.Print(ret.Hash, ret.Key)
 除了基本的上传外，七牛还支持你将文件切成若干块（除最后一块外，每个块固定为4M大小），每个块可独立上传，互不干扰；每个分块块内则能够做到断点上续传。
 
 我们先看支持了断点上续传、分块并行上传的基本样例：
+同样断点续上传函数，最后一个选项是 resumable.io.PutExtra结构体，来细化用的，其成员及其含义如下：
+```{go}
+type PutExtra struct {
+	CallbackParams  string  // 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
+	Bucket          string
+	CustomMeta      string  // 可选。用户自定义 Meta，不能超过 256 字节
+	MimeType        string  // 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
+	ChunkSize	int	// 可选。每次上传的Chunk大小
+	TryTimes	int	// 可选。尝试次数
+	Progresses	[]BlkputRet // 可选。上传进度
+	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
+	NotifyErr	func(blkIdx int, blkSize int, err error)
+}
+```
 
 上传二进制流
 ```{go}
@@ -239,13 +266,13 @@ var extra = &rio.PutExtra {
 	//NotifyErr:      NotifyErr,
 }
 
-// logger    为rpc.Logger类型，日志参数
+// logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
 // uptoken   为业务服务器生成的上传口令
 // key       为文件存储的标识
 // r         为io.ReaderAt,用于读取数据
 // fsize     数据总字节数
-// extra     为上传文件的额外信息,可为空， 详情见 resumable.io.PutExtra
+// extra     为上传文件的额外信息, 详情见 resumable.io.PutExtra
 err = rio.Put(logger, ret, uptoken, key, r, fsize, extra)
 
 if err != nil {
@@ -276,7 +303,7 @@ var extra = &rio.PutExtra {
 	//NotifyErr:      NotifyErr,
 }
 
-// logger    为rpc.Logger类型，日志参数
+// logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
 // uptoken   为业务服务器生成的上传口令
 // key       为文件存储的标识
