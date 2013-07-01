@@ -129,7 +129,7 @@ SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 
 <a name="io-put-make-uptoken"></a>
 ### 3.2 生成上传授权uptoken
-uptoken是一个字符串,业务服务器生成[uptoken](http://docs.qiniu.com/api/put.html#uploadToken)的代码如下:
+uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的各个参数来生成[uptoken](http://docs.qiniu.com/api/put.html#uploadToken)的代码如下:
 调用如下代码前，请确保Access Key 和 Secret Key已经被正确初始化
 
 ```{go}
@@ -233,7 +233,7 @@ log.Print(ret.Hash, ret.Key)
 
 除了基本的上传外，七牛还支持你将文件切成若干块（除最后一块外，每个块固定为4M大小），每个块可独立上传，互不干扰；每个分块块内则能够做到断点上续传。
 
-断点续上传函数，最后一个选项是 resumable.io.PutExtra结构体，来细化用的，其成员及其含义如下：
+断点续上传函数，最后一个选项是 resumable.io.PutExtra结构体，来细化上传用的，其成员及其含义如下：
 
 ```{go}
 type PutExtra struct {
