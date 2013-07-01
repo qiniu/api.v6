@@ -23,7 +23,7 @@ func uploadFileDemo(localFile, key, uptoken string) {
 	// logger    为rpc.Logger类型，日志参数
 	// ret       变量用于存取返回的信息，详情见 io.PutRet
 	// uptoken   为服务端生成的上传口令
-	// key       为文字存储的标识，当 key == "?"，则服务端自动生成key
+	// key       为文件存储的标识，当 key == "?"，则服务端自动生成key
 	// localFile 为本地文件名
 	// extra     为上传文件的额外信息, 可为空，详情见 io.PutExtra
 	err = io.PutFile(logger, &ret, uptoken, key, localFile, extra)
@@ -54,7 +54,7 @@ func uploadBufDemo( r gio.Reader, key, uptoken string) {
 	// logger    为rpc.Logger类型，日志参数
 	// ret       变量用于存取返回的信息，详情见 io.PutRet
 	// uptoken   为服务端生成的上传口令
-	// key       为文字存储的标识，当 key == "?"，则服务端自动生成key
+	// key       为文件存储的标识，当 key == "?"，则服务端自动生成key
 	// r         为io.Reader类型，用于从其读取数据
 	// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra
 	err = io.Put(logger, &ret, uptoken, key, r, extra)
