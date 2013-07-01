@@ -18,6 +18,7 @@ import (
 const UNDEFINED_KEY = "?"
 
 // ----------------------------------------------------------
+// @gist PutExtra
 type PutExtra struct {
 	Params   map[string]string    //可选，用户自定义参数，必须以 "x:" 开头
 	                              //若不以x:开头，则忽略
@@ -28,6 +29,7 @@ type PutExtra struct {
 	        // CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
 	        // CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
 }
+// @endgist
 
 type PutRet struct {
 	Hash string `json:"hash"`  // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构

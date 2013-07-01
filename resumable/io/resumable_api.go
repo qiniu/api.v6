@@ -90,6 +90,7 @@ type BlkputRet struct {
 	Host     string `json:"host"`
 }
 
+// @gist PutExtra
 type PutExtra struct {
 	CallbackParams  string  // 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
 	Bucket          string
@@ -101,6 +102,7 @@ type PutExtra struct {
 	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
 	NotifyErr	func(blkIdx int, blkSize int, err error)
 }
+// @endgist
 
 type PutRet struct {
     Hash string `json:"hash"` // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
