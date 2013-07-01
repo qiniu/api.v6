@@ -143,11 +143,13 @@ uptoken是一个字符串,服务端生产[uptoken](http://docs.qiniu.com/api/put
 ```{go}
 @gist(gist/client.go#uploadBuf)
 ```
+参阅: `[resumable.io.Put(http://docs.qiniu.com/api/put.html#uploadToken)]`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 上传本地文件,代码:
 ```{go}
 @gist(gist/client.go#uploadFile)
 ```
+参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 <a name="io-put-resumable"></a>
 ### 3.4 断点续上传、分块并行上传
