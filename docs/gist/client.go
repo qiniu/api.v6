@@ -1,34 +1,107 @@
 package gist
 
 import (
+	"log"
 	gio"io"
 	"github.com/qiniu/rpc"
 	"github.com/qiniu/api/io"
 	rio "github.com/qiniu/api/resumable/io"
 )
 
+func uploadFileDemo(localFile, key, uptoken string) {
 // @gist uploadFile
-func uploadFile(l rpc.Logger, uptoken, key, localFile string) (ret io.PutRet, err error) {
-	err = io.PutFile(l, &ret, uptoken, key, localFile, nil)
-	return
-}
-// @endgist
+	var logger rpc.Logger 
+	var err error
+	var ret io.PutRet
+	var extra = &io.PutExtra {
+		//Params:    params,
+		//MimeType:  mieType,
+		//Crc32:     crc32,
+		//CheckCrc:  CheckCrc,
+	}
 
-// @gist simpleUploadFile
-func simpleUploadFile(l rpc.Logger, uptoken, key, localFile string) error {
-	return io.PutFile(l, nil, uptoken, key, localFile, nil)
-}
-// @endgist
+	// logger    为rpc.Logger类型，日志参数
+	// ret       变量用于存取返回的信息，详情见 io.PutRet
+	// uptoken   为服务端生成的上传口令
+	// key       为文字存储的标识，当 key == "?"，则服务端自动生成key
+	// localFile 为本地文件名
+	// extra     为上传文件的额外信息, 可为空，详情见 io.PutExtra
+	err = io.PutFile(logger, &ret, uptoken, key, localFile, extra)
 
+	if err != nil {
+	//上传产生错误
+		log.Print("io.PutFile failed:", err)
+		return
+	}
+
+	//上传成功，处理返回值
+	log.Print(ret.Hash, ret.Key)
+// @endgist
+}
+
+func uploadBufDemo( r gio.Reader, key, uptoken string) {
 // @gist uploadBuf
-func uploadBuf(l rpc.Logger, uptoken, key string, r gio.Reader) (ret io.PutRet, err error) {
-	err = io.Put(l, &ret, uptoken, key, r, nil)
-	return
-}
-// @endgist
+	var logger rpc.Logger 
+	var err error
+	var ret io.PutRet
+	var extra = &io.PutExtra {
+		//Params:    params,
+		//MimeType:  mieType,
+		//Crc32:     crc32,
+		//CheckCrc:  CheckCrc,
+	}
 
-// @gist resumableUpload
-func resumableUpload(l rpc.Logger, uptoken, key, localFile string) error {
-	return rio.PutFile(l, nil, uptoken, key, localFile, nil)
-}
+	// logger    为rpc.Logger类型，日志参数
+	// ret       变量用于存取返回的信息，详情见 io.PutRet
+	// uptoken   为服务端生成的上传口令
+	// key       为文字存储的标识，当 key == "?"，则服务端自动生成key
+	// r         为io.Reader类型，用于从其读取数据
+	// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra
+	err = io.Put(logger, &ret, uptoken, key, r, extra)
+
+	if err != nil {
+	//上传产生错误
+		log.Print("io.Put failed:", err)
+		return
+	}
+
+	//上传成功，处理返回值
+	log.Print(ret.Hash, ret.Key)
 // @endgist
+}
+
+func resumableUpload(localFile, key, uptoken string) {
+// @gist resumableUpload
+	var logger rpc.Logger 
+	var err error
+	var ret io.PutRet
+	var extra = &rio.PutExtra {
+		//CallbackParams: callbackParams,
+		//Bucket:         bucket,
+		//CustomMeta:     customMeta,
+		//MimeType:       mieType,
+		//ChunkSize:      chunkSize,
+		//TryTimes:       tryTimes,	
+		//Progresses:     progresses,
+		//Notify:         notify,		
+		//NotifyErr:      NotifyErr,
+	}
+
+	// logger    为rpc.Logger类型，日志参数
+	// ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
+	// uptoken   为服务端生成的上传口令
+	// key       为文件存储的标识
+	// localFile 为本地文件名
+	// extra     为上传文件的额外信息,可为空， 详情见 resumable.io.PutExtra
+	err = rio.PutFile(logger, ret, uptoken, key, localFile, extra)
+
+	if err != nil {
+	//上传产生错误
+		log.Print("resumable.io.Put failed:", err)
+		return
+	}
+
+	//上传成功，处理返回值
+	log.Print(ret.Hash, ret.Key)
+// @endgist
+}

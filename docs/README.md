@@ -8,6 +8,7 @@ Go SDK 使用指南 | 七牛云存储
 
 目录
 ----
+- [概述](#overview)
 - [安装](#install)
 - [初始化](#setup)
 	- [配置密钥](#setup-key)
@@ -43,12 +44,32 @@ Go SDK 使用指南 | 七牛云存储
 - [许可证](#license)
 
 ----
+<a name="overview"></a>
+
+## 概述
+
+七牛云存储的 GO 语言版本 SDK（本文以下称 GO-SDK）是对七牛云存储API协议的一层封装，以提供一套对于 GO 开发者而言简单易用的原生 GO 函数。GO 开发者在对接 GO-SDK 时无需理解七牛云存储 API 协议的细节，原则上也不需要对 HTTP 协议和原理做非常深入的了解，但如果拥有基础的 HTTP 知识，对于出错场景的处理可以更加高效。
+
+GO-SDK 以开源方式提供。开发者可以随时从本文档提供的下载地址查看和下载 SDK 的源代码.
+
+由于 GO 语言的通用性，GO-SDK 被设计为同时适合服务器端和客户端使用。服务端是指开发者自己的业务服务器，客户端是指开发者的客户终端。服务端因为有七牛颁发的 AccessKey/SecretKey，可以做很多客户端做不了的事情，比如删除文件、移动/复制文件等操作。一般而言，客服端操作文件需要获得服务端的授权。客户端上传文件需要获得服务端颁发的 [uptoken（上传授权凭证）](http://docs.qiniu.com/api/put.html#uploadToken)，客户端下载文件（包括下载处理过的文件，比如下载图片的缩略图）需要获得服务端颁发的 [dntoken（下载授权凭证）](http://docs.qiniu.com/api/get.html#download-token)。但开发者也可以将 bucket 设置为公开，此时文件有永久有效的访问地址，不需要业务服务器的授权，这对网站的静态文件（如图片、js、css、html）托管非常方便。
+
+从 v5.0.0 版本开始，我们对 SDK 的内容进行了精简。所有管理操作，比如：创建/删除 bucket、为 bucket 绑定域名（publish）、设置数据处理的样式分隔符（fop seperator）、新增数据处理样式（fop style）等都去除了，统一建议到[开发者平台](https://portal.qiniu.com/)来完成。另外，此前服务端还有自己独有的上传 API，现在也推荐统一成基于客户端上传的工作方式。
+
+从内容上来说，GO-SDK 主要包含如下几方面的内容：
+
+* 公共库: api/conf
+* 客户端上传文件：api/io
+* 客户端断点续上传：api/resumable/io
+* 数据处理：api/fop
+* 服务端操作：api/auth/digest (授权), api/rs(资源操作, uptoken/dntoken颁发), api/rsf(批量获取文件列表)
+
 
 <a name="install"></a>
 ## 1. 安装
 在命令行下执行
 
-	go get github.com/qiniu/api
+	go get -u github.com/qiniu/api
 
 <a name="setup"></a>
 ## 2. 初始化
@@ -60,9 +81,11 @@ Go SDK 使用指南 | 七牛云存储
 1. [开通七牛开发者帐号](https://portal.qiniu.com/signup)
 2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://portal.qiniu.com/setting/key)
 
-在获取到 Access Key 和 Secret Key 之后，您可以在您的程序中调用如下两行代码进行初始化对接, 要确保`ACCESS_KEY` 和 `SECRET_KEY` 在调用所有七牛API服务之前均已赋值：
+在获取到 Access Key 和 Secret Key 之后，您可以在您的程序中调用如下两行代码进行初始化对接, 要确保`ACCESS_KEY` 和 `SECRET_KEY` 在服务端调用 api/auth/digest,api/rs，api/rsf之前均已赋值：
 
 ```{go}
+import ."github.com/qiniu/api/conf"
+
 ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
 SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 ```
@@ -120,20 +143,66 @@ func uptoken(bucketName string) string {
 
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
-直接上传二进制流
+上传文件到七牛（通常是客户端完成，但也可以发生在服务端）：
+
+直接上传内存中的数据, 代码:
 ```{go}
-func uploadBuf(l rpc.Logger, uptoken, key string, r gio.Reader) (ret io.PutRet, err error) {
-	err = io.Put(l, &ret, uptoken, key, r, nil)
+var logger rpc.Logger 
+var err error
+var ret io.PutRet
+var extra = &io.PutExtra {
+	//Params:    params,
+	//MimeType:  mieType,
+	//Crc32:     crc32,
+	//CheckCrc:  CheckCrc,
+}
+
+// logger    为rpc.Logger类型，日志参数
+// ret       变量用于存取返回的信息，详情见 io.PutRet
+// uptoken   为服务端生成的上传口令
+// key       为文字存储的标识，当 key == "?"，则服务端自动生成key
+// r         为io.Reader类型，用于从其读取数据
+// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra
+err = io.Put(logger, &ret, uptoken, key, r, extra)
+
+if err != nil {
+//上传产生错误
+	log.Print("io.Put failed:", err)
 	return
 }
+
+//上传成功，处理返回值
+log.Print(ret.Hash, ret.Key)
 ```
 
-上传本地文件
+上传本地文件,代码:
 ```{go}
-func uploadFile(l rpc.Logger, uptoken, key, localFile string) (ret io.PutRet, err error) {
-	err = io.PutFile(l, &ret, uptoken, key, localFile, nil)
+var logger rpc.Logger 
+var err error
+var ret io.PutRet
+var extra = &io.PutExtra {
+	//Params:    params,
+	//MimeType:  mieType,
+	//Crc32:     crc32,
+	//CheckCrc:  CheckCrc,
+}
+
+// logger    为rpc.Logger类型，日志参数
+// ret       变量用于存取返回的信息，详情见 io.PutRet
+// uptoken   为服务端生成的上传口令
+// key       为文字存储的标识，当 key == "?"，则服务端自动生成key
+// localFile 为本地文件名
+// extra     为上传文件的额外信息, 可为空，详情见 io.PutExtra
+err = io.PutFile(logger, &ret, uptoken, key, localFile, extra)
+
+if err != nil {
+//上传产生错误
+	log.Print("io.PutFile failed:", err)
 	return
 }
+
+//上传成功，处理返回值
+log.Print(ret.Hash, ret.Key)
 ```
 
 <a name="io-put-resumable"></a>
@@ -150,9 +219,37 @@ func uploadFile(l rpc.Logger, uptoken, key, localFile string) (ret io.PutRet, er
 
 上传本地文件
 ```{go}
-func resumableUpload(l rpc.Logger, uptoken, key, localFile string) error {
-	return rio.PutFile(l, nil, uptoken, key, localFile, nil)
+var logger rpc.Logger 
+var err error
+var ret io.PutRet
+var extra = &rio.PutExtra {
+	//CallbackParams: callbackParams,
+	//Bucket:         bucket,
+	//CustomMeta:     customMeta,
+	//MimeType:       mieType,
+	//ChunkSize:      chunkSize,
+	//TryTimes:       tryTimes,	
+	//Progresses:     progresses,
+	//Notify:         notify,		
+	//NotifyErr:      NotifyErr,
 }
+
+// logger    为rpc.Logger类型，日志参数
+// ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
+// uptoken   为服务端生成的上传口令
+// key       为文件存储的标识
+// localFile 为本地文件名
+// extra     为上传文件的额外信息,可为空， 详情见 resumable.io.PutExtra
+err = rio.PutFile(logger, ret, uptoken, key, localFile, extra)
+
+if err != nil {
+//上传产生错误
+	log.Print("resumable.io.Put failed:", err)
+	return
+}
+
+//上传成功，处理返回值
+log.Print(ret.Hash, ret.Key)
 ```
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
@@ -229,7 +326,7 @@ func downloadUrl(domain, key string) string {
 <a name="rs"></a>
 ## 5. 资源操作
 
-文件管理包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
+资源操作包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
 该节调用的函数第一个参数都为 `logger`, 用于记录log, 如果无需求, 可以设置为nil. 具体接口可以查阅 `github.com/qiniu/rpc`
 
 <a name="rs-stat"></a>
@@ -318,8 +415,28 @@ func downloadUrl(domain, key string) string {
 
 <a name="rsf-listPrefix"></a>
 ### 6.1 批量获取文件列表
-根据指定的前缀，获取对应前缀的文件列表
+根据指定的前缀，获取对应前缀的文件列表,正常使用情景如下：
 ```{go}
+func listAll(l rpc.Logger, rs *rsf.Client, bucketName string, prefix string) {
+
+	var entries []rsf.ListItem
+	var marker = ""
+	var err error
+	var limit = 1000
+
+	for err == nil {
+		entries, marker, err = rs.ListPrefix(l, bucketName,
+			prefix, marker, limit)
+		for _, item := range entries {
+			//处理 item
+			log.Print("item:", item)
+		}
+	}
+	if err != io.EOF {
+		//非预期的错误
+		log.Print("listAll failed:", err)
+	}
+}
 ```
 参阅: `rsf.ListPreFix`
 
