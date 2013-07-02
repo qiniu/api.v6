@@ -1,51 +1,78 @@
 package gist
 
-// @gist import
-import "github.com/qiniu/api/rs"
-// @endgist
+import (
+	"log"
+	"github.com/qiniu/rpc"
+	"github.com/qiniu/api/rs"
+	. "github.com/qiniu/api/conf"
+)
 
-import "github.com/qiniu/rpc"
-
-var logger rpc.Logger
-var bucketName = "<bucketName>"
-var key = "<key>"
-
-var bucket1 = "<bucketName1>"
-var key1 = "<key1>"
-var bucket2 = "<bucketName2>"
-var key2 = "<key2>"
-var bucket3 = "<bucketName3>"
-var key3 = "<key3>"
-var bucket4 = "<bucketName4>"
-var key4 = "<key4>"
-
-var bucketSrc = "<bucketSrc>"
-var keySrc = "<keySrc>"
-var bucketDest = "<bucketDest>"
-var keyDest = "<keyDest>"
-
-func main() {
-	// @gist stat
-	rs.New(nil).Stat(logger, bucketName, key) // 返回: rs.Entry, error
-	// @endgist
-
-	// @gist copy
-	// 返回值 error, 操作成功时err为nil
-	rs.New(nil).Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
-	// @endgist
-
-	// @gist move
-	// 返回值 error, 操作成功时err为nil
-	rs.New(nil).Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
-	// @endgist
-
-	// @gist delete
-	rs.New(nil).Delete(logger, bucketName, key) // 返回值 error, 操作成功时err为nil
+func init() {
+	// @gist init
+	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
+	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 	// @endgist
 }
 
-func batch() {
-	// @gist entry_pathes
+func rsDemo(bucket, key, bucketSrc, keySrc, bucketDest, keyDest string) {
+	
+	// @gist rsPre
+	//此操作前 请确保 accesskey和secretkey 已被正确赋值
+	var rsCli = rs.New(nil)
+	var logger rpc.Logger
+	var err error
+	// @endgist
+
+	// @gist rsStat
+	var ret  rs.Entry
+	ret, err = rsCli.Stat(logger, bucket, key) 	
+	if err != nil {
+	//产生错误
+		log.Println("rs.Stat failed:", err)
+		return
+	}
+	//处理返回值
+	log.Println(ret)
+	// @endgist
+
+	// @gist rsCopy
+	err = rsCli.Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
+	if err != nil {
+	//产生错误
+		log.Println("rs.Copy failed:", err)
+		return
+	}
+	// @endgist
+
+	// @gist rsMove
+	err = rsCli.Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
+	if err != nil {
+	//产生错误
+		log.Println("rs.Copy failed:", err)
+		return
+	}
+	// @endgist
+
+	// @gist rsDelete
+	err = rsCli.Delete(logger, bucket, key)
+	if err != nil {
+	//产生错误
+		log.Println("rs.Copy failed:", err)
+		return
+	}
+	// @endgist
+}
+
+func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket4, key4 string) {
+
+	// @gist rsBatchPre
+	//此操作前 请确保 accesskey和secretkey 已被正确赋值
+	var rsCli = rs.New(nil)
+	var logger rpc.Logger
+	var err error
+	// @endgist
+
+	// @gist rsEntryPathes
 	entryPathes := []rs.EntryPath {
 		rs.EntryPath {
 			Bucket: bucket1,
@@ -58,7 +85,7 @@ func batch() {
 	}
 	// @endgist
 
-	// @gist entry_path_pairs
+	// @gist rsPathPairs
 	// 每个复制操作都含有源文件和目标文件
 	entryPairs := []rs.EntryPathPair {
 		rs.EntryPathPair {
@@ -83,45 +110,77 @@ func batch() {
 	}
 	// @endgist
 
-	// @gist batch_stat
-	rs.New(nil).BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
+	// @gist rsBatchStat
+	var batchStatRets []rs.BatchStatItemRet
+	batchStatRets, err = rsCli.BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
+	if err != nil {
+	//产生错误
+		log.Println("rs.BatchStat failed:", err)
+		return
+	}
+	//处理返回值
+	for _, item := range batchStatRets {
+		log.Println(item)
+	}
 	// @endgist
 
-
-	// @gist batch_copy
-	rs.New(nil).BatchCopy(logger, entryPairs)
-	// []rs.BatchResult, error
+	// @gist rsBatchCopy
+	var batchCopyRets []rs.BatchItemRet
+	batchCopyRets, err = rsCli.BatchCopy(logger, entryPairs)
+	if err != nil {
+	//产生错误
+		log.Println("rs.BatchCopy failed:", err)
+		return
+	}
+	for _, item := range batchCopyRets {
+	//遍历每个操作的返回结果
+		log.Println(item.Code, item.Error)
+	}
 	// @endgist
 
-	// @gist batch_move
-	rs.New(nil).BatchMove(logger, entryPairs)
-	// []rs.BatchResult, error
+	// @gist rsBatchMove
+	var batchMoveRets []rs.BatchItemRet
+	batchCopyRets, err = rsCli.BatchMove(logger, entryPairs)
+	if err != nil {
+	//产生错误
+		log.Println("rs.BatchMove failed:", err)
+		return
+	}
+	for _, item := range batchMoveRets {
+	//遍历每个操作的返回结果
+		log.Println(item.Code, item.Error)
+	}
 	// @endgist
 
-	// @gist batch_delete
-	rs.New(nil).BatchDelete(logger, entryPathes)
-	// []rs.BatchResult, error
+	// @gist rsBatchDelete
+	var batchDeleteRets []rs.BatchItemRet
+	batchDeleteRets, err = rsCli.BatchDelete(logger, entryPathes)
+	if err != nil {
+	//产生错误
+		log.Println("rs.BatchMove failed:", err)
+		return
+	}
+	for _, item := range batchDeleteRets {
+	//遍历每个操作的返回结果
+		log.Println(item.Code, item.Error)
+	}
 	// @endgist
 
-	// @gist batch_adv
+	//@gist rsBatchAdv
 	ops := []string {
-		rs.URIStat(bucketName, key1),
-		rs.URICopy(bucketName, key1, bucketName, key2), // 复制key1到key2
-		rs.URIDelete(bucketName, key1), // 删除key1
-		rs.URIMove(bucketName, key2, bucketName, key1), //将key2移动到key1
+		rs.URIStat(bucket, key1),
+		rs.URICopy(bucket, key1, bucket, key2), // 复制key1到key2
+		rs.URIDelete(bucket, key1), // 删除key1
+		rs.URIMove(bucket, key2, bucket, key1), //将key2移动到key1
 	}
-	rets := new([]rs.BatchItemRet)
-	rs.New(nil).Batch(logger, rets, ops) // 执行操作, 返回error
-	// @endgist
-}
 
-func token() {
-	// @gist put_policy
-	putPolicy := rs.PutPolicy {
-		Scope: bucketName,
+	rets := new([]rs.BatchItemRet)
+	err = rsCli.Batch(logger, rets, ops) 
+	if err != nil {
+	//产生错误
+		log.Println("rs.Batch failed:", err)
+		return
 	}
-	uptoken := putPolicy.Token(nil)
 	// @endgist
-	_ = uptoken
 }
 

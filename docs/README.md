@@ -26,7 +26,8 @@ Go SDK 使用指南 | 七牛云存储
 - [资源操作](#rs)
 	- [获取文件信息](#rs-stat)
 	- [删除文件](#rs-delete)
-	- [复制/移动文件](#rs-copy-move)
+	- [复制文件](#rs-copy)
+	- [移动文件](#rs-move)
 	- [批量操作](#rs-batch)
 		- [批量获取文件信息](#rs-batch-stat)
 		- [批量复制文件](#rs-batch-copy)
@@ -343,7 +344,7 @@ log.Print(ret.Hash)
 关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
 
 <a name="io-get"></a>
-## 4 文件下载
+## 4 下载文件
 七牛云存储上的资源下载分为 公有资源下载 和 私有资源下载 。
 
 私有（private）是 Bucket（空间）的一个属性，一个私有 Bucket 中的资源为私有资源，私有资源不可匿名下载。
@@ -402,6 +403,20 @@ func downloadUrl(domain, key string) string {
 <a name="rs-stat"></a>
 ### 5.1 获取文件信息
 ```{go}
+//此操作前 请确保 accesskey和secretkey 已被正确赋值
+var rsCli = rs.New(nil)
+var logger rpc.Logger
+var err error
+var ret  rs.Entry
+ret, err = rsCli.Stat(logger, bucket, key) 	
+if err != nil {
+//产生错误
+	log.Println("rs.Stat failed:", err)
+	return
+}
+//处理返回值
+log.Println(ret)
+
 ```
 参阅: `rs.Entry`, `rs.Client.Stat`
 
@@ -409,82 +424,273 @@ func downloadUrl(domain, key string) string {
 <a name="rs-delete"></a>
 ### 5.2 删除文件
 ```{go}
+//此操作前 请确保 accesskey和secretkey 已被正确赋值
+var rsCli = rs.New(nil)
+var logger rpc.Logger
+var err error
+err = rsCli.Delete(logger, bucket, key)
+if err != nil {
+//产生错误
+	log.Println("rs.Copy failed:", err)
+	return
+}
+
 ```
 参阅: `rs.Client.Delete`
 
-<a name="rs-copy-move"></a>
-### 5.3 复制/移动文件
+<a name="rs-copy"></a>
+### 5.3 复制文件
 ```{go}
+//此操作前 请确保 accesskey和secretkey 已被正确赋值
+var rsCli = rs.New(nil)
+var logger rpc.Logger
+var err error
+err = rsCli.Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
+if err != nil {
+//产生错误
+	log.Println("rs.Copy failed:", err)
+	return
+}
+
 ```
 参阅: `rs.Client.Move` `rs.Client.Copy`
 
+<a name="rs-move"></a>
+### 5.4 移动文件
+```{go}
+//此操作前 请确保 accesskey和secretkey 已被正确赋值
+var rsCli = rs.New(nil)
+var logger rpc.Logger
+var err error
+err = rsCli.Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
+if err != nil {
+//产生错误
+	log.Println("rs.Copy failed:", err)
+	return
+}
+
+```
+参阅: `rs.Client.Move`
+
 
 <a name="rs-batch"></a>
-### 5.4 批量操作
+### 5.5 批量操作
 当您需要一次性进行多个操作时, 可以使用批量操作.
+本小节关于批量操作部分，首先需要明白几个结构体。
+a. rs.EntryPath 是一个资源的标识，包含了bucket和key，也就唯一确定该资源了。
+b. rs.EntryPathPair 包含了两个rs.EntryPath ，当批量操作涉及到二元变量时，例如复制/移动，则使用此结构体。
+c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中包含了一个 错误码和一个错误信息。
+
 <a name="rs-batch-stat"></a>
-#### 5.4.1 批量获取文件信息
+#### 5.5.1 批量获取文件信息
 ```{go}
+//此操作前 请确保 accesskey和secretkey 已被正确赋值
+var rsCli = rs.New(nil)
+var logger rpc.Logger
+var err error
+entryPathes := []rs.EntryPath {
+	rs.EntryPath {
+		Bucket: bucket1,
+		Key: key1,
+	},
+	rs.EntryPath {
+		Bucket: bucket2,
+		Key: key2,
+	},
+}
+var batchStatRets []rs.BatchStatItemRet
+batchStatRets, err = rsCli.BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
+if err != nil {
+//产生错误
+	log.Println("rs.BatchStat failed:", err)
+	return
+}
+//处理返回值
+for _, item := range batchStatRets {
+	log.Println(item)
+}
+
 ```
 
 参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
 
 <a name="rs-batch-copy"></a>
-#### 4.5.2 批量复制文件
+#### 5.5.2 批量复制文件
 ```{go}
+//此操作前 请确保 accesskey和secretkey 已被正确赋值
+var rsCli = rs.New(nil)
+var logger rpc.Logger
+var err error
+// 每个复制操作都含有源文件和目标文件
+entryPairs := []rs.EntryPathPair {
+	rs.EntryPathPair {
+		Src: rs.EntryPath {
+			Bucket: bucket1,
+			Key: key1,
+		},
+		Dest: rs.EntryPath {
+			Bucket: bucket2,
+			Key: key2,
+		},
+	}, rs.EntryPathPair {
+		Src: rs.EntryPath {
+			Bucket: bucket3,
+			Key: key3,
+		},
+		Dest: rs.EntryPath {
+			Bucket: bucket4,
+			Key: key4,
+		},
+	},
+}
+var batchCopyRets []rs.BatchItemRet
+batchCopyRets, err = rsCli.BatchCopy(logger, entryPairs)
+if err != nil {
+//产生错误
+	log.Println("rs.BatchCopy failed:", err)
+	return
+}
+for _, item := range batchCopyRets {
+//遍历每个操作的返回结果
+	log.Println(item.Code, item.Error)
+}
+
 ```
 
 参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
 
 <a name="rs-batch-move"></a>
-#### 4.5.3 批量移动文件
+#### 5.5.3 批量移动文件
 ```{go}
+//此操作前 请确保 accesskey和secretkey 已被正确赋值
+var rsCli = rs.New(nil)
+var logger rpc.Logger
+var err error
+// 每个复制操作都含有源文件和目标文件
+entryPairs := []rs.EntryPathPair {
+	rs.EntryPathPair {
+		Src: rs.EntryPath {
+			Bucket: bucket1,
+			Key: key1,
+		},
+		Dest: rs.EntryPath {
+			Bucket: bucket2,
+			Key: key2,
+		},
+	}, rs.EntryPathPair {
+		Src: rs.EntryPath {
+			Bucket: bucket3,
+			Key: key3,
+		},
+		Dest: rs.EntryPath {
+			Bucket: bucket4,
+			Key: key4,
+		},
+	},
+}
+var batchMoveRets []rs.BatchItemRet
+batchCopyRets, err = rsCli.BatchMove(logger, entryPairs)
+if err != nil {
+//产生错误
+	log.Println("rs.BatchMove failed:", err)
+	return
+}
+for _, item := range batchMoveRets {
+//遍历每个操作的返回结果
+	log.Println(item.Code, item.Error)
+}
+
 ```
 参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
 <a name="rs-batch-delete"></a>
-#### 4.5.4 批量删除文件
+#### 5.5.4 批量删除文件
 ```{go}
+//此操作前 请确保 accesskey和secretkey 已被正确赋值
+var rsCli = rs.New(nil)
+var logger rpc.Logger
+var err error
+entryPathes := []rs.EntryPath {
+	rs.EntryPath {
+		Bucket: bucket1,
+		Key: key1,
+	},
+	rs.EntryPath {
+		Bucket: bucket2,
+		Key: key2,
+	},
+}
+var batchDeleteRets []rs.BatchItemRet
+batchDeleteRets, err = rsCli.BatchDelete(logger, entryPathes)
+if err != nil {
+//产生错误
+	log.Println("rs.BatchMove failed:", err)
+	return
+}
+for _, item := range batchDeleteRets {
+//遍历每个操作的返回结果
+	log.Println(item.Code, item.Error)
+}
+
 ```
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
 <a name="rs-batch-advanced"></a>
-#### 4.5.5 高级批量操作
+#### 5.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
 ```{go}
+//此操作前 请确保 accesskey和secretkey 已被正确赋值
+var rsCli = rs.New(nil)
+var logger rpc.Logger
+var err error
+ops := []string {
+	rs.URIStat(bucket, key1),
+	rs.URICopy(bucket, key1, bucket, key2), // 复制key1到key2
+	rs.URIDelete(bucket, key1), // 删除key1
+	rs.URIMove(bucket, key2, bucket, key1), //将key2移动到key1
+}
+
+rets := new([]rs.BatchItemRet)
+err = rsCli.Batch(logger, rets, ops) 
+if err != nil {
+//产生错误
+	log.Println("rs.Batch failed:", err)
+	return
+}
+
 ```
 参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
 <a name="fop-api"></a>
-## 5. 数据处理接口
+## 6. 数据处理接口
 七牛支持在云端对图像, 视频, 音频等富媒体进行个性化处理
 
 <a name="fop-image"></a>
-### 5.1 图像
+### 6.1 图像
 <a name="fop-image-info"></a>
-#### 5.1.1 查看图像属性
+#### 6.1.1 查看图像属性
 ```{go}
 
 ```
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
-#### 5.1.2 查看图片EXIF信息
+#### 6.1.2 查看图片EXIF信息
 ```{go}
 ```
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
 <a name="fop-image-view"></a>
-#### 5.1.3 生成图片预览
+#### 6.1.3 生成图片预览
 ```{go}
 ```
 参阅: `fop.ImageView`
 
 <a name="rsf-api"></a>
-## 6. 高级资源管理接口(rsf)
+## 7. 高级资源管理接口(rsf)
 
 <a name="rsf-listPrefix"></a>
-### 6.1 批量获取文件列表
+### 7.1 批量获取文件列表
 根据指定的前缀，获取对应前缀的文件列表,正常使用情景如下：
 ```{go}
 func listAll(l rpc.Logger, rs *rsf.Client, bucketName string, prefix string) {
@@ -512,7 +718,7 @@ func listAll(l rpc.Logger, rs *rsf.Client, bucketName string, prefix string) {
 
 
 <a name="contribution"></a>
-## 7. 贡献代码
+## 8. 贡献代码
 
 1. Fork
 2. 创建您的特性分支 (`git checkout -b my-new-feature`)
@@ -521,7 +727,7 @@ func listAll(l rpc.Logger, rs *rsf.Client, bucketName string, prefix string) {
 5. 然后到 github 网站的该 `git` 远程仓库的 `my-new-feature` 分支下发起 Pull Request
 
 <a name="license"></a>
-## 8. 许可证
+## 9. 许可证
 
 Copyright (c) 2013 qiniu.com
 
