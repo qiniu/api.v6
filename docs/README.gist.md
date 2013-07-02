@@ -359,14 +359,29 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 ### 6.1 图像
 <a name="fop-image-info"></a>
 #### 6.1.1 查看图像属性
+GO-SDK支持生成查看图片信息的URL，示意如下：
 ```{go}
+@gist(gist/fop.go#makeImageInfoUrl)
+
+```
+还可以已另一种方式，在程序中处理返回的图片信息：
+```{go}
+@gist(gist/fop.go#getImageInfo)
 
 ```
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
 #### 6.1.2 查看图片EXIF信息
+同样，本SDK也支持直接生成查看exif的URL：
 ```{go}
+@gist(gist/fop.go#makeExifUrl)
+
+```
+也可以在程序中处理exif的信息：
+```{go}
+@gist(gist/fop.go#getExif)
+
 ```
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 

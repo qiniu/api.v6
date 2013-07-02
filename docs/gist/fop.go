@@ -1,6 +1,7 @@
 package gist
 
 import (
+	"log"
 	"github.com/qiniu/rpc"
 	"github.com/qiniu/api/fop"
 )
@@ -12,12 +13,22 @@ func makeImageInfoUrl(imageUrl string) string {
 }
 // @endgist
 
-// @gist getImageInfo
-func getImageInfo(l rpc.Logger, imageUrl string) (ret fop.ImageInfoRet, err error) {
-	ii := fop.ImageInfo{}
-	return ii.Call(l, imageUrl)
+func getImageInfo(imageUrl string) {
+	// @gist getImageInfo
+	var logger rpc.Logger
+	var err error
+	var ii  = fop.ImageInfo{}
+	var infoRet  fop.ImageInfoRet
+	infoRet, err = ii.Call(logger, imageUrl)
+	if err != nil {
+	//产生错误
+		log.Println("fop getImageInfo failed:", err)
+		return 
+	}
+	log.Println(infoRet.Height, infoRet.Width, infoRet.ColorModel,
+		infoRet.Format)
+	// @endgist
 }
-// @endgist
 
 // @gist makeExifUrl
 func makeExifUrl(imageUrl string) string {
@@ -26,10 +37,25 @@ func makeExifUrl(imageUrl string) string {
 }
 // @endgist
 
-// @gist getExif
-func getExif(l rpc.Logger, imageUrl string) (ret fop.ExifRet, err error) {
-	e := fop.Exif{}
-	return e.Call(l, imageUrl)
+func getExif(imageUrl string) {
+	// @gist getExif
+	var logger rpc.Logger
+	var err error
+	var ie = fop.Exif{}
+	var exifRet fop.ExifRet
+
+	exifRet, err = ie.Call(logger, imageUrl)
+	if err != nil {
+	//产生错误
+		log.Println("fop getExif failed:", err)
+		return 
+	}
+
+	//处理返回结果
+	for _, item := range exifRet {
+		log.Println(item.Type, item.Val)
+	
+	}
+	// @endgist
 }
-// @endgist
 

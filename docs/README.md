@@ -669,14 +669,62 @@ if err != nil {
 ### 6.1 图像
 <a name="fop-image-info"></a>
 #### 6.1.1 查看图像属性
+GO-SDK支持生成查看图片信息的URL，示意如下：
 ```{go}
+func makeImageInfoUrl(imageUrl string) string {
+	ii := fop.ImageInfo{}
+	return ii.MakeRequest(imageUrl)
+}
+
+```
+还可以已另一种方式，在程序中处理返回的图片信息：
+```{go}
+var logger rpc.Logger
+var err error
+var ii  = fop.ImageInfo{}
+var infoRet  fop.ImageInfoRet
+infoRet, err = ii.Call(logger, imageUrl)
+if err != nil {
+//产生错误
+	log.Println("fop getImageInfo failed:", err)
+	return 
+}
+log.Println(infoRet.Height, infoRet.Width, infoRet.ColorModel,
+	infoRet.Format)
 
 ```
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
 #### 6.1.2 查看图片EXIF信息
+同样，本SDK也支持直接生成查看exif的URL：
 ```{go}
+func makeExifUrl(imageUrl string) string {
+	e := fop.Exif{}
+	return e.MakeRequest(imageUrl)
+}
+
+```
+也可以在程序中处理exif的信息：
+```{go}
+var logger rpc.Logger
+var err error
+var ie = fop.Exif{}
+var exifRet fop.ExifRet
+
+exifRet, err = ie.Call(logger, imageUrl)
+if err != nil {
+//产生错误
+	log.Println("fop getExif failed:", err)
+	return 
+}
+
+//处理返回结果
+for _, item := range exifRet {
+	log.Println(item.Type, item.Val)
+
+}
+
 ```
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
