@@ -54,8 +54,19 @@ func getExif(imageUrl string) {
 	//处理返回结果
 	for _, item := range exifRet {
 		log.Println(item.Type, item.Val)
-	
 	}
 	// @endgist
 }
 
+// @gist makeViewUrl
+func makeViewUrl(imageUrl string) string {
+	var view = fop.ImageView {
+		//Mode int      // 缩略模式
+		//Width int     // Width = 0 表示不限定宽度
+		//Height int    // Height = 0 表示不限定高度
+		//Quality int   // 质量, 1-100
+		//Format string // 输出格式，如jpg, gif, png, tif等等
+	}
+	return view.MakeRequest(imageUrl)
+}
+// @endgist

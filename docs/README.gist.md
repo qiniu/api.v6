@@ -387,7 +387,9 @@ GO-SDK支持生成查看图片信息的URL，示意如下：
 
 <a name="fop-image-view"></a>
 #### 6.1.3 生成图片预览
+可以根据给定的文件URL和缩略图规格来生成缩略图的URL,代码： 
 ```{go}
+@gist(gist/fop.go#makeViewUrl)
 ```
 参阅: `fop.ImageView`
 

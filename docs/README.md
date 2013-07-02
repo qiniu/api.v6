@@ -722,7 +722,6 @@ if err != nil {
 //处理返回结果
 for _, item := range exifRet {
 	log.Println(item.Type, item.Val)
-
 }
 
 ```
@@ -730,7 +729,18 @@ for _, item := range exifRet {
 
 <a name="fop-image-view"></a>
 #### 6.1.3 生成图片预览
+可以根据给定的文件URL和缩略图规格来生成缩略图的URL,代码： 
 ```{go}
+func makeViewUrl(imageUrl string) string {
+	var view = fop.ImageView {
+		//Mode int      // 缩略模式
+		//Width int     // Width = 0 表示不限定宽度
+		//Height int    // Height = 0 表示不限定高度
+		//Quality int   // 质量, 1-100
+		//Format string // 输出格式，如jpg, gif, png, tif等等
+	}
+	return view.MakeRequest(imageUrl)
+}
 ```
 参阅: `fop.ImageView`
 
