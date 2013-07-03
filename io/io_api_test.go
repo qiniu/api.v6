@@ -63,7 +63,6 @@ func crc32File(file string) uint32 {
 	f, _ := os.Open(file)
 	defer f.Close()
 	info, _ := f.Stat()
-	defer f.Close()
 	h := crc32.NewIEEE()
 	buf := make([]byte, info.Size())
 	io.ReadFull(f, buf)
