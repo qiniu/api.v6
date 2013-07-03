@@ -1,49 +1,75 @@
 ---
-title: Go SDK 使用指南 | 七牛云存储
+Go SDK 使用指南 | 七牛云存储
 ---
 
 # Go SDK 使用指南
 
-此 Golang SDK 适用于所有 >=go1 版本，基于 [七牛云存储官方API](http://docs.qiniutek.com/v3/api/) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
+此 Golang SDK 适用于所有 >=go1 版本，基于 [七牛云存储官方API](http://docs.qiniu.com) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
 
 目录
 ----
+- [概述](#overview)
 - [安装](#install)
 - [初始化](#setup)
 	- [配置密钥](#setup-key)
-- [上传下载接口](#get-and-put-api)
+- [上传文件](#io-put)
 	- [上传流程](#io-put-flow)
-	- [生成上传授权uptoken](#make-uptoken)
-	- [上传代码](#upload-code)
-	- [断点续上传、分块并行上传](#resumable-io-put)
+	- [生成上传授权uptoken](#io-put-make-uptoken)
+	- [上传代码](#io-put-upload-code)
+	- [断点续上传、分块并行上传](#io-put-resumable)
 	- [上传策略](#io-put-policy)
-	- [公有资源下载](#public-download)
-	- [私有资源下载](#private-download)
-- [资源管理接口](#rs-api)
-	- [查看单个文件属性信息](#rs-stat)
-	- [复制单个文件](#rs-copy)
-	- [移动单个文件](#rs-move)
-	- [删除单个文件](#rs-delete)
-	- [批量操作](#batch)
-		- [批量获取文件属性信息](#batch-stat)
-		- [批量复制文件](#batch-copy)
-		- [批量移动文件](#batch-move)
-		- [批量删除文件](#batch-delete)
+- [下载文件](#io-get)
+	- [公有资源下载](#io-get-public)
+	- [私有资源下载](#io-get-private)
+	- [HTTPS支持](#io-get-https)
+	- [断点续下载](#io-get-resumable)
+- [资源操作](#rs)
+	- [获取文件信息](#rs-stat)
+	- [删除文件](#rs-delete)
+	- [复制/移动文件](#rs-copy-move)
+	- [批量操作](#rs-batch)
+		- [批量获取文件信息](#rs-batch-stat)
+		- [批量复制文件](#rs-batch-copy)
+		- [批量移动文件](#rs-batch-move)
+		- [批量删除文件](#rs-batch-delete)
+		- [高级批量操作](#rs-batch-advanced)
 - [数据处理接口](#fop-api)
 	- [图像](#fop-image)
 		- [查看图像属性](#fop-image-info)
 		- [查看图片EXIF信息](#fop-exif)
 		- [生成图片预览](#fop-image-view)
+- [高级资源管理接口](#rsf-api)
+	- [批量获得文件列表](#rsf-listPrefix)
 - [贡献代码](#contribution)
 - [许可证](#license)
 
 ----
+<a name="overview"></a>
+
+## 概述
+
+七牛云存储的 GO 语言版本 SDK（本文以下称 GO-SDK）是对七牛云存储API协议的一层封装，以提供一套对于 GO 开发者而言简单易用的原生 GO 函数。GO 开发者在对接 GO-SDK 时无需理解七牛云存储 API 协议的细节，原则上也不需要对 HTTP 协议和原理做非常深入的了解，但如果拥有基础的 HTTP 知识，对于出错场景的处理可以更加高效。
+
+GO-SDK 以开源方式提供。开发者可以随时从本文档提供的下载地址查看和下载 SDK 的源代码.
+
+由于 GO 语言的通用性，GO-SDK 被设计为同时适合服务器端和客户端使用。服务端是指开发者自己的业务服务器，客户端是指开发者的客户终端。服务端因为有七牛颁发的 AccessKey/SecretKey，可以做很多客户端做不了的事情，比如删除文件、移动/复制文件等操作。一般而言，客服端操作文件需要获得服务端的授权。客户端上传文件需要获得服务端颁发的 [uptoken（上传授权凭证）](http://docs.qiniu.com/api/put.html#uploadToken)，客户端下载文件（包括下载处理过的文件，比如下载图片的缩略图）需要获得服务端颁发的 [dntoken（下载授权凭证）](http://docs.qiniu.com/api/get.html#download-token)。但开发者也可以将 bucket 设置为公开，此时文件有永久有效的访问地址，不需要业务服务器的授权，这对网站的静态文件（如图片、js、css、html）托管非常方便。
+
+从 v5.0.0 版本开始，我们对 SDK 的内容进行了精简。所有管理操作，比如：创建/删除 bucket、为 bucket 绑定域名（publish）、设置数据处理的样式分隔符（fop seperator）、新增数据处理样式（fop style）等都去除了，统一建议到[开发者平台](https://portal.qiniu.com/)来完成。另外，此前服务端还有自己独有的上传 API，现在也推荐统一成基于客户端上传的工作方式。
+
+从内容上来说，GO-SDK 主要包含如下几方面的内容：
+
+* 公共库: api/conf
+* 客户端上传文件：api/io
+* 客户端断点续上传：api/resumable/io
+* 数据处理：api/fop
+* 服务端操作：api/auth/digest (授权), api/rs(资源操作, uptoken/dntoken颁发), api/rsf(批量获取文件列表)
+
 
 <a name="install"></a>
 ## 1. 安装
 在命令行下执行
 
-	go get github.com/qiniu/api
+	go get -u github.com/qiniu/api
 
 <a name="setup"></a>
 ## 2. 初始化
@@ -52,22 +78,20 @@ title: Go SDK 使用指南 | 七牛云存储
 
 要接入七牛云存储，您需要拥有一对有效的 Access Key 和 Secret Key 用来进行签名认证。可以通过如下步骤获得：
 
-1. [开通七牛开发者帐号](https://dev.qiniutek.com/signup)
-2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://dev.qiniutek.com/account/keys) 。
+1. [开通七牛开发者帐号](https://portal.qiniu.com/signup)
+2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://portal.qiniu.com/setting/key)
 
-在获取到 Access Key 和 Secret Key 之后，您可以在您的程序中调用如下两行代码进行初始化对接, 要确保`ACCESS_KEY` 和 `SECRET_KEY` 在调用所有七牛API服务之前均已赋值：
+在获取到 Access Key 和 Secret Key 之后，您可以在您的程序中调用如下两行代码进行初始化对接, 要确保`ACCESS_KEY` 和 `SECRET_KEY` 在服务端调用 api/auth/digest,api/rs，api/rsf之前均已赋值：
 
 ```{go}
 import ."github.com/qiniu/api/conf"
 
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-}
+ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
+SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 ```
 
-<a name="get-and-put-api"></a>
-## 3. 上传下载接口
+<a name="io-put"></a>
+## 3. 上传文件
 
 为了尽可能地改善终端用户的上传体验，七牛云存储首创了客户端直传功能。一般云存储的上传流程是：
 
@@ -79,7 +103,7 @@ func main() {
 
 客户端（终端用户）直接上传到七牛的服务器，通过DNS智能解析，七牛会选择到离终端用户最近的ISP服务商节点，速度会比本地存储快很多。文件上传成功以后，七牛的服务器使用回调功能，只需要将非常少的数据（比如Key）传给应用服务器，应用服务器进行保存即可。
 
-**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](/v3/tools/qrsync/) 上传工具。
+**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](http://docs.qiniu.com/tools/qrsync.html) 上传工具。
 文件上传有两种方式，一种是以普通方式直传文件，简称普通上传，另一种方式是断点续上传，断点续上传在网络条件很一般的情况下也能有出色的上传速度，而且对大文件的传输非常友好。
 
 
@@ -103,124 +127,201 @@ func main() {
 
 
 
-<a name="make-uptoken"></a>
+<a name="io-put-make-uptoken"></a>
 ### 3.2 生成上传授权uptoken
-uptoken是一个字符串，作为http协议Header的一部分（Authorization字段）发送到我们七牛的服务端，表示这个http请求是经过认证的。
+uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的各个参数来生成[uptoken](http://docs.qiniu.com/api/put.html#uploadToken)的代码如下:
+调用如下代码前，请确保Access Key 和 Secret Key已经被正确初始化
 
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
+func uptoken(bucketName string) string {
 	putPolicy := rs.PutPolicy {
-		Scope: bucketName,
+		Scope:         bucketName,
+		//CallbackUrl: callbackUrl,   
+		//CallbackBody:callbackBody,    
+		//ReturnUrl:   returnUrl,  
+		//ReturnBody:  returnBody,    
+		//AsyncOps:    asyncOps,    
+		//EndUser:     endUser,    
+		//Expires:     expires,   
 	}
-	uptoken := putPolicy.Token(nil)
+	return  putPolicy.Token(nil)
 }
 ```
-参阅 `rs.PutPolicy`
+参阅 [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43) [policy参数](http://docs.qiniu.com/api/put.html#uploadToken-args)
 
-<a name="upload-code"></a>
+<a name="io-put-upload-code"></a>
 ### 3.3 上传代码
-直接上传二进制流
+上传文件到七牛（通常是客户端完成，但也可以发生在业务服务器）：
+普通上传的文件和二进制，最后一个参数都是PutExtra类型，是用来细化上传功能用的，PutExtra的成员及其意义如下：
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-import "github.com/qiniu/api/io"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-	
-	putPolicy := rs.PutPolicy {
-		Scope: bucketName,
-	}
-	extra := &io.PutExtra {
-		Bucket: bucketName,
-	}
-
-	buf := bytes.NewBufferString("data")
-	uptoken := putPolicy.Token(nil)
-	putErr := io.Put(logger, &ret, uptoken, "<key>", buf, extra)
+type PutExtra struct {
+	Params   map[string]string    //可选，用户自定义参数，必须以 "x:" 开头
+	                              //若不以x:开头，则忽略
+	MimeType string               //可选，当为 "" 时候，服务端自动判断 
+	Crc32    uint32
+	CheckCrc uint32
+	        // CheckCrc == 0: 表示不进行 crc32 校验
+	        // CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
+	        // CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
 }
 ```
 
-上传本地文件
+直接上传内存中的数据, 代码:
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-import "github.com/qiniu/api/io"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	putPolicy := rs.PutPolicy {
-		Scope: bucketName,
-	}
-	extra := &io.PutExtra {
-		Bucket: bucketName,
-	}
-
-	localFile := "<path/to/file>"
-	uptoken := putPolicy.Token(nil)
-	putFileErr := io.PutFile(logger, &ret, uptoken, "<key>", localFile, extra)
+var logger rpc.Logger 
+var err error
+var ret io.PutRet
+var extra = &io.PutExtra {
+	//Params:    params,
+	//MimeType:  mieType,
+	//Crc32:     crc32,
+	//CheckCrc:  CheckCrc,
 }
-```
 
-<a name="resumable-io-put"></a>
+// logger    为rpc.Logger类型，日志参数,可选
+// ret       变量用于存取返回的信息，详情见 io.PutRet
+// uptoken   为业务服务器端生成的上传口令
+// key       为文件存储的标识，当 key == "?"，则服务端自动生成key
+// r         为io.Reader类型，用于从其读取数据
+// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
+err = io.Put(logger, &ret, uptoken, key, r, extra)
+
+if err != nil {
+//上传产生错误
+	log.Print("io.Put failed:", err)
+	return
+}
+
+//上传成功，处理返回值
+log.Print(ret.Hash, ret.Key)
+```
+参阅: [io.Put](https://github.com/qiniu/api/blob/develop/io/io_api.go#L39), [io.PutExtra](https://github.com/qiniu/api/blob/develop/io/io_api.go#L21), [io.PutRet](https://github.com/qiniu/api/blob/develop/io/io_api.go#L32)
+
+上传本地文件,代码:
+```{go}
+var logger rpc.Logger 
+var err error
+var ret io.PutRet
+var extra = &io.PutExtra {
+	//Params:    params,
+	//MimeType:  mieType,
+	//Crc32:     crc32,
+	//CheckCrc:  CheckCrc,
+}
+
+// logger    为rpc.Logger类型，日志参数,可选
+// ret       变量用于存取返回的信息，详情见 io.PutRet
+// uptoken   为业务服务器生成的上传口令
+// key       为文件存储的标识，当 key == "?"，则服务端自动生成key
+// localFile 为本地文件名
+// extra     为上传文件的额外信息，详情见 io.PutExtra，可选
+err = io.PutFile(logger, &ret, uptoken, key, localFile, extra)
+
+if err != nil {
+//上传产生错误
+	log.Print("io.PutFile failed:", err)
+	return
+}
+
+//上传成功，处理返回值
+log.Print(ret.Hash, ret.Key)
+```
+参阅: [io.PutFile](https://github.com/qiniu/api/blob/develop/io/io_api.go#L68), [io.PutExtra](https://github.com/qiniu/api/blob/develop/io/io_api.go#L21), [io.PutRet](https://github.com/qiniu/api/blob/develop/io/io_api.go#L32)
+
+<a name="io-put-resumable"></a>
 ### 3.4 断点续上传、分块并行上传
 
 除了基本的上传外，七牛还支持你将文件切成若干块（除最后一块外，每个块固定为4M大小），每个块可独立上传，互不干扰；每个分块块内则能够做到断点上续传。
 
-我们先看支持了断点上续传、分块并行上传的基本样例：
+断点续上传函数，最后一个选项是 resumable.io.PutExtra结构体，来细化上传用的，其成员及其含义如下：
 
-上传二进制流
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-import "github.com/qiniu/api/resumable/io"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-	putPolicy := rs.PutPolicy {
-		Scope: bucketName,
-	}
-	extra := &io.PutExtra {
-		Bucket: bucketName,
-	}
-	buf := bytes.NewReader([]byte("data"))
-	fsize := int64(buf.Len())
-	uptoken := putPolicy.Token(nil)
-	putErr := io.Put(logger, &ret, uptoken, key, buf, fsize, extra)
+type PutExtra struct {
+	CallbackParams  string  // 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
+	Bucket          string
+	CustomMeta      string  // 可选。用户自定义 Meta，不能超过 256 字节
+	MimeType        string  // 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
+	ChunkSize	int	// 可选。每次上传的Chunk大小
+	TryTimes	int	// 可选。尝试次数
+	Progresses	[]BlkputRet // 可选。上传进度
+	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
+	NotifyErr	func(blkIdx int, blkSize int, err error)
 }
 ```
-参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
+
+我们先看支持了断点上续传、分块并行上传的基本样例：
+上传二进制流
+```{go}
+var logger rpc.Logger 
+var err error
+var ret io.PutRet
+var extra = &rio.PutExtra {
+	//CallbackParams: callbackParams,
+	//Bucket:         bucket,
+	//CustomMeta:     customMeta,
+	//MimeType:       mieType,
+	//ChunkSize:      chunkSize,
+	//TryTimes:       tryTimes,	
+	//Progresses:     progresses,
+	//Notify:         notify,		
+	//NotifyErr:      NotifyErr,
+}
+
+// logger    为rpc.Logger类型，日志参数,可选
+// ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
+// uptoken   为业务服务器生成的上传口令
+// key       为文件存储的标识
+// r         为io.ReaderAt,用于读取数据
+// fsize     数据总字节数
+// extra     为上传文件的额外信息, 详情见 resumable.io.PutExtra
+err = rio.Put(logger, ret, uptoken, key, r, fsize, extra)
+
+if err != nil {
+//上传产生错误
+	log.Print("resumable.io.Put failed:", err)
+	return
+}
+
+//上传成功，处理返回值
+log.Print(ret.Hash)
+```
+参阅: [resumable.io.Put](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L114), [resumable.io.PutExtra](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L93), [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
 
 上传本地文件
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-import "github.com/qiniu/api/resumable/io"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-	putPolicy := rs.PutPolicy {
-		Scope: bucketName,
-	}
-	extra := &io.PutExtra {
-		Bucket: bucketName,
-	}
-	localFile := "<path/to/file>"
-	uptoken := putPolicy.Token(nil)
-	putFileErr := io.PutFile(logger, &ret, uptoken, key, localFile, extra)
+var logger rpc.Logger 
+var err error
+var ret rio.PutRet
+var extra = &rio.PutExtra {
+	//CallbackParams: callbackParams,
+	//Bucket:         bucket,
+	//CustomMeta:     customMeta,
+	//MimeType:       mieType,
+	//ChunkSize:      chunkSize,
+	//TryTimes:       tryTimes,	
+	//Progresses:     progresses,
+	//Notify:         notify,		
+	//NotifyErr:      NotifyErr,
 }
+
+// logger    为rpc.Logger类型，日志参数,可选
+// ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
+// uptoken   为业务服务器生成的上传口令
+// key       为文件存储的标识
+// localFile 为本地文件名
+// extra     为上传文件的额外信息,可为空， 详情见 resumable.io.PutExtra
+err = rio.PutFile(logger, ret, uptoken, key, localFile, extra)
+
+if err != nil {
+//上传产生错误
+	log.Print("resumable.io.Put failed:", err)
+	return
+}
+
+//上传成功，处理返回值
+log.Print(ret.Hash)
 ```
-参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
+参阅: [resumable.io.PutFile](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L184), [resumable.io.PutExtra](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L93), [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
 
 相比普通上传，断点上续传代码没有变复杂。基本上就只是将`io.PutExtra`改为`resumable.io.PutExtra`，`io.PutFile`改为`resumable.io.PutFile`。
 
@@ -241,264 +342,116 @@ func main() {
 
 关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
 
-### 3.6 文件下载
+<a name="io-get"></a>
+## 4 文件下载
 七牛云存储上的资源下载分为 公有资源下载 和 私有资源下载 。
 
 私有（private）是 Bucket（空间）的一个属性，一个私有 Bucket 中的资源为私有资源，私有资源不可匿名下载。
 
 新创建的空间（Bucket）缺省为私有，也可以将某个 Bucket 设为公有，公有 Bucket 中的资源为公有资源，公有资源可以匿名下载。
 
-<a name="public-download"></a>
-### 3.7 公有资源下载
+<a name="io-get-public"></a>
+### 4.1 公有资源下载
 如果在给bucket绑定了域名的话，可以通过以下地址访问。
 
 	[GET] http://<domain>/<key>
 
-其中<domain>可以到[七牛云存储开发者自助网站](https://dev.qiniutek.com/buckets)绑定, 域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
+其中<domain>可以到[七牛云存储开发者自助网站](https://portal.qiniu.com)绑定。步骤：首先选择需要绑定的空间，其次在空间设置标签下，点击域名绑定项，即可申请绑定自定义域名。域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
 
-<a name="private-download"></a>
-#### 3.8 私有资源下载
-私有资源必须通过临时下载授权凭证(downloadToken)下载，如下：
+<a name="io-get-private"></a>
+### 4.2 私有资源下载
+如果某个 bucket 是私有的，那么这个 bucket 中的所有文件只能通过一个的临时有效的 downloadUrl 访问：
 
-	[GET] http://<domain>/<key>?token=<downloadToken>
-
+	[GET] http://<domain>/<key>?token=<dnToken>
 注意，尖括号不是必需，代表替换项。  
+其中 dntoken 是由业务服务器签发的一个[临时下载授权凭证](http://docs.qiniu.com/api/get.html#download-token)，deadline 是 dntoken 的有效期。dntoken不需要生成，GO-SDK 提供了生成完整 downloadUrl 的方法（包含了 dntoken），示例代码如下：
 `downloadToken` 可以使用 SDK 提供的如下方法生成：
 
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-	baseUrl := rs.MakeBaseUrl("<domain>", "<key>")
+func downloadUrl(domain, key string) string {
+	baseUrl := rs.MakeBaseUrl(domain, key)
 	policy := rs.GetPolicy{}
-	downloadUrl := policy.MakeRequest(baseUrl, nil)
+	return  policy.MakeRequest(baseUrl, nil)
 }
 ```
+生成 downloadUrl 后，服务端下发 downloadUrl 给客户端。客户端收到 downloadUrl 后，和公有资源类似，直接用任意的 HTTP 客户端就可以下载该资源了。唯一需要注意的是，在 downloadUrl 失效却还没有完成下载时，需要重新向服务器申请授权。
+
+无论公有资源还是私有资源，下载过程中客户端并不需要七牛 GO-SDK 参与其中。
+
 参阅: `rs.GetPolicy`, `rs.GetPolicy.MakeRequest`, `rs.MakeBaseUrl`
 
-<a name="rs-api"></a>
-## 4. 资源管理接口
+<a name="io-get-https"></a>
+### 4.3 HTTPS支持
 
-文件管理包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
+几乎所有七牛云存储 API 都同时支持 HTTP 和 HTTPS，但 HTTPS 下载有些需要注意的点。如果你的资源希望支持 HTTPS 下载，有如下限制：
+
+1. 不能用 xxx.qiniudn.com 这样的二级域名，只能用 dn-xxx.qbox.me 域名。样例：https://dn-abc.qbox.me/1.txt
+2. 使用自定义域名是付费的。我们并不建议使用自定义域名，但如确有需要，请联系我们的销售人员。
+
+<a name="io-get-resumable"></a>
+### 4.4 断点续下载
+
+无论是公有资源还是私有资源，获得的下载 url 支持标准的 HTTP 断点续传协议。考虑到多数语言都有相应的断点续下载支持的成熟方法，七牛 GO-SDK 并不提供断点续下载相关代码。
+
+<a name="rs"></a>
+## 5. 资源操作
+
+资源操作包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
 该节调用的函数第一个参数都为 `logger`, 用于记录log, 如果无需求, 可以设置为nil. 具体接口可以查阅 `github.com/qiniu/rpc`
 
 <a name="rs-stat"></a>
-### 4.1 查看单个文件属性信息
+### 5.1 获取文件信息
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-	rs.New(nil).Stat(logger, bucketName, key) // 返回: rs.Entry, error
-}
 ```
 参阅: `rs.Entry`, `rs.Client.Stat`
 
 
-<a name="rs-copy"></a>
-### 4.2 复制单个文件
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	// 返回值 error, 操作成功时err为nil
-	rs.New(nil).Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
-}
-```
-参阅: `rs.Client.Copy`
-
-<a name="rs-move"></a>
-### 4.3 移动单个文件
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	// 返回值 error, 操作成功时err为nil
-	rs.New(nil).Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
-}
-```
-参阅: `rs.Client.Move`
-
 <a name="rs-delete"></a>
-### 4.4 删除单个文件
+### 5.2 删除文件
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	rs.New(nil).Delete(logger, bucketName, key) // 返回值 error, 操作成功时err为nil
-}
 ```
 参阅: `rs.Client.Delete`
 
-<a name="batch"></a>
-### 4.5 批量操作
-当您需要一次性进行多个操作时, 可以使用批量操作.
-<a name="batch-stat"></a>
-#### 4.5.1 批量获取文件属性信息
+<a name="rs-copy-move"></a>
+### 5.3 复制/移动文件
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
+```
+参阅: `rs.Client.Move` `rs.Client.Copy`
 
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 
-	entryPathes := []rs.EntryPath {
-		rs.EntryPath {
-			Bucket: bucket1,
-			Key: key1,
-		},
-		rs.EntryPath {
-			Bucket: bucket2,
-			Key: key2,
-		},
-	}
-	rs.New(nil).BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
-}
+<a name="rs-batch"></a>
+### 5.4 批量操作
+当您需要一次性进行多个操作时, 可以使用批量操作.
+<a name="rs-batch-stat"></a>
+#### 5.4.1 批量获取文件信息
+```{go}
 ```
 
 参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
 
-<a name="batch-copy"></a>
+<a name="rs-batch-copy"></a>
 #### 4.5.2 批量复制文件
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	// 每个复制操作都含有源文件和目标文件
-	entryPairs := []rs.EntryPathPair {
-		rs.EntryPathPair {
-			Src: rs.EntryPath {
-				Bucket: bucket1,
-				Key: key1,
-			},
-			Dest: rs.EntryPath {
-				Bucket: bucket2,
-				Key: key2,
-			},
-		}, rs.EntryPathPair {
-			Src: rs.EntryPath {
-				Bucket: bucket3,
-				Key: key3,
-			},
-			Dest: rs.EntryPath {
-				Bucket: bucket4,
-				Key: key4,
-			},
-		},
-	}
-	rs.New(nil).BatchCopy(logger, entryPairs)
-	// []rs.BatchResult, error
-}
 ```
 
 参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
 
-<a name="batch-move"></a>
+<a name="rs-batch-move"></a>
 #### 4.5.3 批量移动文件
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	// 每个复制操作都含有源文件和目标文件
-	entryPairs := []rs.EntryPathPair {
-		rs.EntryPathPair {
-			Src: rs.EntryPath {
-				Bucket: bucket1,
-				Key: key1,
-			},
-			Dest: rs.EntryPath {
-				Bucket: bucket2,
-				Key: key2,
-			},
-		}, rs.EntryPathPair {
-			Src: rs.EntryPath {
-				Bucket: bucket3,
-				Key: key3,
-			},
-			Dest: rs.EntryPath {
-				Bucket: bucket4,
-				Key: key4,
-			},
-		},
-	}
-	rs.New(nil).BatchMove(logger, entryPairs)
-	// []rs.BatchResult, error
-}
 ```
 参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
-<a name="batch-delete"></a>
+<a name="rs-batch-delete"></a>
 #### 4.5.4 批量删除文件
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	entryPathes := []rs.EntryPath {
-		rs.EntryPath {
-			Bucket: bucket1,
-			Key: key1,
-		},
-		rs.EntryPath {
-			Bucket: bucket2,
-			Key: key2,
-		},
-	}
-	rs.New(nil).BatchDelete(logger, entryPathes)
-	// []rs.BatchResult, error
-}
 ```
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
-<a name="batch-advanced"></a>
+<a name="rs-batch-advanced"></a>
 #### 4.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	ops := []string {
-		rs.URIStat(bucketName, key1),
-		rs.URICopy(bucketName, key1, bucketName, key2), // 复制key1到key2
-		rs.URIDelete(bucketName, key1), // 删除key1
-		rs.URIMove(bucketName, key2, bucketName, key1), //将key2移动到key1
-	}
-	rets := new([]rs.BatchItemRet)
-	rs.New(nil).Batch(logger, rets, ops) // 执行操作, 返回error
-}
 ```
 参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
@@ -509,53 +462,57 @@ func main() {
 <a name="fop-image"></a>
 ### 5.1 图像
 <a name="fop-image-info"></a>
-### 5.1.1 查看图像属性
+#### 5.1.1 查看图像属性
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/fop"
 
-func main() {
-	imageUrl := "http://domain/key"
-	ii := fop.ImageInfo{}
-	inforet := ii.MakeRequest(imageUrl) // fop.ImageInfoRet, error
-}
 ```
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
-### 5.1.2 查看图片EXIF信息
+#### 5.1.2 查看图片EXIF信息
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/fop"
-
-func main() {
-	imageUrl := "http://domain/key"
-	exif := fop.Exif{}
-	exifret, err := exif.Call(logger, imageUrl) // fop.ExifRet, error
-}
 ```
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
 <a name="fop-image-view"></a>
-### 5.1.3 生成图片预览
+#### 5.1.3 生成图片预览
 ```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/fop"
-
-func main() {
-	imageUrl := "http://domain/key"
-	iv := fop.ImageView{
-		Mode: 1,
-		Width: 200,
-		Height: 200,
-	}
-	previewUrl := iv.MakeRequest(imageUrl)
-}
 ```
 参阅: `fop.ImageView`
 
+<a name="rsf-api"></a>
+## 6. 高级资源管理接口(rsf)
+
+<a name="rsf-listPrefix"></a>
+### 6.1 批量获取文件列表
+根据指定的前缀，获取对应前缀的文件列表,正常使用情景如下：
+```{go}
+func listAll(l rpc.Logger, rs *rsf.Client, bucketName string, prefix string) {
+
+	var entries []rsf.ListItem
+	var marker = ""
+	var err error
+	var limit = 1000
+
+	for err == nil {
+		entries, marker, err = rs.ListPrefix(l, bucketName,
+			prefix, marker, limit)
+		for _, item := range entries {
+			//处理 item
+			log.Print("item:", item)
+		}
+	}
+	if err != io.EOF {
+		//非预期的错误
+		log.Print("listAll failed:", err)
+	}
+}
+```
+参阅: `rsf.ListPreFix`
+
+
 <a name="contribution"></a>
-## 6. 贡献代码
+## 7. 贡献代码
 
 1. Fork
 2. 创建您的特性分支 (`git checkout -b my-new-feature`)
@@ -564,7 +521,7 @@ func main() {
 5. 然后到 github 网站的该 `git` 远程仓库的 `my-new-feature` 分支下发起 Pull Request
 
 <a name="license"></a>
-## 7. 许可证
+## 8. 许可证
 
 Copyright (c) 2013 qiniu.com
 
