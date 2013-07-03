@@ -83,7 +83,7 @@ func TestAll(t *testing.T) {
 	testPut(t)
 	testPutWithoutKey(t)
 	testPutFile(t)
-	testPutWithoutKey(t)
+	testPutFileWithoutKey(t)
 
 	// remove the temp file
 	os.Remove(upFile)
