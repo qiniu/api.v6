@@ -15,9 +15,6 @@ import (
 
 // ----------------------------------------------------------
 
-const UNDEFINED_KEY = "?"
-
-// ----------------------------------------------------------
 // @gist PutExtra
 type PutExtra struct {
 	Params   map[string]string    //可选，用户自定义参数，必须以 "x:" 开头
@@ -39,8 +36,16 @@ type PutRet struct {
 // ----------------------------------------------------------
 
 func Put(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, extra *PutExtra) error {
+	return put(l, ret, uptoken, key, true, data, extra)
+}
 
-	// CheckCrc == 1: 对于 Put 等同于 CheckCrc == 2
+func PutWithoutKey(l rpc.Logger, ret interface{}, uptoken string, data io.Reader, extra *PutExtra) error {
+	return put(l, ret, uptoken, "", false, data, extra)
+}
+
+func put(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, data io.Reader, extra *PutExtra) error {
+
+	// CheckCrc == 1: 对于 Put 和 PutWithoutKey 等同于 CheckCrc == 2
 	if extra != nil {
 		if extra.CheckCrc == 1 {
 			extra1 := *extra
@@ -48,26 +53,20 @@ func Put(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, ext
 			extra.CheckCrc = 2
 		}
 	}
-	return put(l, ret, uptoken, key, data, extra)
+	return putWrite(l, ret, uptoken, key, hasKey, data, extra)
 }
 
-func put(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, extra *PutExtra) error {
+// ----------------------------------------------------------
 
-	r, w := io.Pipe()
-	defer r.Close()
-	writer := multipart.NewWriter(w)
-
-	go func() {
-		err := writeMultipart(writer, uptoken, key, data, extra)
-		writer.Close()
-		w.CloseWithError(err)
-	}()
-
-	contentType := writer.FormDataContentType()
-	return rpc.DefaultClient.CallWith64(l, ret, UP_HOST, contentType, r, 0)
+func PutFile(l rpc.Logger, ret interface{}, uptoken, key, localFile string, extra *PutExtra) (err error) {
+	return putFile(l, ret, uptoken, key, true, localFile, extra)
 }
 
-func PutFile(l rpc.Logger, ret interface{}, uptoken, key string, localFile string, extra *PutExtra) (err error) {
+func PutFileWithoutKey(l rpc.Logger, ret interface{}, uptoken, localFile string, extra *PutExtra) (err error) {
+	return putFile(l, ret, uptoken, "", false, localFile, extra)
+}
+
+func putFile(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, localFile string, extra *PutExtra) (err error) {
 
 	f, err := os.Open(localFile)
 	if err != nil {
@@ -75,7 +74,26 @@ func PutFile(l rpc.Logger, ret interface{}, uptoken, key string, localFile strin
 	}
 	defer f.Close()
 
-	return put(l, ret, uptoken, key, f, extra)
+	return putWrite(l, ret, uptoken, key, hasKey, f, extra)
+}
+
+
+// ----------------------------------------------------------
+
+func putWrite(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, data io.Reader, extra *PutExtra) error {
+
+	r, w := io.Pipe()
+	defer r.Close()
+	writer := multipart.NewWriter(w)
+
+	go func() {
+		err := writeMultipart(writer, uptoken, key, hasKey, data, extra)
+		writer.Close()
+		w.CloseWithError(err)
+	}()
+
+	contentType := writer.FormDataContentType()
+	return rpc.DefaultClient.CallWith64(l, ret, UP_HOST, contentType, r, 0)
 }
 
 /*
@@ -85,7 +103,7 @@ func PutFile(l rpc.Logger, ret interface{}, uptoken, key string, localFile strin
  *      2:     以extra.Crc32的值，进行校验
  *      other: 和2一样， 以 extra.Crc32的值，进行校验   
  */
-func writeMultipart(writer *multipart.Writer, uptoken, key string, data io.Reader, extra *PutExtra) (err error) {
+func writeMultipart(writer *multipart.Writer, uptoken, key string, hasKey bool, data io.Reader, extra *PutExtra) (err error) {
 
 	if extra == nil {
 		extra = &PutExtra{}
@@ -97,7 +115,7 @@ func writeMultipart(writer *multipart.Writer, uptoken, key string, data io.Reade
 	}
 
 	//key
-	if key != UNDEFINED_KEY {
+	if hasKey {
 		if err = writer.WriteField("key", key); err != nil {
 			return
 		}
