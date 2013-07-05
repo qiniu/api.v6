@@ -23,7 +23,7 @@ func uploadFileDemo(localFile, key, uptoken string) {
 	// logger    为rpc.Logger类型，日志参数,可选
 	// ret       变量用于存取返回的信息，详情见 io.PutRet
 	// uptoken   为业务服务器生成的上传口令
-	// key       为文件存储的标识，当 key == "?"，则服务端自动生成key
+	// key       为文件存储的标识
 	// localFile 为本地文件名
 	// extra     为上传文件的额外信息，详情见 io.PutExtra，可选
 	err = io.PutFile(logger, &ret, uptoken, key, localFile, extra)
@@ -31,6 +31,66 @@ func uploadFileDemo(localFile, key, uptoken string) {
 	if err != nil {
 	//上传产生错误
 		log.Print("io.PutFile failed:", err)
+		return
+	}
+
+	//上传成功，处理返回值
+	log.Print(ret.Hash, ret.Key)
+// @endgist
+}
+
+func uploadFileWithoutKeyDemo(localFile, uptoken string) {
+// @gist uploadFileWithoutKey
+	var logger rpc.Logger 
+	var err error
+	var ret io.PutRet
+	var extra = &io.PutExtra {
+		//Params:    params,
+		//MimeType:  mieType,
+		//Crc32:     crc32,
+		//CheckCrc:  CheckCrc,
+	}
+
+	// logger    为rpc.Logger类型，日志参数,可选
+	// ret       变量用于存取返回的信息，详情见 io.PutRet
+	// uptoken   为业务服务器生成的上传口令
+	// localFile 为本地文件名
+	// extra     为上传文件的额外信息，详情见 io.PutExtra，可选
+	err = io.PutFileWithoutKey(logger, &ret, uptoken, localFile, extra)
+
+	if err != nil {
+	//上传产生错误
+		log.Print("io.PutFile failed:", err)
+		return
+	}
+
+	//上传成功，处理返回值
+	log.Print(ret.Hash, ret.Key)
+// @endgist
+}
+
+func uploadBufWithoutKeyDemo( r gio.Reader, key, uptoken string) {
+// @gist uploadBufWithoutKey
+	var logger rpc.Logger
+	var err error
+	var ret io.PutRet
+	var extra = &io.PutExtra {
+		//Params:    params,
+		//MimeType:  mieType,
+		//Crc32:     crc32,
+		//CheckCrc:  CheckCrc,
+	}
+
+	// logger    为rpc.Logger类型，日志参数,可选
+	// ret       变量用于存取返回的信息，详情见 io.PutRet
+	// uptoken   为业务服务器端生成的上传口令
+	// r         为io.Reader类型，用于从其读取数据
+	// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
+	err = io.PutWithoutKey(logger, &ret, uptoken, r, extra)
+
+	if err != nil {
+	//上传产生错误
+		log.Print("io.Put failed:", err)
 		return
 	}
 
@@ -54,7 +114,7 @@ func uploadBufDemo( r gio.Reader, key, uptoken string) {
 	// logger    为rpc.Logger类型，日志参数,可选
 	// ret       变量用于存取返回的信息，详情见 io.PutRet
 	// uptoken   为业务服务器端生成的上传口令
-	// key       为文件存储的标识，当 key == "?"，则服务端自动生成key
+	// key       为文件存储的标识
 	// r         为io.Reader类型，用于从其读取数据
 	// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
 	err = io.Put(logger, &ret, uptoken, key, r, extra)
