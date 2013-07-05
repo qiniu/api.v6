@@ -152,6 +152,7 @@ func uptoken(bucketName string) string {
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
 上传文件到七牛（通常是客户端完成，但也可以发生在业务服务器）：
+由于七牛的服务器支持自动生成key，所以本SDK提供的上传函数有两种展现方式，一种是有key的，一种是无key，让服务端自动生成key.
 普通上传的文件和二进制，最后一个参数都是PutExtra类型，是用来细化上传功能用的，PutExtra的成员及其意义如下：
 ```{go}
 type PutExtra struct {
@@ -181,7 +182,7 @@ var extra = &io.PutExtra {
 // logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 io.PutRet
 // uptoken   为业务服务器端生成的上传口令
-// key       为文件存储的标识，当 key == "?"，则服务端自动生成key
+// key       为文件存储的标识
 // r         为io.Reader类型，用于从其读取数据
 // extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
 err = io.Put(logger, &ret, uptoken, key, r, extra)
@@ -194,8 +195,40 @@ if err != nil {
 
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
+
 ```
-参阅: [io.Put](https://github.com/qiniu/api/blob/develop/io/io_api.go#L39), [io.PutExtra](https://github.com/qiniu/api/blob/develop/io/io_api.go#L21), [io.PutRet](https://github.com/qiniu/api/blob/develop/io/io_api.go#L32)
+参阅: `io.Put`, `io.PutExtra`
+
+直接上传内存中的数据,且不提供key参数，此时key由七牛服务器自动生成, 代码:
+```{go}
+var logger rpc.Logger
+var err error
+var ret io.PutRet
+var extra = &io.PutExtra {
+	//Params:    params,
+	//MimeType:  mieType,
+	//Crc32:     crc32,
+	//CheckCrc:  CheckCrc,
+}
+
+// logger    为rpc.Logger类型，日志参数,可选
+// ret       变量用于存取返回的信息，详情见 io.PutRet
+// uptoken   为业务服务器端生成的上传口令
+// r         为io.Reader类型，用于从其读取数据
+// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
+err = io.PutWithoutKey(logger, &ret, uptoken, r, extra)
+
+if err != nil {
+//上传产生错误
+	log.Print("io.Put failed:", err)
+	return
+}
+
+//上传成功，处理返回值
+log.Print(ret.Hash, ret.Key)
+
+```
+参阅: `io.Put`, `io.PutExtra`
 
 上传本地文件,代码:
 ```{go}
@@ -212,7 +245,7 @@ var extra = &io.PutExtra {
 // logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 io.PutRet
 // uptoken   为业务服务器生成的上传口令
-// key       为文件存储的标识，当 key == "?"，则服务端自动生成key
+// key       为文件存储的标识
 // localFile 为本地文件名
 // extra     为上传文件的额外信息，详情见 io.PutExtra，可选
 err = io.PutFile(logger, &ret, uptoken, key, localFile, extra)
@@ -226,8 +259,37 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
 ```
-参阅: [io.PutFile](https://github.com/qiniu/api/blob/develop/io/io_api.go#L68), [io.PutExtra](https://github.com/qiniu/api/blob/develop/io/io_api.go#L21), [io.PutRet](https://github.com/qiniu/api/blob/develop/io/io_api.go#L32)
+参阅: `io.PutFile`, `io.PutExtra`, `io.PutRet`
 
+上传本地文件,且不提供key参数，此时key由七牛服务器自动生成代码:
+```{go}
+var logger rpc.Logger 
+var err error
+var ret io.PutRet
+var extra = &io.PutExtra {
+	//Params:    params,
+	//MimeType:  mieType,
+	//Crc32:     crc32,
+	//CheckCrc:  CheckCrc,
+}
+
+// logger    为rpc.Logger类型，日志参数,可选
+// ret       变量用于存取返回的信息，详情见 io.PutRet
+// uptoken   为业务服务器生成的上传口令
+// localFile 为本地文件名
+// extra     为上传文件的额外信息，详情见 io.PutExtra，可选
+err = io.PutFileWithoutKey(logger, &ret, uptoken, localFile, extra)
+
+if err != nil {
+//上传产生错误
+	log.Print("io.PutFile failed:", err)
+	return
+}
+
+//上传成功，处理返回值
+log.Print(ret.Hash, ret.Key)
+```
+参阅: `io.PutFile`, `io.PutExtra`, `io.PutRet`
 <a name="io-put-resumable"></a>
 ### 3.4 断点续上传、分块并行上传
 
