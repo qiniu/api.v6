@@ -140,6 +140,7 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
 上传文件到七牛（通常是客户端完成，但也可以发生在业务服务器）：
+由于七牛的服务器支持自动生成key，所以本SDK提供的上传函数有两种展现方式，一种是有key的，一种是无key，让服务端自动生成key.
 普通上传的文件和二进制，最后一个参数都是PutExtra类型，是用来细化上传功能用的，PutExtra的成员及其意义如下：
 ```{go}
 @gist(../io/io_api.go#PutExtra)
@@ -148,15 +149,28 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 直接上传内存中的数据, 代码:
 ```{go}
 @gist(gist/client.go#uploadBuf)
+
 ```
-参阅: [io.Put](https://github.com/qiniu/api/blob/develop/io/io_api.go#L39), [io.PutExtra](https://github.com/qiniu/api/blob/develop/io/io_api.go#L21), [io.PutRet](https://github.com/qiniu/api/blob/develop/io/io_api.go#L32)
+参阅: `io.Put`, `io.PutExtra`
+
+直接上传内存中的数据,且不提供key参数，此时key由七牛服务器自动生成, 代码:
+```{go}
+@gist(gist/client.go#uploadBufWithoutKey)
+
+```
+参阅: `io.Put`, `io.PutExtra`
 
 上传本地文件,代码:
 ```{go}
 @gist(gist/client.go#uploadFile)
 ```
-参阅: [io.PutFile](https://github.com/qiniu/api/blob/develop/io/io_api.go#L68), [io.PutExtra](https://github.com/qiniu/api/blob/develop/io/io_api.go#L21), [io.PutRet](https://github.com/qiniu/api/blob/develop/io/io_api.go#L32)
+参阅: `io.PutFile`, `io.PutExtra`, `io.PutRet`
 
+上传本地文件,且不提供key参数，此时key由七牛服务器自动生成代码:
+```{go}
+@gist(gist/client.go#uploadFileWithoutKey)
+```
+参阅: `io.PutFile`, `io.PutExtra`, `io.PutRet`
 <a name="io-put-resumable"></a>
 ### 3.4 断点续上传、分块并行上传
 
