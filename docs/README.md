@@ -470,7 +470,7 @@ var rsCli = rs.New(nil)
 var logger rpc.Logger
 var err error
 var ret  rs.Entry
-ret, err = rsCli.Stat(logger, bucket, key) 	
+ret, err = rsCli.Stat(logger, bucket, key)
 if err != nil {
 //产生错误
 	log.Println("rs.Stat failed:", err)
@@ -486,10 +486,6 @@ log.Println(ret)
 <a name="rs-delete"></a>
 ### 5.2 删除文件
 ```{go}
-//此操作前 请确保 accesskey和secretkey 已被正确赋值
-var rsCli = rs.New(nil)
-var logger rpc.Logger
-var err error
 err = rsCli.Delete(logger, bucket, key)
 if err != nil {
 //产生错误
@@ -503,10 +499,6 @@ if err != nil {
 <a name="rs-copy"></a>
 ### 5.3 复制文件
 ```{go}
-//此操作前 请确保 accesskey和secretkey 已被正确赋值
-var rsCli = rs.New(nil)
-var logger rpc.Logger
-var err error
 err = rsCli.Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
 if err != nil {
 //产生错误
@@ -520,10 +512,6 @@ if err != nil {
 <a name="rs-move"></a>
 ### 5.4 移动文件
 ```{go}
-//此操作前 请确保 accesskey和secretkey 已被正确赋值
-var rsCli = rs.New(nil)
-var logger rpc.Logger
-var err error
 err = rsCli.Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
 if err != nil {
 //产生错误
@@ -546,10 +534,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 <a name="rs-batch-stat"></a>
 #### 5.5.1 批量获取文件信息
 ```{go}
-//此操作前 请确保 accesskey和secretkey 已被正确赋值
-var rsCli = rs.New(nil)
-var logger rpc.Logger
-var err error
 entryPathes := []rs.EntryPath {
 	rs.EntryPath {
 		Bucket: bucket1,
@@ -579,10 +563,6 @@ for _, item := range batchStatRets {
 <a name="rs-batch-copy"></a>
 #### 5.5.2 批量复制文件
 ```{go}
-//此操作前 请确保 accesskey和secretkey 已被正确赋值
-var rsCli = rs.New(nil)
-var logger rpc.Logger
-var err error
 // 每个复制操作都含有源文件和目标文件
 entryPairs := []rs.EntryPathPair {
 	rs.EntryPathPair {
@@ -624,10 +604,6 @@ for _, item := range batchCopyRets {
 <a name="rs-batch-move"></a>
 #### 5.5.3 批量移动文件
 ```{go}
-//此操作前 请确保 accesskey和secretkey 已被正确赋值
-var rsCli = rs.New(nil)
-var logger rpc.Logger
-var err error
 // 每个复制操作都含有源文件和目标文件
 entryPairs := []rs.EntryPathPair {
 	rs.EntryPathPair {
@@ -668,10 +644,6 @@ for _, item := range batchMoveRets {
 <a name="rs-batch-delete"></a>
 #### 5.5.4 批量删除文件
 ```{go}
-//此操作前 请确保 accesskey和secretkey 已被正确赋值
-var rsCli = rs.New(nil)
-var logger rpc.Logger
-var err error
 entryPathes := []rs.EntryPath {
 	rs.EntryPath {
 		Bucket: bucket1,
@@ -701,10 +673,6 @@ for _, item := range batchDeleteRets {
 #### 5.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
 ```{go}
-//此操作前 请确保 accesskey和secretkey 已被正确赋值
-var rsCli = rs.New(nil)
-var logger rpc.Logger
-var err error
 ops := []string {
 	rs.URIStat(bucket, key1),
 	rs.URICopy(bucket, key1, bucket, key2), // 复制key1到key2
@@ -713,7 +681,7 @@ ops := []string {
 }
 
 rets := new([]rs.BatchItemRet)
-err = rsCli.Batch(logger, rets, ops) 
+err = rsCli.Batch(logger, rets, ops)
 if err != nil {
 //产生错误
 	log.Println("rs.Batch failed:", err)
@@ -741,15 +709,11 @@ func makeImageInfoUrl(imageUrl string) string {
 ```
 还可以已另一种方式，在程序中处理返回的图片信息：
 ```{go}
-var logger rpc.Logger
-var err error
-var ii  = fop.ImageInfo{}
-var infoRet  fop.ImageInfoRet
 infoRet, err = ii.Call(logger, imageUrl)
 if err != nil {
 //产生错误
 	log.Println("fop getImageInfo failed:", err)
-	return 
+	return
 }
 log.Println(infoRet.Height, infoRet.Width, infoRet.ColorModel,
 	infoRet.Format)
@@ -769,16 +733,11 @@ func makeExifUrl(imageUrl string) string {
 ```
 也可以在程序中处理exif的信息：
 ```{go}
-var logger rpc.Logger
-var err error
-var ie = fop.Exif{}
-var exifRet fop.ExifRet
-
 exifRet, err = ie.Call(logger, imageUrl)
 if err != nil {
 //产生错误
 	log.Println("fop getExif failed:", err)
-	return 
+	return
 }
 
 //处理返回结果

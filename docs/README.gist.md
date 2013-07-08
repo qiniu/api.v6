@@ -280,7 +280,6 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 <a name="rs-delete"></a>
 ### 5.2 删除文件
 ```{go}
-@gist(gist/rs.go#rsPre)
 @gist(gist/rs.go#rsDelete)
 
 ```
@@ -289,7 +288,6 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 <a name="rs-copy"></a>
 ### 5.3 复制文件
 ```{go}
-@gist(gist/rs.go#rsPre)
 @gist(gist/rs.go#rsCopy)
 
 ```
@@ -298,7 +296,6 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 <a name="rs-move"></a>
 ### 5.4 移动文件
 ```{go}
-@gist(gist/rs.go#rsPre)
 @gist(gist/rs.go#rsMove)
 
 ```
@@ -316,7 +313,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 <a name="rs-batch-stat"></a>
 #### 5.5.1 批量获取文件信息
 ```{go}
-@gist(gist/rs.go#rsBatchPre)
 @gist(gist/rs.go#rsEntryPathes)
 @gist(gist/rs.go#rsBatchStat)
 
@@ -327,7 +323,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 <a name="rs-batch-copy"></a>
 #### 5.5.2 批量复制文件
 ```{go}
-@gist(gist/rs.go#rsBatchPre)
 @gist(gist/rs.go#rsPathPairs)
 @gist(gist/rs.go#rsBatchCopy)
 
@@ -338,7 +333,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 <a name="rs-batch-move"></a>
 #### 5.5.3 批量移动文件
 ```{go}
-@gist(gist/rs.go#rsBatchPre)
 @gist(gist/rs.go#rsPathPairs)
 @gist(gist/rs.go#rsBatchMove)
 
@@ -348,7 +342,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 <a name="rs-batch-delete"></a>
 #### 5.5.4 批量删除文件
 ```{go}
-@gist(gist/rs.go#rsBatchPre)
 @gist(gist/rs.go#rsEntryPathes)
 @gist(gist/rs.go#rsBatchDelete)
 
@@ -359,7 +352,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 #### 5.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
 ```{go}
-@gist(gist/rs.go#rsBatchPre)
 @gist(gist/rs.go#rsBatchAdv)
 
 ```

@@ -15,7 +15,7 @@ func init() {
 }
 
 func rsDemo(bucket, key, bucketSrc, keySrc, bucketDest, keyDest string) {
-	
+
 	// @gist rsPre
 	//此操作前 请确保 accesskey和secretkey 已被正确赋值
 	var rsCli = rs.New(nil)
@@ -25,7 +25,7 @@ func rsDemo(bucket, key, bucketSrc, keySrc, bucketDest, keyDest string) {
 
 	// @gist rsStat
 	var ret  rs.Entry
-	ret, err = rsCli.Stat(logger, bucket, key) 	
+	ret, err = rsCli.Stat(logger, bucket, key)
 	if err != nil {
 	//产生错误
 		log.Println("rs.Stat failed:", err)
@@ -175,7 +175,7 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 	}
 
 	rets := new([]rs.BatchItemRet)
-	err = rsCli.Batch(logger, rets, ops) 
+	err = rsCli.Batch(logger, rets, ops)
 	if err != nil {
 	//产生错误
 		log.Println("rs.Batch failed:", err)
