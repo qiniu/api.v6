@@ -2,7 +2,6 @@ package gist
 
 import (
 	"log"
-	"github.com/qiniu/rpc"
 	"github.com/qiniu/api/fop"
 )
 
@@ -15,13 +14,12 @@ func makeImageInfoUrl(imageUrl string) string {
 
 func getImageInfo(imageUrl string) {
 
-	var logger rpc.Logger
 	var err error
 	var ii  = fop.ImageInfo{}
 	var infoRet  fop.ImageInfoRet
 
 	// @gist getImageInfo
-	infoRet, err = ii.Call(logger, imageUrl)
+	infoRet, err = ii.Call(nil, imageUrl)
 	if err != nil {
 	//产生错误
 		log.Println("fop getImageInfo failed:", err)
@@ -41,13 +39,12 @@ func makeExifUrl(imageUrl string) string {
 
 func getExif(imageUrl string) {
 
-	var logger rpc.Logger
 	var err error
 	var ie = fop.Exif{}
 	var exifRet fop.ExifRet
 
 	// @gist getExif
-	exifRet, err = ie.Call(logger, imageUrl)
+	exifRet, err = ie.Call(nil, imageUrl)
 	if err != nil {
 	//产生错误
 		log.Println("fop getExif failed:", err)

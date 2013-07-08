@@ -2,7 +2,6 @@ package gist
 
 import (
 	"log"
-	"github.com/qiniu/rpc"
 	"github.com/qiniu/api/rs"
 	. "github.com/qiniu/api/conf"
 )
@@ -19,13 +18,12 @@ func rsDemo(bucket, key, bucketSrc, keySrc, bucketDest, keyDest string) {
 	// @gist rsPre
 	//此操作前 请确保 accesskey和secretkey 已被正确赋值
 	var rsCli = rs.New(nil)
-	var logger rpc.Logger
 	var err error
 	// @endgist
 
 	// @gist rsStat
 	var ret  rs.Entry
-	ret, err = rsCli.Stat(logger, bucket, key)
+	ret, err = rsCli.Stat(nil, bucket, key)
 	if err != nil {
 	//产生错误
 		log.Println("rs.Stat failed:", err)
@@ -36,7 +34,7 @@ func rsDemo(bucket, key, bucketSrc, keySrc, bucketDest, keyDest string) {
 	// @endgist
 
 	// @gist rsCopy
-	err = rsCli.Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
+	err = rsCli.Copy(nil, bucketSrc, keySrc, bucketDest, keyDest)
 	if err != nil {
 	//产生错误
 		log.Println("rs.Copy failed:", err)
@@ -45,7 +43,7 @@ func rsDemo(bucket, key, bucketSrc, keySrc, bucketDest, keyDest string) {
 	// @endgist
 
 	// @gist rsMove
-	err = rsCli.Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
+	err = rsCli.Move(nil, bucketSrc, keySrc, bucketDest, keyDest)
 	if err != nil {
 	//产生错误
 		log.Println("rs.Copy failed:", err)
@@ -54,7 +52,7 @@ func rsDemo(bucket, key, bucketSrc, keySrc, bucketDest, keyDest string) {
 	// @endgist
 
 	// @gist rsDelete
-	err = rsCli.Delete(logger, bucket, key)
+	err = rsCli.Delete(nil, bucket, key)
 	if err != nil {
 	//产生错误
 		log.Println("rs.Copy failed:", err)
@@ -68,7 +66,6 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 	// @gist rsBatchPre
 	//此操作前 请确保 accesskey和secretkey 已被正确赋值
 	var rsCli = rs.New(nil)
-	var logger rpc.Logger
 	var err error
 	// @endgist
 
@@ -112,7 +109,7 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 
 	// @gist rsBatchStat
 	var batchStatRets []rs.BatchStatItemRet
-	batchStatRets, err = rsCli.BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
+	batchStatRets, err = rsCli.BatchStat(nil, entryPathes) // []rs.BatchStatItemRet, error
 	if err != nil {
 	//产生错误
 		log.Println("rs.BatchStat failed:", err)
@@ -126,7 +123,7 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 
 	// @gist rsBatchCopy
 	var batchCopyRets []rs.BatchItemRet
-	batchCopyRets, err = rsCli.BatchCopy(logger, entryPairs)
+	batchCopyRets, err = rsCli.BatchCopy(nil, entryPairs)
 	if err != nil {
 	//产生错误
 		log.Println("rs.BatchCopy failed:", err)
@@ -140,7 +137,7 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 
 	// @gist rsBatchMove
 	var batchMoveRets []rs.BatchItemRet
-	batchCopyRets, err = rsCli.BatchMove(logger, entryPairs)
+	batchCopyRets, err = rsCli.BatchMove(nil, entryPairs)
 	if err != nil {
 	//产生错误
 		log.Println("rs.BatchMove failed:", err)
@@ -154,7 +151,7 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 
 	// @gist rsBatchDelete
 	var batchDeleteRets []rs.BatchItemRet
-	batchDeleteRets, err = rsCli.BatchDelete(logger, entryPathes)
+	batchDeleteRets, err = rsCli.BatchDelete(nil, entryPathes)
 	if err != nil {
 	//产生错误
 		log.Println("rs.BatchMove failed:", err)
@@ -175,7 +172,7 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 	}
 
 	rets := new([]rs.BatchItemRet)
-	err = rsCli.Batch(logger, rets, ops)
+	err = rsCli.Batch(nil, rets, ops)
 	if err != nil {
 	//产生错误
 		log.Println("rs.Batch failed:", err)

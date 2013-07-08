@@ -148,7 +148,7 @@ func uptoken(bucketName string) string {
 	return  putPolicy.Token(nil)
 }
 ```
-参阅 [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43) [policy参数](http://docs.qiniu.com/api/put.html#uploadToken-args)
+参阅 `rs.PutPolicy` [policy参数](http://docs.qiniu.com/api/put.html#uploadToken-args)
 
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
@@ -170,7 +170,6 @@ type PutExtra struct {
 
 直接上传内存中的数据, 代码:
 ```{go}
-var logger rpc.Logger 
 var err error
 var ret io.PutRet
 var extra = &io.PutExtra {
@@ -180,13 +179,12 @@ var extra = &io.PutExtra {
 	//CheckCrc:  CheckCrc,
 }
 
-// logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 io.PutRet
 // uptoken   为业务服务器端生成的上传口令
 // key       为文件存储的标识
 // r         为io.Reader类型，用于从其读取数据
 // extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
-err = io.Put(logger, &ret, uptoken, key, r, extra)
+err = io.Put(nil, &ret, uptoken, key, r, extra)
 
 if err != nil {
 //上传产生错误
@@ -196,13 +194,11 @@ if err != nil {
 
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
-
 ```
 参阅: `io.Put`, `io.PutExtra`
 
 直接上传内存中的数据,且不提供key参数，此时key由七牛服务器自动生成, 代码:
 ```{go}
-var logger rpc.Logger
 var err error
 var ret io.PutRet
 var extra = &io.PutExtra {
@@ -212,12 +208,11 @@ var extra = &io.PutExtra {
 	//CheckCrc:  CheckCrc,
 }
 
-// logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 io.PutRet
 // uptoken   为业务服务器端生成的上传口令
 // r         为io.Reader类型，用于从其读取数据
 // extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
-err = io.PutWithoutKey(logger, &ret, uptoken, r, extra)
+err = io.PutWithoutKey(nil, &ret, uptoken, r, extra)
 
 if err != nil {
 //上传产生错误
@@ -227,13 +222,11 @@ if err != nil {
 
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
-
 ```
 参阅: `io.Put`, `io.PutExtra`
 
 上传本地文件,代码:
 ```{go}
-var logger rpc.Logger 
 var err error
 var ret io.PutRet
 var extra = &io.PutExtra {
@@ -243,13 +236,12 @@ var extra = &io.PutExtra {
 	//CheckCrc:  CheckCrc,
 }
 
-// logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 io.PutRet
 // uptoken   为业务服务器生成的上传口令
 // key       为文件存储的标识
 // localFile 为本地文件名
 // extra     为上传文件的额外信息，详情见 io.PutExtra，可选
-err = io.PutFile(logger, &ret, uptoken, key, localFile, extra)
+err = io.PutFile(nil, &ret, uptoken, key, localFile, extra)
 
 if err != nil {
 //上传产生错误
@@ -264,7 +256,6 @@ log.Print(ret.Hash, ret.Key)
 
 上传本地文件,且不提供key参数，此时key由七牛服务器自动生成代码:
 ```{go}
-var logger rpc.Logger 
 var err error
 var ret io.PutRet
 var extra = &io.PutExtra {
@@ -274,12 +265,11 @@ var extra = &io.PutExtra {
 	//CheckCrc:  CheckCrc,
 }
 
-// logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 io.PutRet
 // uptoken   为业务服务器生成的上传口令
 // localFile 为本地文件名
 // extra     为上传文件的额外信息，详情见 io.PutExtra，可选
-err = io.PutFileWithoutKey(logger, &ret, uptoken, localFile, extra)
+err = io.PutFileWithoutKey(nil, &ret, uptoken, localFile, extra)
 
 if err != nil {
 //上传产生错误
@@ -315,7 +305,6 @@ type PutExtra struct {
 我们先看支持了断点上续传、分块并行上传的基本样例：
 上传二进制流
 ```{go}
-var logger rpc.Logger 
 var err error
 var ret io.PutRet
 var extra = &rio.PutExtra {
@@ -330,14 +319,13 @@ var extra = &rio.PutExtra {
 	//NotifyErr:      NotifyErr,
 }
 
-// logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
 // uptoken   为业务服务器生成的上传口令
 // key       为文件存储的标识
 // r         为io.ReaderAt,用于读取数据
 // fsize     数据总字节数
 // extra     为上传文件的额外信息, 详情见 resumable.io.PutExtra
-err = rio.Put(logger, ret, uptoken, key, r, fsize, extra)
+err = rio.Put(nil, ret, uptoken, key, r, fsize, extra)
 
 if err != nil {
 //上传产生错误
@@ -348,11 +336,10 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash)
 ```
-参阅: [resumable.io.Put](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L114), [resumable.io.PutExtra](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L93), [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
+参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 上传本地文件
 ```{go}
-var logger rpc.Logger 
 var err error
 var ret rio.PutRet
 var extra = &rio.PutExtra {
@@ -367,13 +354,12 @@ var extra = &rio.PutExtra {
 	//NotifyErr:      NotifyErr,
 }
 
-// logger    为rpc.Logger类型，日志参数,可选
 // ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
 // uptoken   为业务服务器生成的上传口令
 // key       为文件存储的标识
 // localFile 为本地文件名
 // extra     为上传文件的额外信息,可为空， 详情见 resumable.io.PutExtra
-err = rio.PutFile(logger, ret, uptoken, key, localFile, extra)
+err = rio.PutFile(nil, ret, uptoken, key, localFile, extra)
 
 if err != nil {
 //上传产生错误
@@ -384,7 +370,7 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash)
 ```
-参阅: [resumable.io.PutFile](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L184), [resumable.io.PutExtra](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L93), [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
+参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 相比普通上传，断点上续传代码没有变复杂。基本上就只是将`io.PutExtra`改为`resumable.io.PutExtra`，`io.PutFile`改为`resumable.io.PutFile`。
 
@@ -466,7 +452,7 @@ func downloadUrl(domain, key string) string {
 ### 5.1 获取文件信息
 ```{go}
 var ret  rs.Entry
-ret, err = rsCli.Stat(logger, bucket, key)
+ret, err = rsCli.Stat(nil, bucket, key)
 if err != nil {
 //产生错误
 	log.Println("rs.Stat failed:", err)
@@ -482,7 +468,7 @@ log.Println(ret)
 <a name="rs-delete"></a>
 ### 5.2 删除文件
 ```{go}
-err = rsCli.Delete(logger, bucket, key)
+err = rsCli.Delete(nil, bucket, key)
 if err != nil {
 //产生错误
 	log.Println("rs.Copy failed:", err)
@@ -495,26 +481,24 @@ if err != nil {
 <a name="rs-copy"></a>
 ### 5.3 复制文件
 ```{go}
-err = rsCli.Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
+err = rsCli.Copy(nil, bucketSrc, keySrc, bucketDest, keyDest)
 if err != nil {
 //产生错误
 	log.Println("rs.Copy failed:", err)
 	return
 }
-
 ```
 参阅: `rs.Client.Move` `rs.Client.Copy`
 
 <a name="rs-move"></a>
 ### 5.4 移动文件
 ```{go}
-err = rsCli.Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
+err = rsCli.Move(nil, bucketSrc, keySrc, bucketDest, keyDest)
 if err != nil {
 //产生错误
 	log.Println("rs.Copy failed:", err)
 	return
 }
-
 ```
 参阅: `rs.Client.Move`
 
@@ -541,7 +525,7 @@ entryPathes := []rs.EntryPath {
 	},
 }
 var batchStatRets []rs.BatchStatItemRet
-batchStatRets, err = rsCli.BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
+batchStatRets, err = rsCli.BatchStat(nil, entryPathes) // []rs.BatchStatItemRet, error
 if err != nil {
 //产生错误
 	log.Println("rs.BatchStat failed:", err)
@@ -551,7 +535,6 @@ if err != nil {
 for _, item := range batchStatRets {
 	log.Println(item)
 }
-
 ```
 
 参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
@@ -582,7 +565,7 @@ entryPairs := []rs.EntryPathPair {
 	},
 }
 var batchCopyRets []rs.BatchItemRet
-batchCopyRets, err = rsCli.BatchCopy(logger, entryPairs)
+batchCopyRets, err = rsCli.BatchCopy(nil, entryPairs)
 if err != nil {
 //产生错误
 	log.Println("rs.BatchCopy failed:", err)
@@ -592,7 +575,6 @@ for _, item := range batchCopyRets {
 //遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }
-
 ```
 
 参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
@@ -623,7 +605,7 @@ entryPairs := []rs.EntryPathPair {
 	},
 }
 var batchMoveRets []rs.BatchItemRet
-batchCopyRets, err = rsCli.BatchMove(logger, entryPairs)
+batchCopyRets, err = rsCli.BatchMove(nil, entryPairs)
 if err != nil {
 //产生错误
 	log.Println("rs.BatchMove failed:", err)
@@ -633,7 +615,6 @@ for _, item := range batchMoveRets {
 //遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }
-
 ```
 参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
@@ -651,7 +632,7 @@ entryPathes := []rs.EntryPath {
 	},
 }
 var batchDeleteRets []rs.BatchItemRet
-batchDeleteRets, err = rsCli.BatchDelete(logger, entryPathes)
+batchDeleteRets, err = rsCli.BatchDelete(nil, entryPathes)
 if err != nil {
 //产生错误
 	log.Println("rs.BatchMove failed:", err)
@@ -661,7 +642,6 @@ for _, item := range batchDeleteRets {
 //遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }
-
 ```
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
@@ -677,7 +657,7 @@ ops := []string {
 }
 
 rets := new([]rs.BatchItemRet)
-err = rsCli.Batch(logger, rets, ops)
+err = rsCli.Batch(nil, rets, ops)
 if err != nil {
 //产生错误
 	log.Println("rs.Batch failed:", err)
@@ -686,7 +666,6 @@ if err != nil {
 for _, ret := range *rets {
 	log.Println(ret.Code, ret.Error)
 }
-
 ```
 参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
@@ -704,11 +683,10 @@ func makeImageInfoUrl(imageUrl string) string {
 	ii := fop.ImageInfo{}
 	return ii.MakeRequest(imageUrl)
 }
-
 ```
 还可以已另一种方式，在程序中处理返回的图片信息：
 ```{go}
-infoRet, err = ii.Call(logger, imageUrl)
+infoRet, err = ii.Call(nil, imageUrl)
 if err != nil {
 //产生错误
 	log.Println("fop getImageInfo failed:", err)
@@ -716,7 +694,6 @@ if err != nil {
 }
 log.Println(infoRet.Height, infoRet.Width, infoRet.ColorModel,
 	infoRet.Format)
-
 ```
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
@@ -728,11 +705,10 @@ func makeExifUrl(imageUrl string) string {
 	e := fop.Exif{}
 	return e.MakeRequest(imageUrl)
 }
-
 ```
 也可以在程序中处理exif的信息：
 ```{go}
-exifRet, err = ie.Call(logger, imageUrl)
+exifRet, err = ie.Call(nil, imageUrl)
 if err != nil {
 //产生错误
 	log.Println("fop getExif failed:", err)
@@ -743,7 +719,6 @@ if err != nil {
 for _, item := range exifRet {
 	log.Println(item.Type, item.Val)
 }
-
 ```
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 

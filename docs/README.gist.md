@@ -135,7 +135,7 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 ```{go}
 @gist(gist/server.go#uptoken)
 ```
-参阅 [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43) [policy参数](http://docs.qiniu.com/api/put.html#uploadToken-args)
+参阅 `rs.PutPolicy` [policy参数](http://docs.qiniu.com/api/put.html#uploadToken-args)
 
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
@@ -149,14 +149,12 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 直接上传内存中的数据, 代码:
 ```{go}
 @gist(gist/client.go#uploadBuf)
-
 ```
 参阅: `io.Put`, `io.PutExtra`
 
 直接上传内存中的数据,且不提供key参数，此时key由七牛服务器自动生成, 代码:
 ```{go}
 @gist(gist/client.go#uploadBufWithoutKey)
-
 ```
 参阅: `io.Put`, `io.PutExtra`
 
@@ -187,13 +185,13 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 ```{go}
 @gist(gist/client.go#resumableUploadBuf)
 ```
-参阅: [resumable.io.Put](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L114), [resumable.io.PutExtra](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L93), [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
+参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 上传本地文件
 ```{go}
 @gist(gist/client.go#resumableUploadFile)
 ```
-参阅: [resumable.io.PutFile](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L184), [resumable.io.PutExtra](https://github.com/qiniu/api/blob/develop/resumable/io/resumable_api.go#L93), [rs.PutPolicy](https://github.com/qiniu/api/blob/develop/rs/token.go#L43)
+参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 相比普通上传，断点上续传代码没有变复杂。基本上就只是将`io.PutExtra`改为`resumable.io.PutExtra`，`io.PutFile`改为`resumable.io.PutFile`。
 
@@ -288,7 +286,6 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 ### 5.3 复制文件
 ```{go}
 @gist(gist/rs.go#rsCopy)
-
 ```
 参阅: `rs.Client.Move` `rs.Client.Copy`
 
@@ -296,7 +293,6 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 ### 5.4 移动文件
 ```{go}
 @gist(gist/rs.go#rsMove)
-
 ```
 参阅: `rs.Client.Move`
 
@@ -314,7 +310,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 ```{go}
 @gist(gist/rs.go#rsEntryPathes)
 @gist(gist/rs.go#rsBatchStat)
-
 ```
 
 参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
@@ -324,7 +319,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 ```{go}
 @gist(gist/rs.go#rsPathPairs)
 @gist(gist/rs.go#rsBatchCopy)
-
 ```
 
 参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
@@ -334,7 +328,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 ```{go}
 @gist(gist/rs.go#rsPathPairs)
 @gist(gist/rs.go#rsBatchMove)
-
 ```
 参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
@@ -343,7 +336,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 ```{go}
 @gist(gist/rs.go#rsEntryPathes)
 @gist(gist/rs.go#rsBatchDelete)
-
 ```
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
@@ -352,7 +344,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
 ```{go}
 @gist(gist/rs.go#rsBatchAdv)
-
 ```
 参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
@@ -367,12 +358,10 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 GO-SDK支持生成查看图片信息的URL，示意如下：
 ```{go}
 @gist(gist/fop.go#makeImageInfoUrl)
-
 ```
 还可以已另一种方式，在程序中处理返回的图片信息：
 ```{go}
 @gist(gist/fop.go#getImageInfo)
-
 ```
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
@@ -381,12 +370,10 @@ GO-SDK支持生成查看图片信息的URL，示意如下：
 同样，本SDK也支持直接生成查看exif的URL：
 ```{go}
 @gist(gist/fop.go#makeExifUrl)
-
 ```
 也可以在程序中处理exif的信息：
 ```{go}
 @gist(gist/fop.go#getExif)
-
 ```
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
