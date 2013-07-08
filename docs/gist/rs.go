@@ -181,6 +181,9 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 		log.Println("rs.Batch failed:", err)
 		return
 	}
+	for _, ret := range *rets {
+		log.Println(ret.Code, ret.Error)
+	}
 	// @endgist
 }
 

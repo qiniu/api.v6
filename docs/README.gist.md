@@ -270,7 +270,6 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 <a name="rs-stat"></a>
 ### 5.1 获取文件信息
 ```{go}
-@gist(gist/rs.go#rsPre)
 @gist(gist/rs.go#rsStat)
 
 ```

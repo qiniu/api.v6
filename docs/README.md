@@ -465,10 +465,6 @@ func downloadUrl(domain, key string) string {
 <a name="rs-stat"></a>
 ### 5.1 获取文件信息
 ```{go}
-//此操作前 请确保 accesskey和secretkey 已被正确赋值
-var rsCli = rs.New(nil)
-var logger rpc.Logger
-var err error
 var ret  rs.Entry
 ret, err = rsCli.Stat(logger, bucket, key)
 if err != nil {
@@ -686,6 +682,9 @@ if err != nil {
 //产生错误
 	log.Println("rs.Batch failed:", err)
 	return
+}
+for _, ret := range *rets {
+	log.Println(ret.Code, ret.Error)
 }
 
 ```
