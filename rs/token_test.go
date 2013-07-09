@@ -5,18 +5,11 @@ import (
 	"encoding/base64"
 	"io"
 	"net/http"
-	"os"
 	"testing"
-	. "github.com/qiniu/api/conf"
 )
 
 func init() {
 
-	ACCESS_KEY = os.Getenv("QINIU_ACCESS_KEY")
-	SECRET_KEY = os.Getenv("QINIU_SECRET_KEY")
-	if ACCESS_KEY == "" || SECRET_KEY == "" {
-		panic("require ACCESS_KEY & SECRET_KEY")
-	}
 	client = New(nil)
 	client.Delete(nil, bucketName, key)
 }

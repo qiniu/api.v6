@@ -11,11 +11,9 @@ import (
 )
 
 var (
-	bucket = "a"
+	bucket string
 	upString = "hello qiniu world"
-	policy = rs.PutPolicy {
-		Scope: bucket,
-	}
+	policy  rs.PutPolicy
 	localFile = "io_api.go"
 	key1 = "test_put_1"
 	key2 = "test_put_2"
@@ -40,6 +38,12 @@ func init() {
 
 	ACCESS_KEY = os.Getenv("QINIU_ACCESS_KEY")
 	SECRET_KEY = os.Getenv("QINIU_SECRET_KEY")
+	bucket = os.Getenv("QINIU_TEST_BUCKET")
+	if ACCESS_KEY == "" || SECRET_KEY == "" || bucket == "" {
+		panic("require test env")
+	}
+
+	policy.Scope = bucket
 }
 
 //---------------------------------------

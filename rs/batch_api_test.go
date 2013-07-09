@@ -1,21 +1,12 @@
 package rs
 
 import (
-	"os"
 	"testing"
-	. "github.com/qiniu/api/conf"
 )
 
 func init() {
 
-	ACCESS_KEY = os.Getenv("QINIU_ACCESS_KEY")
-	SECRET_KEY = os.Getenv("QINIU_SECRET_KEY")
-	if ACCESS_KEY == "" || SECRET_KEY == "" {
-		panic("require ACCESS_KEY & SECRET_KEY")
-	}
 	client = New(nil)
-
-
 	// 删除 可能存在的 newkey1  newkey2 
 	client.Delete(nil, bucketName, key)
 	client.Delete(nil, bucketName, newkey1)
@@ -62,6 +53,7 @@ func testBatchStat(t *testing.T) {
 }
 
 func testBatchMove(t *testing.T) {
+
 	stat0, err := client.Stat(nil, bucketName, key)
 	entryPair1 := EntryPathPair{
 		Src: EntryPath{
@@ -99,6 +91,7 @@ func testBatchMove(t *testing.T) {
 }
 
 func testBatchCopy(t *testing.T) {
+
 	entryPair1 := EntryPathPair{
 		Src: EntryPath{
 			Bucket: bucketName,

@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	bucketName = "a"
+	bucketName string
 	client Client
 	maxNum = 1000
 	keys []string
@@ -23,6 +23,11 @@ func init() {
 	SECRET_KEY = os.Getenv("QINIU_SECRET_KEY")
 	if ACCESS_KEY == "" || SECRET_KEY == "" {
 		panic("require ACCESS_KEY & SECRET_KEY")
+	}
+
+	bucketName = os.Getenv("QINIU_TEST_BUCKET")
+	if bucketName == "" {
+		panic("require test env")
 	}
 	client = New(nil)
 

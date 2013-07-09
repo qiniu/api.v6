@@ -11,8 +11,8 @@ var (
 	key = "aa"
 	newkey1 = "bbbb"
 	newkey2 = "cccc"
-	bucketName = "a"
-	domain = "aatest.qiniudn.com"
+	bucketName string
+	domain  string
 	client Client
 )
 
@@ -22,6 +22,11 @@ func init() {
 	SECRET_KEY = os.Getenv("QINIU_SECRET_KEY")
 	if ACCESS_KEY == "" || SECRET_KEY == "" {
 		panic("require ACCESS_KEY & SECRET_KEY")
+	}
+	bucketName = os.Getenv("QINIU_TEST_BUCKET")
+	domain = os.Getenv("QINIU_TEST_DOMAIN")
+	if bucketName == "" || domain == "" {
+		panic("require test env")
 	}
 	client = New(nil)
 
