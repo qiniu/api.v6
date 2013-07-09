@@ -1,26 +1,62 @@
-package rsf 
+package rsf
 
 import (
-	"os"
-	"testing"
 	"io"
+	"os"
+	"strconv"
+	"testing"
+	qio "github.com/qiniu/api/io"
+	"github.com/qiniu/api/rs"
 	. "github.com/qiniu/api/conf"
 )
 
-var bucketName = "a"
-var client Client
-var maxNum = 100000
+var (
+	bucketName = "a"
+	client Client
+	maxNum = 1000
+	keys []string
+)
 
 func init() {
+
 	ACCESS_KEY = os.Getenv("QINIU_ACCESS_KEY")
 	SECRET_KEY = os.Getenv("QINIU_SECRET_KEY")
 	if ACCESS_KEY == "" || SECRET_KEY == "" {
 		panic("require ACCESS_KEY & SECRET_KEY")
 	}
 	client = New(nil)
+
 }
 
-func TestList(t *testing.T) {
+func upFile(localFile, bucketName, key string) error {
+
+	policy := rs.PutPolicy {
+		Scope: bucketName,
+	}
+	return qio.PutFile(nil, nil, policy.Token(nil), key, localFile, nil)
+}
+
+func testAll(t *testing.T) {
+
+	//先上传文件到空间做初始化准备
+	for i := 0; i < 50; i++ {
+		key := "test_put_" + strconv.Itoa(i)
+		err := upFile("rsf_api.go", bucketName, key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		keys = append(keys, key)
+	}
+	defer func(){
+		for _, k := range keys {
+			rs.New(nil).Delete(nil, bucketName, k)
+		}
+	}()
+
+	testList(t)
+	testEof(t)
+}
+func testList(t *testing.T) {
 
 	ret, marker, err := client.ListPrefix(nil, bucketName, "", "", 5)
 	if err != nil {
@@ -34,10 +70,10 @@ func TestList(t *testing.T) {
 	if err != nil && err != io.EOF {
 		t.Fatal("TestList failed:", "marker failed:", err)
 	}
-
 }
 
-func TestEof(t *testing.T) {
+func testEof(t *testing.T) {
+
 	_, _, err := client.ListPrefix(nil, bucketName, "", "", maxNum)
 
 	if err != io.EOF {
