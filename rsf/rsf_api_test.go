@@ -36,7 +36,7 @@ func init() {
 func upFile(localFile, bucketName, key string) error {
 
 	policy := rs.PutPolicy {
-		Scope: bucketName,
+		Scope: bucketName+":"+key
 	}
 	return qio.PutFile(nil, nil, policy.Token(nil), key, localFile, nil)
 }
@@ -45,7 +45,7 @@ func TestAll(t *testing.T) {
 
 	//先上传文件到空间做初始化准备
 	for i := 0; i < 10; i++ {
-		key := "test_put_" + strconv.Itoa(i)
+		key := "rsf_test_put_" + strconv.Itoa(i)
 		err := upFile("rsf_api.go", bucketName, key)
 		if err != nil {
 			t.Fatal(err)
