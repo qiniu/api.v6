@@ -36,7 +36,7 @@ func init() {
 func upFile(localFile, bucketName, key string) error {
 
 	policy := rs.PutPolicy {
-		Scope: bucketName+":"+key
+		Scope: bucketName+":"+key,
 	}
 	return qio.PutFile(nil, nil, policy.Token(nil), key, localFile, nil)
 }
