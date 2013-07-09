@@ -5,7 +5,6 @@ import (
 	"hash/crc32"
 	"io"
 	"os"
-	"strconv"
 	"testing"
 	"github.com/qiniu/api/rs"
 	. "github.com/qiniu/api/conf"
@@ -17,7 +16,9 @@ var (
 	policy = rs.PutPolicy {
 		Scope: bucket,
 	}
-	keys []string
+	localFile = "io_api.go"
+	key1 = "test_put_1"
+	key2 = "test_put_2"
 	extra =  []*PutExtra {
 		&PutExtra {
 			MimeType: "text/plain",
@@ -39,15 +40,6 @@ func init() {
 
 	ACCESS_KEY = os.Getenv("QINIU_ACCESS_KEY")
 	SECRET_KEY = os.Getenv("QINIU_SECRET_KEY")
-
-	for i := 0; i < 3; i++ {
-		keys = append(keys, "test_key_" + strconv.Itoa(i))
-	}
-
-	// create a temp file
-	f, _ := os.Create(keys[0])
-	defer f.Close()
-	f.Write([]byte("this is a temp file"))
 }
 
 //---------------------------------------
@@ -76,21 +68,16 @@ func crc32String(s string) uint32 {
 
 func TestAll(t *testing.T) {
 
-	testPut(t, keys[1])
+	testPut(t, key1)
 	k1 := testPutWithoutKey(t)
-	testPutFile(t, keys[0], keys[2])
-	k2 := testPutFileWithoutKey(t, keys[0])
+	testPutFile(t, localFile, key2)
+	k2 := testPutFileWithoutKey(t, localFile)
 
 	//clear all keys
-	keys = append(keys, k1)
-	keys = append(keys, k2)
-	for i, k := range keys {
-		if i == 0 {
-			os.Remove(k)
-		} else {
-			rs.New(nil).Delete(nil, bucket, k)
-		}
-	}
+	rs.New(nil).Delete(nil, bucket, key1)
+	rs.New(nil).Delete(nil, bucket, key2)
+	rs.New(nil).Delete(nil, bucket, k1)
+	rs.New(nil).Delete(nil, bucket, k2)
 }
 
 func testPut(t *testing.T, key string) {
