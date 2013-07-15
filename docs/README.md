@@ -148,6 +148,7 @@ func uptoken(bucketName string) string {
 	return  putPolicy.Token(nil)
 }
 ```
+
 参阅 `rs.PutPolicy` [policy参数](http://docs.qiniu.com/api/put.html#uploadToken-args)
 
 <a name="io-put-upload-code"></a>
@@ -155,6 +156,7 @@ func uptoken(bucketName string) string {
 上传文件到七牛（通常是客户端完成，但也可以发生在业务服务器）：
 由于七牛的服务器支持自动生成key，所以本SDK提供的上传函数有两种展现方式，一种是有key的，一种是无key，让服务端自动生成key.
 普通上传的文件和二进制，最后一个参数都是PutExtra类型，是用来细化上传功能用的，PutExtra的成员及其意义如下：
+
 ```{go}
 type PutExtra struct {
 	Params   map[string]string    //可选，用户自定义参数，必须以 "x:" 开头
@@ -169,6 +171,7 @@ type PutExtra struct {
 ```
 
 直接上传内存中的数据, 代码:
+
 ```{go}
 var err error
 var ret io.PutRet
@@ -195,9 +198,11 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
 ```
+
 参阅: `io.Put`, `io.PutExtra`
 
 直接上传内存中的数据,且不提供key参数，此时key由七牛服务器自动生成, 代码:
+
 ```{go}
 var err error
 var ret io.PutRet
@@ -223,9 +228,11 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
 ```
+
 参阅: `io.Put`, `io.PutExtra`
 
 上传本地文件,代码:
+
 ```{go}
 var err error
 var ret io.PutRet
@@ -252,9 +259,11 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
 ```
+
 参阅: `io.PutFile`, `io.PutExtra`, `io.PutRet`
 
 上传本地文件,且不提供key参数，此时key由七牛服务器自动生成代码:
+
 ```{go}
 var err error
 var ret io.PutRet
@@ -280,6 +289,7 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash, ret.Key)
 ```
+
 参阅: `io.PutFile`, `io.PutExtra`, `io.PutRet`
 <a name="io-put-resumable"></a>
 ### 3.4 断点续上传、分块并行上传
@@ -304,6 +314,7 @@ type PutExtra struct {
 
 我们先看支持了断点上续传、分块并行上传的基本样例：
 上传二进制流
+
 ```{go}
 var err error
 var ret io.PutRet
@@ -336,9 +347,11 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash)
 ```
+
 参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 上传本地文件
+
 ```{go}
 var err error
 var ret rio.PutRet
@@ -370,6 +383,7 @@ if err != nil {
 //上传成功，处理返回值
 log.Print(ret.Hash)
 ```
+
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 相比普通上传，断点上续传代码没有变复杂。基本上就只是将`io.PutExtra`改为`resumable.io.PutExtra`，`io.PutFile`改为`resumable.io.PutFile`。
@@ -423,6 +437,7 @@ func downloadUrl(domain, key string) string {
 	return  policy.MakeRequest(baseUrl, nil)
 }
 ```
+
 生成 downloadUrl 后，服务端下发 downloadUrl 给客户端。客户端收到 downloadUrl 后，和公有资源类似，直接用任意的 HTTP 客户端就可以下载该资源了。唯一需要注意的是，在 downloadUrl 失效却还没有完成下载时，需要重新向服务器申请授权。
 
 无论公有资源还是私有资源，下载过程中客户端并不需要七牛 GO-SDK 参与其中。
@@ -450,6 +465,7 @@ func downloadUrl(domain, key string) string {
 
 <a name="rs-stat"></a>
 ### 5.1 获取文件信息
+
 ```{go}
 var ret  rs.Entry
 ret, err = rsCli.Stat(nil, bucket, key)
@@ -460,13 +476,14 @@ if err != nil {
 }
 //处理返回值
 log.Println(ret)
-
 ```
+
 参阅: `rs.Entry`, `rs.Client.Stat`
 
 
 <a name="rs-delete"></a>
 ### 5.2 删除文件
+
 ```{go}
 err = rsCli.Delete(nil, bucket, key)
 if err != nil {
@@ -474,12 +491,13 @@ if err != nil {
 	log.Println("rs.Copy failed:", err)
 	return
 }
-
 ```
+
 参阅: `rs.Client.Delete`
 
 <a name="rs-copy"></a>
 ### 5.3 复制文件
+
 ```{go}
 err = rsCli.Copy(nil, bucketSrc, keySrc, bucketDest, keyDest)
 if err != nil {
@@ -488,10 +506,12 @@ if err != nil {
 	return
 }
 ```
+
 参阅: `rs.Client.Move` `rs.Client.Copy`
 
 <a name="rs-move"></a>
 ### 5.4 移动文件
+
 ```{go}
 err = rsCli.Move(nil, bucketSrc, keySrc, bucketDest, keyDest)
 if err != nil {
@@ -500,6 +520,7 @@ if err != nil {
 	return
 }
 ```
+
 参阅: `rs.Client.Move`
 
 
@@ -513,6 +534,7 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 
 <a name="rs-batch-stat"></a>
 #### 5.5.1 批量获取文件信息
+
 ```{go}
 entryPathes := []rs.EntryPath {
 	rs.EntryPath {
@@ -541,6 +563,7 @@ for _, item := range batchStatRets {
 
 <a name="rs-batch-copy"></a>
 #### 5.5.2 批量复制文件
+
 ```{go}
 // 每个复制操作都含有源文件和目标文件
 entryPairs := []rs.EntryPathPair {
@@ -581,6 +604,7 @@ for _, item := range batchCopyRets {
 
 <a name="rs-batch-move"></a>
 #### 5.5.3 批量移动文件
+
 ```{go}
 // 每个复制操作都含有源文件和目标文件
 entryPairs := []rs.EntryPathPair {
@@ -616,10 +640,12 @@ for _, item := range batchMoveRets {
 	log.Println(item.Code, item.Error)
 }
 ```
+
 参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
 <a name="rs-batch-delete"></a>
 #### 5.5.4 批量删除文件
+
 ```{go}
 entryPathes := []rs.EntryPath {
 	rs.EntryPath {
@@ -643,11 +669,13 @@ for _, item := range batchDeleteRets {
 	log.Println(item.Code, item.Error)
 }
 ```
+
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
 <a name="rs-batch-advanced"></a>
 #### 5.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
+
 ```{go}
 ops := []string {
 	rs.URIStat(bucket, key1),
@@ -667,6 +695,7 @@ for _, ret := range *rets {
 	log.Println(ret.Code, ret.Error)
 }
 ```
+
 参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
 <a name="fop-api"></a>
@@ -678,13 +707,16 @@ for _, ret := range *rets {
 <a name="fop-image-info"></a>
 #### 6.1.1 查看图像属性
 GO-SDK支持生成查看图片信息的URL，示意如下：
+
 ```{go}
 func makeImageInfoUrl(imageUrl string) string {
 	ii := fop.ImageInfo{}
 	return ii.MakeRequest(imageUrl)
 }
 ```
+
 还可以已另一种方式，在程序中处理返回的图片信息：
+
 ```{go}
 infoRet, err = ii.Call(nil, imageUrl)
 if err != nil {
@@ -695,18 +727,22 @@ if err != nil {
 log.Println(infoRet.Height, infoRet.Width, infoRet.ColorModel,
 	infoRet.Format)
 ```
+
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
 #### 6.1.2 查看图片EXIF信息
 同样，本SDK也支持直接生成查看exif的URL：
+
 ```{go}
 func makeExifUrl(imageUrl string) string {
 	e := fop.Exif{}
 	return e.MakeRequest(imageUrl)
 }
 ```
+
 也可以在程序中处理exif的信息：
+
 ```{go}
 exifRet, err = ie.Call(nil, imageUrl)
 if err != nil {
@@ -720,11 +756,13 @@ for _, item := range exifRet {
 	log.Println(item.Type, item.Val)
 }
 ```
+
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
 <a name="fop-image-view"></a>
 #### 6.1.3 生成图片预览
 可以根据给定的文件URL和缩略图规格来生成缩略图的URL,代码： 
+
 ```{go}
 func makeViewUrl(imageUrl string) string {
 	var view = fop.ImageView {
@@ -737,6 +775,7 @@ func makeViewUrl(imageUrl string) string {
 	return view.MakeRequest(imageUrl)
 }
 ```
+
 参阅: `fop.ImageView`
 
 <a name="rsf-api"></a>
@@ -745,6 +784,7 @@ func makeViewUrl(imageUrl string) string {
 <a name="rsf-listPrefix"></a>
 ### 7.1 批量获取文件列表
 根据指定的前缀，获取对应前缀的文件列表,正常使用情景如下：
+
 ```{go}
 func listAll(l rpc.Logger, rs *rsf.Client, bucketName string, prefix string) {
 
@@ -767,6 +807,7 @@ func listAll(l rpc.Logger, rs *rsf.Client, bucketName string, prefix string) {
 	}
 }
 ```
+
 参阅: `rsf.ListPreFix`
 
 
