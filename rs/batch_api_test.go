@@ -48,7 +48,7 @@ func testBatchStat(t *testing.T) {
 	stat, _ := client.Stat(nil, bucketName, key)
 
 	if rets[0].Data != stat || rets[1].Data != stat || rets[2].Data != stat {
-		t.Error("BatchStat failed : returns err")
+		t.Fatal("BatchStat failed : returns err")
 	}
 }
 
@@ -86,7 +86,7 @@ func testBatchMove(t *testing.T) {
 	stat1, _ := client.Stat(nil, bucketName, newkey2)
 
 	if stat0 != stat1 {
-		t.Error("BatchMove failed : Move err")
+		t.Fatal("BatchMove failed : Move err")
 	}
 }
 
@@ -125,7 +125,7 @@ func testBatchCopy(t *testing.T) {
 	stat1, _ := client.Stat(nil, bucketName, newkey1)
 	stat2, _ := client.Stat(nil, bucketName, newkey2)
 	if stat0.Hash != stat1.Hash || stat0.Hash != stat2.Hash {
-		t.Error("BatchCopy failed : Copy err")
+		t.Fatal("BatchCopy failed : Copy err")
 	}
 }
 
@@ -153,7 +153,7 @@ func testBatchDelete(t *testing.T) {
 
 	//这里 err1 != nil，否则文件没被成功删除
 	if err1 == nil || err2 == nil {
-		t.Error("BatchDelete failed : File do not delete")
+		t.Fatal("BatchDelete failed : File do not delete")
 	}
 }
 
