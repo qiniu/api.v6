@@ -135,6 +135,7 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 ```{go}
 @gist(gist/server.go#uptoken)
 ```
+
 参阅 `rs.PutPolicy` [policy参数](http://docs.qiniu.com/api/put.html#uploadToken-args)
 
 <a name="io-put-upload-code"></a>
@@ -142,32 +143,41 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 上传文件到七牛（通常是客户端完成，但也可以发生在业务服务器）：
 由于七牛的服务器支持自动生成key，所以本SDK提供的上传函数有两种展现方式，一种是有key的，一种是无key，让服务端自动生成key.
 普通上传的文件和二进制，最后一个参数都是PutExtra类型，是用来细化上传功能用的，PutExtra的成员及其意义如下：
+
 ```{go}
 @gist(../io/io_api.go#PutExtra)
 ```
 
 直接上传内存中的数据, 代码:
+
 ```{go}
 @gist(gist/client.go#uploadBuf)
 ```
+
 参阅: `io.Put`, `io.PutExtra`
 
 直接上传内存中的数据,且不提供key参数，此时key由七牛服务器自动生成, 代码:
+
 ```{go}
 @gist(gist/client.go#uploadBufWithoutKey)
 ```
+
 参阅: `io.Put`, `io.PutExtra`
 
 上传本地文件,代码:
+
 ```{go}
 @gist(gist/client.go#uploadFile)
 ```
+
 参阅: `io.PutFile`, `io.PutExtra`, `io.PutRet`
 
 上传本地文件,且不提供key参数，此时key由七牛服务器自动生成代码:
+
 ```{go}
 @gist(gist/client.go#uploadFileWithoutKey)
 ```
+
 参阅: `io.PutFile`, `io.PutExtra`, `io.PutRet`
 <a name="io-put-resumable"></a>
 ### 3.4 断点续上传、分块并行上传
@@ -182,15 +192,19 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 
 我们先看支持了断点上续传、分块并行上传的基本样例：
 上传二进制流
+
 ```{go}
 @gist(gist/client.go#resumableUploadBuf)
 ```
+
 参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 上传本地文件
+
 ```{go}
 @gist(gist/client.go#resumableUploadFile)
 ```
+
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 相比普通上传，断点上续传代码没有变复杂。基本上就只是将`io.PutExtra`改为`resumable.io.PutExtra`，`io.PutFile`改为`resumable.io.PutFile`。
@@ -240,6 +254,7 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 ```{go}
 @gist(gist/server.go#downloadUrl)
 ```
+
 生成 downloadUrl 后，服务端下发 downloadUrl 给客户端。客户端收到 downloadUrl 后，和公有资源类似，直接用任意的 HTTP 客户端就可以下载该资源了。唯一需要注意的是，在 downloadUrl 失效却还没有完成下载时，需要重新向服务器申请授权。
 
 无论公有资源还是私有资源，下载过程中客户端并不需要七牛 GO-SDK 参与其中。
@@ -267,33 +282,39 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 
 <a name="rs-stat"></a>
 ### 5.1 获取文件信息
+
 ```{go}
 @gist(gist/rs.go#rsStat)
-
 ```
+
 参阅: `rs.Entry`, `rs.Client.Stat`
 
 
 <a name="rs-delete"></a>
 ### 5.2 删除文件
+
 ```{go}
 @gist(gist/rs.go#rsDelete)
-
 ```
+
 参阅: `rs.Client.Delete`
 
 <a name="rs-copy"></a>
 ### 5.3 复制文件
+
 ```{go}
 @gist(gist/rs.go#rsCopy)
 ```
+
 参阅: `rs.Client.Move` `rs.Client.Copy`
 
 <a name="rs-move"></a>
 ### 5.4 移动文件
+
 ```{go}
 @gist(gist/rs.go#rsMove)
 ```
+
 参阅: `rs.Client.Move`
 
 
@@ -307,6 +328,7 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 
 <a name="rs-batch-stat"></a>
 #### 5.5.1 批量获取文件信息
+
 ```{go}
 @gist(gist/rs.go#rsEntryPathes)
 @gist(gist/rs.go#rsBatchStat)
@@ -316,6 +338,7 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 
 <a name="rs-batch-copy"></a>
 #### 5.5.2 批量复制文件
+
 ```{go}
 @gist(gist/rs.go#rsPathPairs)
 @gist(gist/rs.go#rsBatchCopy)
@@ -325,26 +348,32 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 
 <a name="rs-batch-move"></a>
 #### 5.5.3 批量移动文件
+
 ```{go}
 @gist(gist/rs.go#rsPathPairs)
 @gist(gist/rs.go#rsBatchMove)
 ```
+
 参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
 <a name="rs-batch-delete"></a>
 #### 5.5.4 批量删除文件
+
 ```{go}
 @gist(gist/rs.go#rsEntryPathes)
 @gist(gist/rs.go#rsBatchDelete)
 ```
+
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
 <a name="rs-batch-advanced"></a>
 #### 5.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
+
 ```{go}
 @gist(gist/rs.go#rsBatchAdv)
 ```
+
 参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
 <a name="fop-api"></a>
@@ -356,33 +385,43 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 <a name="fop-image-info"></a>
 #### 6.1.1 查看图像属性
 GO-SDK支持生成查看图片信息的URL，示意如下：
+
 ```{go}
 @gist(gist/fop.go#makeImageInfoUrl)
 ```
+
 还可以已另一种方式，在程序中处理返回的图片信息：
+
 ```{go}
 @gist(gist/fop.go#getImageInfo)
 ```
+
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
 #### 6.1.2 查看图片EXIF信息
 同样，本SDK也支持直接生成查看exif的URL：
+
 ```{go}
 @gist(gist/fop.go#makeExifUrl)
 ```
+
 也可以在程序中处理exif的信息：
+
 ```{go}
 @gist(gist/fop.go#getExif)
 ```
+
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
 <a name="fop-image-view"></a>
 #### 6.1.3 生成图片预览
 可以根据给定的文件URL和缩略图规格来生成缩略图的URL,代码： 
+
 ```{go}
 @gist(gist/fop.go#makeViewUrl)
 ```
+
 参阅: `fop.ImageView`
 
 <a name="rsf-api"></a>
@@ -391,9 +430,11 @@ GO-SDK支持生成查看图片信息的URL，示意如下：
 <a name="rsf-listPrefix"></a>
 ### 7.1 批量获取文件列表
 根据指定的前缀，获取对应前缀的文件列表,正常使用情景如下：
+
 ```{go}
 @gist(gist/rsf.go#listPrefix)
 ```
+
 参阅: `rsf.ListPreFix`
 
 
