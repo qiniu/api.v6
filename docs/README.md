@@ -557,7 +557,7 @@ for _, item := range batchStatRets {
 }
 ```
 
-其中 `entryPaths`为`rs.EntryPath`结构体的数组切片。结构体`rs.EntryPath`中填写每个文件对应的bucket和key：
+其中 `entryPathes`为`rs.EntryPath`结构体的数组切片。结构体`rs.EntryPath`中填写每个文件对应的bucket和key：
 
 ```{go}
 type EntryPath struct {
@@ -569,7 +569,11 @@ type EntryPath struct {
 `rs.BatchStat`会将文件信息(及成功/失败信息)，返回给由结构体`rs.BatchStatItemRet`组成的数组切片`batchStatRets`变量中。
 
 ```{go}
-@gist (../rs/batch_api.go#batchStatItemRet)
+type BatchStatItemRet struct {
+	Data  Entry       `json:"data"`
+	Error string      `json:"error"`
+	Code  int         `json:"code"`
+}
 ```
 
 参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
@@ -602,7 +606,7 @@ for _, item := range batchDeleteRets {
 }
 ```
 
-和批量查看一样，`entryPaths`为`rs.EntryPath`结构体的数组切片。`rs.BatchDelete`会将删除操作的成功/失败信息返回给由结构体`rs.BatchItemRet`组成的数组切片`batchDeleteRets`变量中。其中`rs.BatchItemRet`结构体信息如下：
+和批量查看一样，`entryPathes`为`rs.EntryPath`结构体的数组切片。`rs.BatchDelete`会将删除操作的成功/失败信息返回给由结构体`rs.BatchItemRet`组成的数组切片`batchDeleteRets`变量中。其中`rs.BatchItemRet`结构体信息如下：
 
 ```{go}
 type BatchItemRet struct {
