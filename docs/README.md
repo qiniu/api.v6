@@ -1,5 +1,5 @@
 ---
-Go SDK 使用指南 | 七牛云存储
+title: Go SDK 使用指南 | 七牛云存储
 ---
 
 # Go SDK 使用指南
@@ -465,6 +465,7 @@ func downloadUrl(domain, key string) string {
 
 <a name="rs-stat"></a>
 ### 5.1 获取文件信息
+函数`rs.Client.Stat`可获取文件信息。
 
 ```{go}
 var ret  rs.Entry
@@ -478,11 +479,25 @@ if err != nil {
 log.Println(ret)
 ```
 
+若有错误发生，则返回的err包含错误信息。若没错误返回的`ret`变量包含文件信息。
+`ret`是为`rs.Entry`类型的结构体，其成员如下：
+
+```{go}
+type Entry struct {
+	Hash     string `json:"hash"`
+	Fsize    int64  `json:"fsize"`
+	PutTime  int64  `json:"putTime"`
+	MimeType string `json:"mimeType"`
+	Customer string `json:"customer"`
+}
+```
+
 参阅: `rs.Entry`, `rs.Client.Stat`
 
 
 <a name="rs-delete"></a>
 ### 5.2 删除文件
+函数`rs.Client.Delete`可删除指定的文件。
 
 ```{go}
 err = rsCli.Delete(nil, bucket, key)
@@ -493,10 +508,12 @@ if err != nil {
 }
 ```
 
+若无错误发生则返回的err为nil，否则err包含错误信息。
 参阅: `rs.Client.Delete`
 
 <a name="rs-copy"></a>
 ### 5.3 复制文件
+函数`rs.Client.Copy`可用来复制文件。
 
 ```{go}
 err = rsCli.Copy(nil, bucketSrc, keySrc, bucketDest, keyDest)
@@ -511,6 +528,7 @@ if err != nil {
 
 <a name="rs-move"></a>
 ### 5.4 移动文件
+函数`rs.Client.Move`可用来移动文件。
 
 ```{go}
 err = rsCli.Move(nil, bucketSrc, keySrc, bucketDest, keyDest)
