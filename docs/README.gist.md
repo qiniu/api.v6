@@ -30,9 +30,9 @@ Go SDK 使用指南 | 七牛云存储
 	- [移动文件](#rs-move)
 	- [批量操作](#rs-batch)
 		- [批量获取文件信息](#rs-batch-stat)
+		- [批量删除文件](#rs-batch-delete)
 		- [批量复制文件](#rs-batch-copy)
 		- [批量移动文件](#rs-batch-move)
-		- [批量删除文件](#rs-batch-delete)
 		- [高级批量操作](#rs-batch-advanced)
 - [数据处理接口](#fop-api)
 	- [图像](#fop-image)
@@ -320,34 +320,71 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 
 <a name="rs-batch"></a>
 ### 5.5 批量操作
-当您需要一次性进行多个操作时, 可以使用批量操作.
-本小节关于批量操作部分，首先需要明白几个结构体。
-a. rs.EntryPath 是一个资源的标识，包含了bucket和key，也就唯一确定该资源了。
-b. rs.EntryPathPair 包含了两个rs.EntryPath ，当批量操作涉及到二元变量时，例如复制/移动，则使用此结构体。
-c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中包含了一个 错误码和一个错误信息。
+当您需要一次性进行多个操作时, 可以使用批量操作。
 
 <a name="rs-batch-stat"></a>
 #### 5.5.1 批量获取文件信息
+
+函数`rs.Client.BatchStat`可批量获取文件信息。
 
 ```{go}
 @gist(gist/rs.go#rsEntryPathes)
 @gist(gist/rs.go#rsBatchStat)
 ```
 
+其中 `entryPaths`为`rs.EntryPath`结构体的数组切片。结构体`rs.EntryPath`中填写每个文件对应的bucket和key：
+
+```{go}
+@gist(../rs/batch_api.go#entryPath)
+```
+
+`rs.BatchStat`会将文件信息(及成功/失败信息)，返回给由结构体`rs.BatchStatItemRet`组成的数组切片`batchStatRets`变量中。
+
+```{go}
+@gist (../rs/batch_api.go#batchStatItemRet)
+```
+
 参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
 
+<a name="rs-batch-delete"></a>
+#### 5.5.2 批量删除文件
+函数`rs.Client.BatchDelete`可进行批量删除文件。
+
+```{go}
+@gist(gist/rs.go#rsEntryPathes)
+@gist(gist/rs.go#rsBatchDelete)
+```
+
+和批量查看一样，`entryPaths`为`rs.EntryPath`结构体的数组切片。`rs.BatchDelete`会将删除操作的成功/失败信息返回给由结构体`rs.BatchItemRet`组成的数组切片`batchDeleteRets`变量中。其中`rs.BatchItemRet`结构体信息如下：
+
+```{go}
+@gist(../rs/batch_api.go#batchItemRet)
+```
+
+参阅: `rs.EntryPath`, `rs.Client.BatchDelete`, `rs.BatchItemRet`
+
 <a name="rs-batch-copy"></a>
-#### 5.5.2 批量复制文件
+#### 5.5.3 批量复制文件
+函数`rs.Client.BatchCopy`可进行批量复制文件。
 
 ```{go}
 @gist(gist/rs.go#rsPathPairs)
 @gist(gist/rs.go#rsBatchCopy)
 ```
 
+批量复制需要指明每个操作的源路径和目标路径，`entryPairs`是一个`rs.EntryPathPair`结构体的数组切片。结构体`rs.EntryPathPair`结构如下：
+
+```{go}
+@gist(../rs/batch_api.go#entryPathPair)
+```
+
+同样，`rs.BatchCopy`会将复制操作的成功/失败信息返回给由结构体`rs.BatchItemRet`组成的数组切片`batchCopyRets`变量中
+
 参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
 
 <a name="rs-batch-move"></a>
-#### 5.5.3 批量移动文件
+#### 5.5.4 批量移动文件
+批量移动和批量很类似, 唯一的区别就是调用`rs.Client.BatchMove`
 
 ```{go}
 @gist(gist/rs.go#rsPathPairs)
@@ -355,16 +392,6 @@ c. rs.BatchItemRet 用于存储每个批量操作对应的操作结果，其中�
 ```
 
 参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
-
-<a name="rs-batch-delete"></a>
-#### 5.5.4 批量删除文件
-
-```{go}
-@gist(gist/rs.go#rsEntryPathes)
-@gist(gist/rs.go#rsBatchDelete)
-```
-
-参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
 <a name="rs-batch-advanced"></a>
 #### 5.5.5 高级批量操作
