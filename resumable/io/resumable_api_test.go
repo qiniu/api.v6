@@ -9,16 +9,21 @@ import (
 )
 
 var (
-	bucket = "a"
+	bucket string
 	testkey = "resumableput_key"
 	testfile = "resumable_api_test.go"
 )
 
 func init() {
+
 	ACCESS_KEY = os.Getenv("QINIU_ACCESS_KEY")
 	SECRET_KEY = os.Getenv("QINIU_SECRET_KEY")
 	if ACCESS_KEY == "" || SECRET_KEY == "" {
 		panic("require ACCESS_KEY & SECRET_KEY")
+	}
+	bucket = os.Getenv("QINIU_TEST_BUCKET")
+	if bucket == "" {
+		panic("reqire test env")
 	}
 }
 
