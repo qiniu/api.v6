@@ -10,6 +10,9 @@ import (
 func init() {
 	ACCESS_KEY = os.Getenv("QINIU_ACCESS_KEY")
 	SECRET_KEY = os.Getenv("QINIU_SECRET_KEY")
+	if ACCESS_KEY == "" || SECRET_KEY == "" {
+		panic("require test env")
+	}
 }
 
 func TestImageInfo(t *testing.T) {
