@@ -13,16 +13,20 @@ func (rs Client) Batch(l rpc.Logger, ret interface{}, op []string) (err error) {
 
 // ----------------------------------------------------------
 
+// @gist batchStatItemRet
 type BatchStatItemRet struct {
 	Data  Entry       `json:"data"`
 	Error string      `json:"error"`
 	Code  int         `json:"code"`
 }
+// @endgist
 
+// @gist entryPath
 type EntryPath struct {
 	Bucket string
 	Key string
 }
+// @endgist
 
 func (rs Client) BatchStat(l rpc.Logger, entries []EntryPath) (ret []BatchStatItemRet, err error) {
 	b := make([]string, len(entries))
@@ -35,10 +39,12 @@ func (rs Client) BatchStat(l rpc.Logger, entries []EntryPath) (ret []BatchStatIt
 
 // ----------------------------------------------------------
 
+// @gist batchItemRet
 type BatchItemRet struct {
 	Error string      `json:"error"`
 	Code  int         `json:"code"`
 }
+// @endgist
 
 func (rs Client) BatchDelete(l rpc.Logger, entries []EntryPath) (ret []BatchItemRet, err error) {
 	b := make([]string, len(entries))
@@ -51,10 +57,12 @@ func (rs Client) BatchDelete(l rpc.Logger, entries []EntryPath) (ret []BatchItem
 
 // ----------------------------------------------------------
 
+// @gist entryPathPair
 type EntryPathPair struct {
 	Src EntryPath
 	Dest EntryPath
 }
+// @endgist
 
 func (rs Client) BatchMove(l rpc.Logger, entries []EntryPathPair) (ret []BatchItemRet, err error) {
 	b := make([]string, len(entries))
