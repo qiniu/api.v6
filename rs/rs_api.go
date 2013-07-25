@@ -27,6 +27,7 @@ func NewEx(t http.RoundTripper) Client {
 
 // ----------------------------------------------------------
 
+// @gist entry
 type Entry struct {
 	Hash     string `json:"hash"`
 	Fsize    int64  `json:"fsize"`
@@ -34,6 +35,7 @@ type Entry struct {
 	MimeType string `json:"mimeType"`
 	Customer string `json:"customer"`
 }
+// @endgist
 
 func (rs Client) Stat(l rpc.Logger, bucket, key string) (entry Entry, err error) {
 	err = rs.Conn.Call(l, &entry, RS_HOST + URIStat(bucket, key))
