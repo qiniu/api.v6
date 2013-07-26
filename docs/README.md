@@ -417,7 +417,7 @@ log.Print(ret.Hash)
 
 	[GET] http://<domain>/<key>
 
-其中<domain>可以到[七牛云存储开发者自助网站](https://portal.qiniu.com)绑定。步骤：首先选择需要绑定的空间，其次在空间设置标签下，点击域名绑定项，即可申请绑定自定义域名。域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
+其中<domain>可以到[七牛云存储开发者自助网站](https://portal.qiniu.com)绑定。步骤：首先选择需要绑定的空间，其次在空间设置标签下，点击域名绑定项，即可申请绑定自定义域名。域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniudn.com`)。注意，尖括号不是必需，代表替换项。
 
 <a name="io-get-private"></a>
 ### 4.2 私有资源下载
@@ -884,3 +884,4 @@ Copyright (c) 2013 qiniu.com
 基于 MIT 协议发布:
 
 * [www.opensource.org/licenses/MIT](http://www.opensource.org/licenses/MIT)
+
