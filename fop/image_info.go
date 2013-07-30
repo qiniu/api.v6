@@ -14,7 +14,7 @@ type ImageInfoRet struct {
 type ImageInfo struct {}
 
 func (this ImageInfo) MakeRequest(url string) string {
-	return url + "?imageInfo"	
+	return url + "?imageInfo"
 }
 
 func (this ImageInfo) Call(l rpc.Logger, url string) (ret ImageInfoRet, err error) {

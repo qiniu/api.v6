@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 	"math/rand"
-	. "github.com/qiniu/api/conf"
 	"github.com/qiniu/api/rs"
+	. "github.com/qiniu/api/conf"
 )
 
 var (
@@ -29,6 +29,7 @@ func init() {
 
 
 func TestPut(t *testing.T) {
+
 	policy := rs.PutPolicy {
 		Scope: bucket,
 	}
@@ -38,7 +39,7 @@ func TestPut(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer f.Close()
-	
+
 	fi, err := f.Stat()
 	if err != nil {
 		t.Fatal(err)

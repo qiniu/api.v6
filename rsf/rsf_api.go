@@ -1,11 +1,11 @@
 package rsf
 
 import (
-	"errors"
-	"net/http"
-	"net/url"
-	"strconv"
 	"io"
+	"errors"
+	"strconv"
+	"net/url"
+	"net/http"
 	"github.com/qiniu/rpc"
 	"github.com/qiniu/api/auth/digest"
 	. "github.com/qiniu/api/conf"
@@ -52,7 +52,7 @@ func (rsf Client) ListPrefix(l rpc.Logger, bucket, prefix, marker string, limit 
 
 	if bucket == "" {
 		err = errors.New("bucket could not be nil")
-		return 
+		return
 	}
 
 	URL := makeListURL(bucket, prefix, marker, limit)
@@ -60,7 +60,7 @@ func (rsf Client) ListPrefix(l rpc.Logger, bucket, prefix, marker string, limit 
 	err = rsf.Conn.Call(l, &listRet, URL)
 
 	if err != nil {
-		return 
+		return
 	}
 	if listRet.Marker == "" {
 		return listRet.Items, "", io.EOF
@@ -69,8 +69,8 @@ func (rsf Client) ListPrefix(l rpc.Logger, bucket, prefix, marker string, limit 
 }
 
 func makeListURL(bucket, prefix, marker string, limit int) string {
-	query := make(url.Values)
 
+	query := make(url.Values)
 	query.Add("bucket", bucket)
 	if prefix != "" {
 		query.Add("prefix", prefix)
