@@ -5,8 +5,8 @@ import (
 	"os"
 	"strconv"
 	"testing"
-	qio "github.com/qiniu/api/io"
 	"github.com/qiniu/api/rs"
+	qio "github.com/qiniu/api/io"
 	. "github.com/qiniu/api/conf"
 )
 

@@ -3,8 +3,8 @@ package io
 import (
 	"io"
 	"os"
-	"errors"
 	"sync"
+	"errors"
 	"github.com/qiniu/rpc"
 	"github.com/qiniu/log"
 )
@@ -32,6 +32,7 @@ var settings = Settings{
 }
 
 func SetSettings(v *Settings) {
+
 	settings = *v
 	if settings.Workers == 0 {
 		settings.Workers = defaultWorkers

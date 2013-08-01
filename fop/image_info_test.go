@@ -3,7 +3,6 @@ package fop
 import (
 	"os"
 	"testing"
-	
 	. "github.com/qiniu/api/conf"
 )
 

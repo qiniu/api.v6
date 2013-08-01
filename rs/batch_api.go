@@ -15,9 +15,9 @@ func (rs Client) Batch(l rpc.Logger, ret interface{}, op []string) (err error) {
 
 // @gist batchStatItemRet
 type BatchStatItemRet struct {
-	Data  Entry       `json:"data"`
-	Error string      `json:"error"`
-	Code  int         `json:"code"`
+	Data  Entry  `json:"data"`
+	Error string `json:"error"`
+	Code  int    `json:"code"`
 }
 // @endgist
 
@@ -29,6 +29,7 @@ type EntryPath struct {
 // @endgist
 
 func (rs Client) BatchStat(l rpc.Logger, entries []EntryPath) (ret []BatchStatItemRet, err error) {
+
 	b := make([]string, len(entries))
 	for i, e := range entries {
 		b[i] = URIStat(e.Bucket, e.Key)
@@ -41,12 +42,13 @@ func (rs Client) BatchStat(l rpc.Logger, entries []EntryPath) (ret []BatchStatIt
 
 // @gist batchItemRet
 type BatchItemRet struct {
-	Error string      `json:"error"`
-	Code  int         `json:"code"`
+	Error string `json:"error"`
+	Code  int    `json:"code"`
 }
 // @endgist
 
 func (rs Client) BatchDelete(l rpc.Logger, entries []EntryPath) (ret []BatchItemRet, err error) {
+
 	b := make([]string, len(entries))
 	for i, e := range entries {
 		b[i] = URIDelete(e.Bucket, e.Key)
@@ -65,6 +67,7 @@ type EntryPathPair struct {
 // @endgist
 
 func (rs Client) BatchMove(l rpc.Logger, entries []EntryPathPair) (ret []BatchItemRet, err error) {
+
 	b := make([]string, len(entries))
 	for i, e := range entries {
 		b[i] = URIMove(e.Src.Bucket, e.Src.Key, e.Dest.Bucket, e.Dest.Key)
@@ -74,6 +77,7 @@ func (rs Client) BatchMove(l rpc.Logger, entries []EntryPathPair) (ret []BatchIt
 }
 
 func (rs Client) BatchCopy(l rpc.Logger, entries []EntryPathPair) (ret []BatchItemRet, err error) {
+
 	b := make([]string, len(entries))
 	for i, e := range entries {
 		b[i] = URICopy(e.Src.Bucket, e.Src.Key, e.Dest.Bucket, e.Dest.Key)
