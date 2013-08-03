@@ -17,10 +17,11 @@ type GetPolicy struct {
 
 func (r GetPolicy) MakeRequest(baseUrl string, mac *digest.Mac) (privateUrl string) {
 
-	if r.Expires == 0 {
-		r.Expires = 3600
+	expires := r.Expires
+	if expires == 0 {
+		expires = 3600
 	}
-	deadline := time.Now().Unix() + int64(r.Expires)
+	deadline := time.Now().Unix() + int64(expires)
 
 	if strings.Contains(baseUrl, "?") {
 		baseUrl += "&e="
