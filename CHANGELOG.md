@@ -1,5 +1,13 @@
 ## CHANGE LOG
 
+### v6.0.2
+
+2013-08-03 issue [#88](https://github.com/qiniu/api/pull/88)
+
+- bugfix: GetPolicy.MakeRequest
+- 增加私有资源的图片缩略图样例
+
+
 ### v6.0.1
 
 2013-07-01 issue [#77](https://github.com/qiniu/api/pull/77)

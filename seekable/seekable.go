@@ -3,8 +3,8 @@ package seekable
 import (
 	"io"
 	"errors"
-	"io/ioutil"
 	"net/http"
+	"io/ioutil"
 	"github.com/qiniu/bytes"
 )
 

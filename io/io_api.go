@@ -30,7 +30,7 @@ type PutExtra struct {
 
 type PutRet struct {
 	Hash string `json:"hash"`  // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key  string `json:"key"`   //如果传入的 key == UNDEFINED_KEY，则服务端返回 key
+	Key  string `json:"key"`
 }
 
 // ----------------------------------------------------------
@@ -76,7 +76,6 @@ func putFile(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, lo
 
 	return putWrite(l, ret, uptoken, key, hasKey, f, extra)
 }
-
 
 // ----------------------------------------------------------
 
@@ -126,7 +125,7 @@ func writeMultipart(writer *multipart.Writer, uptoken, key string, hasKey bool, 
 		for k, v := range extra.Params {
 			err = writer.WriteField(k, v)
 			if err != nil {
-				return 
+				return
 			}
 		}
 	}
@@ -167,7 +166,7 @@ func writeMultipart(writer *multipart.Writer, uptoken, key string, hasKey bool, 
 	if extra.CheckCrc != 0 {
 		err = writer.WriteField("crc32", strconv.FormatInt(int64(extra.Crc32), 10))
 	}
-	return 
+	return
 }
 
 // ----------------------------------------------------------
