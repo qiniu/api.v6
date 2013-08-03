@@ -2,14 +2,14 @@ package io
 
 import (
 	"io"
-	"strconv"
 	"errors"
+	"strconv"
 	"net/http"
-	"encoding/base64"
 	"hash/crc32"
+	"encoding/base64"
 	"github.com/qiniu/rpc"
-	"github.com/qiniu/bytes"
 	"github.com/qiniu/log"
+	"github.com/qiniu/bytes"
 	. "github.com/qiniu/api/conf"
 )
 

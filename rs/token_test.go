@@ -1,15 +1,14 @@
 package rs
 
 import (
+	"io"
+	"testing"
+	"net/http"
 	"crypto/sha1"
 	"encoding/base64"
-	"io"
-	"net/http"
-	"testing"
 )
 
 func init() {
-
 	client = New(nil)
 	client.Delete(nil, bucketName, key)
 }

@@ -18,6 +18,6 @@ func (this Exif) MakeRequest(url string) string {
 }
 
 func (this Exif) Call(l rpc.Logger, url string) (ret ExifRet, err error) {
- 	err = rpc.DefaultClient.Call(l, &ret, this.MakeRequest(url))
- 	return
+	err = rpc.DefaultClient.Call(l, &ret, this.MakeRequest(url))
+	return
 }
