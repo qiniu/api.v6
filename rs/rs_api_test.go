@@ -32,12 +32,14 @@ func init() {
 
 	// 删除 可能存在的 key 
 	client.Delete(nil, bucketName, key)
+	client.Delete(nil, bucketName, newkey1)
+	client.Delete(nil, bucketName, newkey2)
 }
 
 func upFile(localFile, bucketName, key string) error {
 
 	policy := PutPolicy {
-		Scope: bucketName,
+		Scope: bucketName + ":" + key,
 	}
 	return io.PutFile(nil, nil, policy.Token(nil), key, localFile, nil)
 }
