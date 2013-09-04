@@ -141,7 +141,6 @@ func writeMultipart(writer *multipart.Writer, uptoken, key string, hasKey bool, 
 	head := make(textproto.MIMEHeader)
 
 	// default the filename is same as key , but  ""
-
 	var fileName = key
 	if fileName == "" {
 		fileName = "filename"
