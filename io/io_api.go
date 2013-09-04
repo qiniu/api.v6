@@ -143,7 +143,7 @@ func writeMultipart(writer *multipart.Writer, uptoken, key string, hasKey bool, 
 	// default the filename is same as key , but  ""
 
 	var fileName = key
-	if key == "" {
+	if fileName == "" {
 		fileName = "filename"
 	}
 
