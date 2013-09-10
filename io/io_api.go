@@ -140,13 +140,12 @@ func writeMultipart(writer *multipart.Writer, uptoken, key string, hasKey bool, 
 	//file 
 	head := make(textproto.MIMEHeader)
 
-	//default the filename is same as key , but  ""
-	var fileName string
-	if key == "" {
-		fileName = "index.html"
-	} else {
-		fileName = key
+	// default the filename is same as key , but  ""
+	var fileName = key
+	if fileName == "" {
+		fileName = "filename"
 	}
+
 	head.Set("Content-Disposition",
 		fmt.Sprintf(`form-data; name="file"; filename="%s"`, escapeQuotes(fileName)))
 	if  extra.MimeType != "" {
