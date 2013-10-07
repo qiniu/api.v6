@@ -61,7 +61,7 @@ GO-SDK 以开源方式提供。开发者可以随时从本文档提供的下载�
 * 客户端上传文件：api/io
 * 客户端断点续上传：api/resumable/io
 * 数据处理：api/fop
-* 服务端操作：api/auth/digest (授权), api/rs(资源操作, uptoken/dntoken颁发), api/rsf(批量获取文件列表)
+* 服务端操作：api/auth/digest (授权), api/rs(资源���作, uptoken/dntoken颁发), api/rsf(批量获取文件列表)
 
 
 <a name="install"></a>
@@ -138,13 +138,13 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 func uptoken(bucketName string) string {
 	putPolicy := rs.PutPolicy {
 		Scope:         bucketName,
-		//CallbackUrl: callbackUrl,   
-		//CallbackBody:callbackBody,    
-		//ReturnUrl:   returnUrl,  
-		//ReturnBody:  returnBody,    
-		//AsyncOps:    asyncOps,    
-		//EndUser:     endUser,    
-		//Expires:     expires,   
+		//CallbackUrl: callbackUrl,
+		//CallbackBody:callbackBody,
+		//ReturnUrl:   returnUrl,
+		//ReturnBody:  returnBody,
+		//AsyncOps:    asyncOps,
+		//EndUser:     endUser,
+		//Expires:     expires,
 	}
 	return  putPolicy.Token(nil)
 }
@@ -168,7 +168,7 @@ func uptoken(bucketName string) string {
 type PutExtra struct {
 	Params   map[string]string    //可选，用户自定义参数，必须以 "x:" 开头
 	                              //若不以x:开头，则忽略
-	MimeType string               //可选，当为 "" 时候，服务端自动判断 
+	MimeType string               //可选，当为 "" 时候，服务端自动判断
 	Crc32    uint32
 	CheckCrc uint32
 	        // CheckCrc == 0: 表示不进行 crc32 校验
@@ -334,9 +334,9 @@ var extra = &rio.PutExtra {
 	//CustomMeta:     customMeta,
 	//MimeType:       mieType,
 	//ChunkSize:      chunkSize,
-	//TryTimes:       tryTimes,	
+	//TryTimes:       tryTimes,
 	//Progresses:     progresses,
-	//Notify:         notify,		
+	//Notify:         notify,
 	//NotifyErr:      NotifyErr,
 }
 
@@ -371,9 +371,9 @@ var extra = &rio.PutExtra {
 	//CustomMeta:     customMeta,
 	//MimeType:       mieType,
 	//ChunkSize:      chunkSize,
-	//TryTimes:       tryTimes,	
+	//TryTimes:       tryTimes,
 	//Progresses:     progresses,
-	//Notify:         notify,		
+	//Notify:         notify,
 	//NotifyErr:      NotifyErr,
 }
 
@@ -446,7 +446,7 @@ log.Print(ret.Hash)
 
 	[GET] http://<domain>/<key>?token=<dnToken>
 
-注意，尖括号不是必需，代表替换项。  
+注意，尖括号不是必需，代表替换项。
 
 其中 dntoken 是由业务服务器签发的一个[临时下载授权凭证](http://docs.qiniu.com/api/get.html#download-token)，deadline 是 dntoken 的有效期。dntoken不需要生成，GO-SDK 提供了生成完整 downloadUrl 的方法（包含了 dntoken），示例代码如下：
 
@@ -482,7 +482,7 @@ func downloadUrl(domain, key string) string {
 <a name="rs"></a>
 ## 5. 资源操作
 
-资源操作包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
+资源操作包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。
 该节调用的函数第一个参数都为 `logger`, 用于记录log, 如果无需求, 可以设置为nil. 具体接口可以查阅 `github.com/qiniu/rpc`
 
 <a name="rs-stat"></a>
@@ -841,7 +841,7 @@ for _, item := range exifRet {
 
 <a name="fop-image-view"></a>
 #### 6.1.3 生成图片预览
-可以根据给定的文件URL和缩略图规格来生成缩略图的URL,代码： 
+可以根据给定的文件URL和缩略图规格来生成缩略图的URL,代码：
 
 ```{go}
 func makeViewUrl(imageUrl string) string {
