@@ -61,7 +61,7 @@ GO-SDK 以开源方式提供。开发者可以随时从本文档提供的下载�
 * 客户端上传文件：api/io
 * 客户端断点续上传：api/resumable/io
 * 数据处理：api/fop
-* 服务端操作：api/auth/digest (授权), api/rs(资源���作, uptoken/dntoken颁发), api/rsf(批量获取文件列表)
+* 服务端操作：api/auth/digest (授权), api/rs(资源操作, uptoken/dntoken颁发), api/rsf(批量获取文件列表)
 
 
 <a name="install"></a>
