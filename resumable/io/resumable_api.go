@@ -12,9 +12,9 @@ import (
 // ----------------------------------------------------------
 
 const (
-	defaultWorkers = 4
+	defaultWorkers   = 4
 	defaultChunkSize = 256 * 1024 // 256k
-	defaultTryTimes = 3
+	defaultTryTimes  = 3
 )
 
 type Settings struct {
@@ -130,6 +130,7 @@ func PutFile(l rpc.Logger, ret interface{}, uptoken, key, localFile string, extr
 func PutFileWithoutKey(l rpc.Logger, ret interface{}, uptoken, localFile string, extra *PutExtra) (err error) {
 	return putFile(l, ret, uptoken, "", false, localFile, extra)
 }
+
 // ----------------------------------------------------------
 
 func put(
