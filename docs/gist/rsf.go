@@ -27,12 +27,12 @@ func listAll(l rpc.Logger, rs *rsf.Client, bucketName string, prefix string) {
 		entries, marker, err = rs.ListPrefix(l, bucketName,
 			prefix, marker, limit)
 		for _, item := range entries {
-			//处理 item
+			// 处理 item
 			log.Print("item:", item)
 		}
 	}
 	if err != io.EOF {
-		//非预期的错误
+		// 非预期的错误
 		log.Print("listAll failed:", err)
 	}
 }

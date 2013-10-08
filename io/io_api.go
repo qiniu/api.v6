@@ -19,7 +19,7 @@ import (
 type PutExtra struct {
 	Params   map[string]string    //可选，用户自定义参数，必须以 "x:" 开头
 	                              //若不以x:开头，则忽略
-	MimeType string               //可选，当为 "" 时候，服务端自动判断 
+	MimeType string               //可选，当为 "" 时候，服务端自动判断
 	Crc32    uint32
 	CheckCrc uint32
 	        // CheckCrc == 0: 表示不进行 crc32 校验

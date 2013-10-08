@@ -10,8 +10,9 @@ import (
 
 var (
 	bucket string
-	testkey = "resumableput_key"
-	testfile = "resumable_api_test.go"
+	testKey = "resumableput_key"
+	testFile = "resumable_api_test.go"
+	mockerr = false
 )
 
 func init() {
@@ -23,18 +24,36 @@ func init() {
 	}
 	bucket = os.Getenv("QINIU_TEST_BUCKET")
 	if bucket == "" {
-		panic("reqire test env")
+		panic("require QINIU_TEST_BUCKET")
 	}
+	rs.New(nil).Delete(nil, bucket, testKey)
 }
 
-
-func TestPut(t *testing.T) {
+func TestAll(t *testing.T) {
 
 	policy := rs.PutPolicy {
 		Scope: bucket,
 	}
+	token := policy.Token(nil)
+	params := map[string]string{"x:1": "1"}
+	extra := &PutExtra {
+		ChunkSize: 128,
+		MimeType: "text/plain",
+		Notify: blockNotify,
+		Params: params,
+	}
+
+	testPut(t, token, nil)
+	testPutWithoutKey(t, token, extra)
+	testPutFile(t, token, extra)
+	testPutFileWithoutKey(t, token, extra)
+	testXVar(t, token, extra)
+}
+
+func testPut(t *testing.T, token string, extra *PutExtra) {
+
 	var ret PutRet
-	f, err := os.Open(testfile)
+	f, err := os.Open(testFile)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,26 +64,102 @@ func TestPut(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var mockerr bool
-	blockNotify := func (blkIdx int, blkSize int, ret *BlkputRet) {
-		if rand.Int()%3 == 0 && mockerr == false {
-			if ret.Ctx != "" {
-				ret.Ctx = ""
-				mockerr = true
-			}
-		}
-	}
-
-	extra := &PutExtra {
-		Bucket: bucket,
-		ChunkSize: 128,
-		MimeType: "text/plain",
-		Notify: blockNotify,
-	}
-	defer rs.New(nil).Delete(nil, bucket, testkey)
-
-	err = Put(nil, &ret, policy.Token(nil), testkey, f, fi.Size(), extra)
+	err = Put(nil, &ret, token, testKey, f, fi.Size(), extra)
 	if err != nil {
 		t.Fatal(err)
+	}
+	defer rs.New(nil).Delete(nil, bucket, ret.Key)
+}
+
+func testPutWithoutKey(t *testing.T, token string, extra *PutExtra) {
+
+	var ret PutRet
+	f, err := os.Open(testFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	fi, err := f.Stat()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = PutWithoutKey(nil, &ret, token, f, fi.Size(), extra)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rs.New(nil).Delete(nil, bucket, ret.Key)
+}
+
+func testPutFile(t *testing.T, token string, extra *PutExtra) {
+
+	var ret PutRet
+	f, err := os.Open(testFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	err = PutFile(nil, &ret, token, testKey, testFile, extra)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rs.New(nil).Delete(nil, bucket, ret.Key)
+}
+
+func testPutFileWithoutKey(t *testing.T, token string, extra *PutExtra) {
+
+	var ret PutRet
+	f, err := os.Open(testFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	err = PutFileWithoutKey(nil, &ret, token, testFile, extra)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rs.New(nil).Delete(nil, bucket, ret.Key)
+}
+
+func testXVar(t *testing.T, token string, extra *PutExtra) {
+
+	type Ret struct {
+		PutRet
+		X1 string`json:"x:1"`
+	}
+	var ret Ret
+	f, err := os.Open(testFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	fi, err := f.Stat()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = Put(nil, &ret, token, testKey, f, fi.Size(), extra)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rs.New(nil).Delete(nil, bucket, ret.Key)
+
+	if ret.X1 != "1" {
+		t.Fatal("test xVar failed:", ret.X1)
+	}
+}
+
+//------------------------------------------------
+
+func blockNotify (blkIdx int, blkSize int, ret *BlkputRet) {
+	if rand.Int()%3 == 0 && mockerr == false {
+		if ret.Ctx != "" {
+			ret.Ctx = ""
+			mockerr = true
+		}
 	}
 }

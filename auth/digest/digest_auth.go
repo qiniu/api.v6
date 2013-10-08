@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"crypto/sha1"
 	"crypto/hmac"
-	"github.com/qiniu/api/seekable"
+	"github.com/qiniu/bytes/seekable"
 	. "github.com/qiniu/api/conf"
 )
 
