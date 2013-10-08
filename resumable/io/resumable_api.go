@@ -94,7 +94,7 @@ type BlkputRet struct {
 // @gist PutExtra
 type PutExtra struct {
 	Params     map[string]string // 可选。用户自定义参数，以"x:"开头 否则忽略
-	MimeType   string            // 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
+	MimeType   string            // 可选。
 	ChunkSize  int               // 可选。每次上传的Chunk大小
 	TryTimes   int               // 可选。尝试次数
 	Progresses []BlkputRet       // 可选。上传进度
