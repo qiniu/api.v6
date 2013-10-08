@@ -2,6 +2,7 @@ package io
 
 import (
 	"io"
+	"fmt"
 	"errors"
 	"strconv"
 	"net/http"
@@ -25,8 +26,8 @@ var ErrUnmatchedChecksum = errors.New("unmatched checksum")
 
 // ----------------------------------------------------------
 
-func encodeURI(uri string) string {
-	return base64.URLEncoding.EncodeToString([]byte(uri))
+func encode(raw string) string {
+	return base64.URLEncoding.EncodeToString([]byte(raw))
 }
 
 // ----------------------------------------------------------
@@ -145,19 +146,18 @@ lzRetry:
 // ----------------------------------------------------------
 
 func Mkfile(
-	c rpc.Client, l rpc.Logger, ret interface{}, key string, fsize int64, extra *PutExtra) (err error) {
+	c rpc.Client, l rpc.Logger, ret interface{}, key string, hasKey bool, fsize int64, extra *PutExtra) (err error) {
 
-	entry := extra.Bucket + ":" + key
-	url := UP_HOST + "/rs-mkfile/" + encodeURI(entry) + "/fsize/" + strconv.FormatInt(fsize, 10)
+	url := UP_HOST + "/mkfile/" + strconv.FormatInt(fsize, 10)
 
 	if extra.MimeType != "" {
-		url += "/mimeType/" + encodeURI(extra.MimeType)
+		url += "/mimeType/" + encode(extra.MimeType)
 	}
-	if extra.CustomMeta != "" {
-		url += "/meta/" + encodeURI(extra.CustomMeta)
+	if hasKey {
+		url += "/key/" + encode(key)
 	}
-	if extra.CallbackParams != "" {
-		url += "/params/" + encodeURI(extra.CallbackParams)
+	for k, v := range extra.Params {
+		url += fmt.Sprintf("/%s/%s", k, encode(v))
 	}
 
 	buf := make([]byte, 0, 176 * len(extra.Progresses))
@@ -169,7 +169,7 @@ func Mkfile(
 		buf = buf[:len(buf)-1]
 	}
 
-	return c.CallWith(l, ret, url, "text/plain", bytes.NewReader(buf), len(buf))
+	return c.CallWith(l, ret, url, "application/octet-stream", bytes.NewReader(buf), len(buf))
 }
 
 // ----------------------------------------------------------

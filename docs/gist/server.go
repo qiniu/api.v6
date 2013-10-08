@@ -14,15 +14,15 @@ func init() {
 
 // @gist uptoken
 func uptoken(bucketName string) string {
-	putPolicy := rs.PutPolicy {
-		Scope:         bucketName,
-		//CallbackUrl: callbackUrl,   
-		//CallbackBody:callbackBody,    
-		//ReturnUrl:   returnUrl,  
-		//ReturnBody:  returnBody,    
-		//AsyncOps:    asyncOps,    
-		//EndUser:     endUser,    
-		//Expires:     expires,   
+	putPolicy := rs.PutPolicy{
+		Scope:           bucketName,
+		// CallbackUrl:  callbackUrl,
+		// CallbackBody: callbackBody,
+		// ReturnUrl:    returnUrl,
+		// ReturnBody:   returnBody,
+		// AsyncOps:     asyncOps,
+		// EndUser:      endUser,
+		// Expires:      expires,
 	}
 	return  putPolicy.Token(nil)
 }
