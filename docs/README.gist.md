@@ -213,6 +213,7 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
+断点续上传的两个函数同样有两个wituoutKey函数`PutWithoutKey` `PutFileWithoutKey`与之对应，只是少了key参数，而这个key由我们的服务端自动生成。可通过函数返回的`PutRet`结构体获得key。
 相比普通上传，断点上续传代码没有变复杂。基本上就只是将`io.PutExtra`改为`resumable.io.PutExtra`，`io.PutFile`改为`resumable.io.PutFile`。
 
 但实际上 `resumable.io.PutExtra` 多了不少配置项，其中最重要的是两个回调函数：`Notify` 与 `NotifyErr`，它们用来通知使用者有更多的数据被传输成功，或者有些数据传输失败。在 `Notify` 回调函数中，比较常见的做法是将传输的状态进行持久化，以便于在软件退出后下次再进来还可以继续进行断点续上传。但不传入 `Notify` 回调函数并不表示不能断点续上传，只要程序没有退出，上传失败自动进行续传和重试操作。
@@ -262,7 +263,7 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 
 	[GET] http://<domain>/<key>?token=<dnToken>
 
-注意，尖括号不是必需，代表替换项。  
+注意，尖括号不是必需，代表替换项。
 
 其中 dntoken 是由业务服务器签发的一个[临时下载授权凭证](http://docs.qiniu.com/api/get.html#download-token)，deadline 是 dntoken 的有效期。dntoken不需要生成，GO-SDK 提供了生成完整 downloadUrl 的方法（包含了 dntoken），示例代码如下：
 
@@ -295,7 +296,7 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 <a name="rs"></a>
 ## 5. 资源操作
 
-资源操作包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
+资源操作包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。
 该节调用的函数第一个参数都为 `logger`, 用于记录log, 如果无需求, 可以设置为nil. 具体接口可以查阅 `github.com/qiniu/rpc`
 
 <a name="rs-stat"></a>
@@ -473,7 +474,7 @@ GO-SDK支持生成查看图片信息的URL，示意如下：
 
 <a name="fop-image-view"></a>
 #### 6.1.3 生成图片预览
-可以根据给定的文件URL和缩略图规格来生成缩略图的URL,代码： 
+可以根据给定的文件URL和缩略图规格来生成缩略图的URL,代码：
 
 ```{go}
 @gist(gist/fop.go#makeViewUrl)

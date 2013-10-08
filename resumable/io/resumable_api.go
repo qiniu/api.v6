@@ -18,10 +18,10 @@ const (
 )
 
 type Settings struct {
-	TaskQsize   int     // 可选。任务队列大小。为 0 表示取 Workers * 4。 
-	Workers     int     // 并行 Goroutine 数目。
-	ChunkSize   int		// 默认的Chunk大小，不设定则为256k
-	TryTimes    int		// 默认的尝试次数，不设定则为3
+	TaskQsize int  // 可选。任务队列大小。为 0 表示取 Workers * 4。
+	Workers   int  // 并行 Goroutine 数目。
+	ChunkSize int  // 默认的Chunk大小，不设定则为256k
+	TryTimes  int  // 默认的尝试次数，不设定则为3
 }
 
 var settings = Settings{
