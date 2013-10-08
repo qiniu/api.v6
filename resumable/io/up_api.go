@@ -169,7 +169,7 @@ func Mkfile(
 		buf = buf[:len(buf)-1]
 	}
 
-	return c.CallWith(l, ret, url, "text/plain", bytes.NewReader(buf), len(buf))
+	return c.CallWith(l, ret, url, "application/octet-stream", bytes.NewReader(buf), len(buf))
 }
 
 // ----------------------------------------------------------
