@@ -68,10 +68,7 @@ func testPut(t *testing.T, token string, extra *PutExtra) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = rs.New(nil).Delete(nil, bucket, ret.Key)
-	if err != nil {
-		t.Fatal(err)
-	}
+	defer rs.New(nil).Delete(nil, bucket, ret.Key)
 }
 
 func testPutWithoutKey(t *testing.T, token string, extra *PutExtra) {
@@ -92,10 +89,7 @@ func testPutWithoutKey(t *testing.T, token string, extra *PutExtra) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = rs.New(nil).Delete(nil, bucket, ret.Key)
-	if err != nil {
-		t.Fatal(err)
-	}
+	defer rs.New(nil).Delete(nil, bucket, ret.Key)
 }
 
 func testPutFile(t *testing.T, token string, extra *PutExtra) {
@@ -111,10 +105,7 @@ func testPutFile(t *testing.T, token string, extra *PutExtra) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = rs.New(nil).Delete(nil, bucket, ret.Key)
-	if err != nil {
-		t.Fatal(err)
-	}
+	defer rs.New(nil).Delete(nil, bucket, ret.Key)
 }
 
 func testPutFileWithoutKey(t *testing.T, token string, extra *PutExtra) {
@@ -130,10 +121,7 @@ func testPutFileWithoutKey(t *testing.T, token string, extra *PutExtra) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = rs.New(nil).Delete(nil, bucket, ret.Key)
-	if err != nil {
-		t.Fatal(err)
-	}
+	defer rs.New(nil).Delete(nil, bucket, ret.Key)
 }
 
 func testXVar(t *testing.T, token string, extra *PutExtra) {
@@ -158,13 +146,10 @@ func testXVar(t *testing.T, token string, extra *PutExtra) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer rs.New(nil).Delete(nil, bucket, ret.Key)
 
 	if ret.X1 != "1" {
 		t.Fatal("test xVar failed:", ret.X1)
-	}
-	err = rs.New(nil).Delete(nil, bucket, ret.Key)
-	if err != nil {
-		t.Fatal(err)
 	}
 }
 
