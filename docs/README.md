@@ -735,7 +735,7 @@ if err != nil {
 	log.Println("rs.BatchMove failed:", err)
 	return
 }
-for _, item := range batchMoveRets {
+for _, item := range batchCopyRets {
 // 遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }

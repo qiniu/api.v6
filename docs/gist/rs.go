@@ -143,7 +143,7 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 		log.Println("rs.BatchMove failed:", err)
 		return
 	}
-	for _, item := range batchMoveRets {
+	for _, item := range batchCopyRets {
 	// 遍历每个操作的返回结果
 		log.Println(item.Code, item.Error)
 	}
