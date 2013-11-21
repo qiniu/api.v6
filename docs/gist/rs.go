@@ -137,7 +137,7 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 
 	// @gist rsBatchMove
 	var batchMoveRets []rs.BatchItemRet
-	batchCopyRets, err = rsCli.BatchMove(nil, entryPairs)
+	batchMoveRets, err = rsCli.BatchMove(nil, entryPairs)
 	if err != nil {
 	// 产生错误
 		log.Println("rs.BatchMove failed:", err)
@@ -154,7 +154,7 @@ func batchDemo(bucket, key,  bucket1, key1, bucket2, key2, bucket3, key3, bucket
 	batchDeleteRets, err = rsCli.BatchDelete(nil, entryPathes)
 	if err != nil {
 	// 产生错误
-		log.Println("rs.BatchMove failed:", err)
+		log.Println("rs.BatchDelete failed:", err)
 		return
 	}
 	for _, item := range batchDeleteRets {
