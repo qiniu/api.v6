@@ -628,7 +628,7 @@ var batchDeleteRets []rs.BatchItemRet
 batchDeleteRets, err = rsCli.BatchDelete(nil, entryPathes)
 if err != nil {
 // 产生错误
-	log.Println("rs.BatchMove failed:", err)
+	log.Println("rs.BatchDelete failed:", err)
 	return
 }
 for _, item := range batchDeleteRets {
@@ -729,13 +729,13 @@ entryPairs := []rs.EntryPathPair {
 	},
 }
 var batchMoveRets []rs.BatchItemRet
-batchCopyRets, err = rsCli.BatchMove(nil, entryPairs)
+batchMoveRets, err = rsCli.BatchMove(nil, entryPairs)
 if err != nil {
 // 产生错误
 	log.Println("rs.BatchMove failed:", err)
 	return
 }
-for _, item := range batchCopyRets {
+for _, item := range batchMoveRets {
 // 遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }
