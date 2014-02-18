@@ -128,20 +128,22 @@ SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 
 <a name="io-put-make-uptoken"></a>
 ### 3.2 生成上传授权uptoken
+
 uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的各个参数来生成[uptoken](http://docs.qiniu.com/api/put.html#uploadToken)的代码如下:
+
 调用如下代码前，请确保Access Key 和 Secret Key已经被正确初始化
 
 ```{go}
 func uptoken(bucketName string) string {
-	putPolicy := rs.PutPolicy {
-		Scope:         bucketName,
-		//CallbackUrl: callbackUrl,   
-		//CallbackBody:callbackBody,    
-		//ReturnUrl:   returnUrl,  
-		//ReturnBody:  returnBody,    
-		//AsyncOps:    asyncOps,    
-		//EndUser:     endUser,    
-		//Expires:     expires,   
+	putPolicy := rs.PutPolicy{
+		Scope:           bucketName,
+		// CallbackUrl:  callbackUrl,
+		// CallbackBody: callbackBody,
+		// ReturnUrl:    returnUrl,
+		// ReturnBody:   returnBody,
+		// AsyncOps:     asyncOps,
+		// EndUser:      endUser,
+		// Expires:      expires,
 	}
 	return  putPolicy.Token(nil)
 }
@@ -152,14 +154,18 @@ func uptoken(bucketName string) string {
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
 上传文件到七牛（通常是客户端完成，但也可以发生在业务服务器）：
+
 由于七牛的服务器支持自动生成key，所以本SDK提供的上传函数有两种展现方式，一种是有key的，一种是无key，让服务端自动生成key.
+
+**注意： key必须采用utf8编码，如使用非utf8编码访问七牛云存储将反馈错误**
+
 普通上传的文件和二进制，最后一个参数都是PutExtra类型，是用来细化上传功能用的，PutExtra的成员及其意义如下：
 
 ```{go}
 type PutExtra struct {
 	Params   map[string]string    //可选，用户自定义参数，必须以 "x:" 开头
 	                              //若不以x:开头，则忽略
-	MimeType string               //可选，当为 "" 时候，服务端自动判断 
+	MimeType string               //可选，当为 "" 时候，服务端自动判断
 	Crc32    uint32
 	CheckCrc uint32
 	        // CheckCrc == 0: 表示不进行 crc32 校验
@@ -173,11 +179,11 @@ type PutExtra struct {
 ```{go}
 var err error
 var ret io.PutRet
-var extra = &io.PutExtra {
-	//Params:    params,
-	//MimeType:  mieType,
-	//Crc32:     crc32,
-	//CheckCrc:  CheckCrc,
+var extra = &io.PutExtra{
+	// Params:   params,
+	// MimeType: mieType,
+	// Crc32:    crc32,
+	// CheckCrc: CheckCrc,
 }
 
 // ret       变量用于存取返回的信息，详情见 io.PutRet
@@ -204,11 +210,11 @@ log.Print(ret.Hash, ret.Key)
 ```{go}
 var err error
 var ret io.PutRet
-var extra = &io.PutExtra {
-	//Params:    params,
-	//MimeType:  mieType,
-	//Crc32:     crc32,
-	//CheckCrc:  CheckCrc,
+var extra = &io.PutExtra{
+	// Params:   params,
+	// MimeType: mieType,
+	// Crc32:    crc32,
+	// CheckCrc: CheckCrc,
 }
 
 // ret       变量用于存取返回的信息，详情见 io.PutRet
@@ -234,11 +240,11 @@ log.Print(ret.Hash, ret.Key)
 ```{go}
 var err error
 var ret io.PutRet
-var extra = &io.PutExtra {
-	//Params:    params,
-	//MimeType:  mieType,
-	//Crc32:     crc32,
-	//CheckCrc:  CheckCrc,
+var extra = &io.PutExtra{
+	// Params:   params,
+	// MimeType: mieType,
+	// Crc32:    crc32,
+	// CheckCrc: CheckCrc,
 }
 
 // ret       变量用于存取返回的信息，详情见 io.PutRet
@@ -265,11 +271,11 @@ log.Print(ret.Hash, ret.Key)
 ```{go}
 var err error
 var ret io.PutRet
-var extra = &io.PutExtra {
-	//Params:    params,
-	//MimeType:  mieType,
-	//Crc32:     crc32,
-	//CheckCrc:  CheckCrc,
+var extra = &io.PutExtra{
+	// Params:   params,
+	// MimeType: mieType,
+	// Crc32:    crc32,
+	// CheckCrc: CheckCrc,
 }
 
 // ret       变量用于存取返回的信息，详情见 io.PutRet
@@ -289,7 +295,9 @@ log.Print(ret.Hash, ret.Key)
 ```
 
 参阅: `io.PutFile`, `io.PutExtra`, `io.PutRet`
+
 <a name="io-put-resumable"></a>
+
 ### 3.4 断点续上传、分块并行上传
 
 除了基本的上传外，七牛还支持你将文件切成若干块（除最后一块外，每个块固定为4M大小），每个块可独立上传，互不干扰；每个分块块内则能够做到断点上续传。
@@ -298,15 +306,13 @@ log.Print(ret.Hash, ret.Key)
 
 ```{go}
 type PutExtra struct {
-	CallbackParams  string  // 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
-	Bucket          string
-	CustomMeta      string  // 可选。用户自定义 Meta，不能超过 256 字节
-	MimeType        string  // 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
-	ChunkSize	int	// 可选。每次上传的Chunk大小
-	TryTimes	int	// 可选。尝试次数
-	Progresses	[]BlkputRet // 可选。上传进度
-	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
-	NotifyErr	func(blkIdx int, blkSize int, err error)
+	Params     map[string]string // 可选。用户自定义参数，以"x:"开头 否则忽略
+	MimeType   string            // 可选。
+	ChunkSize  int               // 可选。每次上传的Chunk大小
+	TryTimes   int               // 可选。尝试次数
+	Progresses []BlkputRet       // 可选。上传进度
+	Notify	   func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
+	NotifyErr  func(blkIdx int, blkSize int, err error)
 }
 ```
 
@@ -315,17 +321,15 @@ type PutExtra struct {
 
 ```{go}
 var err error
-var ret io.PutRet
-var extra = &rio.PutExtra {
-	//CallbackParams: callbackParams,
-	//Bucket:         bucket,
-	//CustomMeta:     customMeta,
-	//MimeType:       mieType,
-	//ChunkSize:      chunkSize,
-	//TryTimes:       tryTimes,	
-	//Progresses:     progresses,
-	//Notify:         notify,		
-	//NotifyErr:      NotifyErr,
+var ret rio.PutRet
+var extra = &rio.PutExtra{
+	// Params:     params,
+	// MimeType:   mieType,
+	// ChunkSize:  chunkSize,
+	// TryTimes:   tryTimes,
+	// Progresses: progresses,
+	// Notify:     notify,
+	// NotifyErr:  NotifyErr,
 }
 
 // ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
@@ -353,16 +357,14 @@ log.Print(ret.Hash)
 ```{go}
 var err error
 var ret rio.PutRet
-var extra = &rio.PutExtra {
-	//CallbackParams: callbackParams,
-	//Bucket:         bucket,
-	//CustomMeta:     customMeta,
-	//MimeType:       mieType,
-	//ChunkSize:      chunkSize,
-	//TryTimes:       tryTimes,	
-	//Progresses:     progresses,
-	//Notify:         notify,		
-	//NotifyErr:      NotifyErr,
+var extra = &rio.PutExtra{
+	// Params:     params,
+	// MimeType:   mieType,
+	// ChunkSize:  chunkSize,
+	// TryTimes:   tryTimes,
+	// Progresses: progresses,
+	// Notify:     notify,
+	// NotifyErr:  NotifyErr,
 }
 
 // ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
@@ -384,6 +386,7 @@ log.Print(ret.Hash)
 
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
+断点续上传的两个函数同样有两个wituoutKey函数`PutWithoutKey` `PutFileWithoutKey`与之对应，只是少了key参数，而这个key由我们的服务端自动生成。可通过函数返回的`PutRet`结构体获得key。
 相比普通上传，断点上续传代码没有变复杂。基本上就只是将`io.PutExtra`改为`resumable.io.PutExtra`，`io.PutFile`改为`resumable.io.PutFile`。
 
 但实际上 `resumable.io.PutExtra` 多了不少配置项，其中最重要的是两个回调函数：`Notify` 与 `NotifyErr`，它们用来通知使用者有更多的数据被传输成功，或者有些数据传输失败。在 `Notify` 回调函数中，比较常见的做法是将传输的状态进行持久化，以便于在软件退出后下次再进来还可以继续进行断点续上传。但不传入 `Notify` 回调函数并不表示不能断点续上传，只要程序没有退出，上传失败自动进行续传和重试操作。
@@ -394,7 +397,7 @@ log.Print(ret.Hash)
 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 实际上是用 AccessKey/SecretKey 进行数字签名的上传策略(`rs.PutPolicy`)，它控制则整个上传流程的行为。让我们快速过一遍你都能够决策啥：
 
 * `Expires` 指定 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 有效期（默认1小时）。一个 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 可以被用于多次上传（只要它还没有过期）。
-* `Scope` 限定客户端的权限。如果 `scope` 是 bucket，则客户端只能新增文件到指定的 bucket，不能修改文件。如果 `scope` 为 bucket:key，则客户端可以修改指定的文件。
+* `Scope` 限定客户端的权限。如果 `scope` 是 bucket，则客户端只能新增文件到指定的 bucket，不能修改文件。如果 `scope` 为 bucket:key，则客户端可以修改指定的文件。**注意： key必须采用utf8编码，如使用非utf8编码访问七牛云存储将反馈错误**
 * `CallbackUrl` 设定业务服务器的回调地址，这样业务服务器才能感知到上传行为的发生。可选。
 * `AsyncOps` 可指定上传完成后，需要自动执行哪些数据处理。这是因为有些数据处理操作（比如音视频转码）比较慢，如果不进行预转可能第一次访问的时候效果不理想，预转可以很大程度改善这一点。
 * `ReturnBody` 可调整返回给客户端的数据包（默认情况下七牛返回文件内容的 `hash`，也就是下载该文件时的 `etag`）。这只在没有 `CallbackUrl` 时有效。
@@ -404,28 +407,39 @@ log.Print(ret.Hash)
 关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
 
 <a name="io-get"></a>
+
 ## 4 下载文件
-七牛云存储上的资源下载分为 公有资源下载 和 私有资源下载 。
+
+七牛云存储上的资源下载分为 公开资源下载 和 私有资源下载 。
 
 私有（private）是 Bucket（空间）的一个属性，一个私有 Bucket 中的资源为私有资源，私有资源不可匿名下载。
 
 新创建的空间（Bucket）缺省为私有，也可以将某个 Bucket 设为公有，公有 Bucket 中的资源为公有资源，公有资源可以匿名下载。
 
 <a name="io-get-public"></a>
+
 ### 4.1 公有资源下载
+
 如果在给bucket绑定了域名的话，可以通过以下地址访问。
 
 	[GET] http://<domain>/<key>
 
-其中<domain>可以到[七牛云存储开发者自助网站](https://portal.qiniu.com)绑定。步骤：首先选择需要绑定的空间，其次在空间设置标签下，点击域名绑定项，即可申请绑定自定义域名。域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniudn.com`)。注意，尖括号不是必需，代表替换项。
+其中<domain>是bucket所对应的域名。七牛云存储为每一个bucket提供一个默认域名。默认域名可以到[七牛云存储开发者平台](https://portal.qiniu.com/)中，空间设置的域名设置一节查询。用户也可以将自有的域名绑定到bucket上，通过自有域名访问七牛云存储。
+
+**注意： key必须采用utf8编码，如使用非utf8编码访问七牛云存储将反馈错误**
 
 <a name="io-get-private"></a>
+
 ### 4.2 私有资源下载
+
 如果某个 bucket 是私有的，那么这个 bucket 中的所有文件只能通过一个的临时有效的 downloadUrl 访问：
 
 	[GET] http://<domain>/<key>?token=<dnToken>
-注意，尖括号不是必需，代表替换项。  
+
+注意，尖括号不是必需，代表替换项。
+
 其中 dntoken 是由业务服务器签发的一个[临时下载授权凭证](http://docs.qiniu.com/api/get.html#download-token)，deadline 是 dntoken 的有效期。dntoken不需要生成，GO-SDK 提供了生成完整 downloadUrl 的方法（包含了 dntoken），示例代码如下：
+
 `downloadToken` 可以使用 SDK 提供的如下方法生成：
 
 ```{go}
@@ -443,6 +457,7 @@ func downloadUrl(domain, key string) string {
 参阅: `rs.GetPolicy`, `rs.GetPolicy.MakeRequest`, `rs.MakeBaseUrl`
 
 <a name="io-get-https"></a>
+
 ### 4.3 HTTPS支持
 
 几乎所有七牛云存储 API 都同时支持 HTTP 和 HTTPS，但 HTTPS 下载有些需要注意的点。如果你的资源希望支持 HTTPS 下载，有如下限制：
@@ -458,7 +473,7 @@ func downloadUrl(domain, key string) string {
 <a name="rs"></a>
 ## 5. 资源操作
 
-资源操作包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
+资源操作包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。
 该节调用的函数第一个参数都为 `logger`, 用于记录log, 如果无需求, 可以设置为nil. 具体接口可以查阅 `github.com/qiniu/rpc`
 
 <a name="rs-stat"></a>
@@ -469,11 +484,11 @@ func downloadUrl(domain, key string) string {
 var ret  rs.Entry
 ret, err = rsCli.Stat(nil, bucket, key)
 if err != nil {
-//产生错误
+// 产生错误
 	log.Println("rs.Stat failed:", err)
 	return
 }
-//处理返回值
+// 处理返回值
 log.Println(ret)
 ```
 
@@ -500,7 +515,7 @@ type Entry struct {
 ```{go}
 err = rsCli.Delete(nil, bucket, key)
 if err != nil {
-//产生错误
+// 产生错误
 	log.Println("rs.Copy failed:", err)
 	return
 }
@@ -516,7 +531,7 @@ if err != nil {
 ```{go}
 err = rsCli.Copy(nil, bucketSrc, keySrc, bucketDest, keyDest)
 if err != nil {
-//产生错误
+// 产生错误
 	log.Println("rs.Copy failed:", err)
 	return
 }
@@ -550,12 +565,12 @@ if err != nil {
 函数`rs.Client.BatchStat`可批量获取文件信息。
 
 ```{go}
-entryPathes := []rs.EntryPath {
-	rs.EntryPath {
+entryPathes := []rs.EntryPath{
+	rs.EntryPath{
 		Bucket: bucket1,
 		Key: key1,
 	},
-	rs.EntryPath {
+	rs.EntryPath{
 		Bucket: bucket2,
 		Key: key2,
 	},
@@ -563,11 +578,11 @@ entryPathes := []rs.EntryPath {
 var batchStatRets []rs.BatchStatItemRet
 batchStatRets, err = rsCli.BatchStat(nil, entryPathes) // []rs.BatchStatItemRet, error
 if err != nil {
-//产生错误
+// 产生错误
 	log.Println("rs.BatchStat failed:", err)
 	return
 }
-//处理返回值
+// 处理返回值
 for _, item := range batchStatRets {
 	log.Println(item)
 }
@@ -586,9 +601,9 @@ type EntryPath struct {
 
 ```{go}
 type BatchStatItemRet struct {
-	Data  Entry       `json:"data"`
-	Error string      `json:"error"`
-	Code  int         `json:"code"`
+	Data  Entry  `json:"data"`
+	Error string `json:"error"`
+	Code  int    `json:"code"`
 }
 ```
 
@@ -599,12 +614,12 @@ type BatchStatItemRet struct {
 函数`rs.Client.BatchDelete`可进行批量删除文件。
 
 ```{go}
-entryPathes := []rs.EntryPath {
-	rs.EntryPath {
+entryPathes := []rs.EntryPath{
+	rs.EntryPath{
 		Bucket: bucket1,
 		Key: key1,
 	},
-	rs.EntryPath {
+	rs.EntryPath{
 		Bucket: bucket2,
 		Key: key2,
 	},
@@ -612,12 +627,12 @@ entryPathes := []rs.EntryPath {
 var batchDeleteRets []rs.BatchItemRet
 batchDeleteRets, err = rsCli.BatchDelete(nil, entryPathes)
 if err != nil {
-//产生错误
-	log.Println("rs.BatchMove failed:", err)
+// 产生错误
+	log.Println("rs.BatchDelete failed:", err)
 	return
 }
 for _, item := range batchDeleteRets {
-//遍历每个操作的返回结果
+// 遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }
 ```
@@ -626,8 +641,8 @@ for _, item := range batchDeleteRets {
 
 ```{go}
 type BatchItemRet struct {
-	Error string      `json:"error"`
-	Code  int         `json:"code"`
+	Error string `json:"error"`
+	Code  int    `json:"code"`
 }
 ```
 
@@ -640,21 +655,21 @@ type BatchItemRet struct {
 ```{go}
 // 每个复制操作都含有源文件和目标文件
 entryPairs := []rs.EntryPathPair {
-	rs.EntryPathPair {
-		Src: rs.EntryPath {
+	rs.EntryPathPair{
+		Src: rs.EntryPath{
 			Bucket: bucket1,
 			Key: key1,
 		},
-		Dest: rs.EntryPath {
+		Dest: rs.EntryPath{
 			Bucket: bucket2,
 			Key: key2,
 		},
-	}, rs.EntryPathPair {
-		Src: rs.EntryPath {
+	}, rs.EntryPathPair{
+		Src: rs.EntryPath{
 			Bucket: bucket3,
 			Key: key3,
 		},
-		Dest: rs.EntryPath {
+		Dest: rs.EntryPath{
 			Bucket: bucket4,
 			Key: key4,
 		},
@@ -663,12 +678,12 @@ entryPairs := []rs.EntryPathPair {
 var batchCopyRets []rs.BatchItemRet
 batchCopyRets, err = rsCli.BatchCopy(nil, entryPairs)
 if err != nil {
-//产生错误
+// 产生错误
 	log.Println("rs.BatchCopy failed:", err)
 	return
 }
 for _, item := range batchCopyRets {
-//遍历每个操作的返回结果
+// 遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }
 ```
@@ -693,35 +708,35 @@ type EntryPathPair struct {
 ```{go}
 // 每个复制操作都含有源文件和目标文件
 entryPairs := []rs.EntryPathPair {
-	rs.EntryPathPair {
-		Src: rs.EntryPath {
+	rs.EntryPathPair{
+		Src: rs.EntryPath{
 			Bucket: bucket1,
 			Key: key1,
 		},
-		Dest: rs.EntryPath {
+		Dest: rs.EntryPath{
 			Bucket: bucket2,
 			Key: key2,
 		},
-	}, rs.EntryPathPair {
-		Src: rs.EntryPath {
+	}, rs.EntryPathPair{
+		Src: rs.EntryPath{
 			Bucket: bucket3,
 			Key: key3,
 		},
-		Dest: rs.EntryPath {
+		Dest: rs.EntryPath{
 			Bucket: bucket4,
 			Key: key4,
 		},
 	},
 }
 var batchMoveRets []rs.BatchItemRet
-batchCopyRets, err = rsCli.BatchMove(nil, entryPairs)
+batchMoveRets, err = rsCli.BatchMove(nil, entryPairs)
 if err != nil {
-//产生错误
+// 产生错误
 	log.Println("rs.BatchMove failed:", err)
 	return
 }
 for _, item := range batchMoveRets {
-//遍历每个操作的返回结果
+// 遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }
 ```
@@ -743,7 +758,7 @@ ops := []string {
 rets := new([]rs.BatchItemRet)
 err = rsCli.Batch(nil, rets, ops)
 if err != nil {
-//产生错误
+// 产生错误
 	log.Println("rs.Batch failed:", err)
 	return
 }
@@ -776,7 +791,7 @@ func makeImageInfoUrl(imageUrl string) string {
 ```{go}
 infoRet, err = ii.Call(nil, imageUrl)
 if err != nil {
-//产生错误
+// 产生错误
 	log.Println("fop getImageInfo failed:", err)
 	return
 }
@@ -802,12 +817,12 @@ func makeExifUrl(imageUrl string) string {
 ```{go}
 exifRet, err = ie.Call(nil, imageUrl)
 if err != nil {
-//产生错误
+// 产生错误
 	log.Println("fop getExif failed:", err)
 	return
 }
 
-//处理返回结果
+// 处理返回结果
 for _, item := range exifRet {
 	log.Println(item.Type, item.Val)
 }
@@ -817,16 +832,16 @@ for _, item := range exifRet {
 
 <a name="fop-image-view"></a>
 #### 6.1.3 生成图片预览
-可以根据给定的文件URL和缩略图规格来生成缩略图的URL,代码： 
+可以根据给定的文件URL和缩略图规格来生成缩略图的URL,代码：
 
 ```{go}
 func makeViewUrl(imageUrl string) string {
-	var view = fop.ImageView {
-		//Mode int      // 缩略模式
-		//Width int     // Width = 0 表示不限定宽度
-		//Height int    // Height = 0 表示不限定高度
-		//Quality int   // 质量, 1-100
-		//Format string // 输出格式，如jpg, gif, png, tif等等
+	var view = fop.ImageView{
+		// Mode    int    缩略模式
+		// Width   int    Width = 0 表示不限定宽度
+		// Height  int    Height = 0 表示不限定高度
+		// Quality int    质量, 1-100
+		// Format  string 输出格式，如jpg, gif, png, tif等等
 	}
 	return view.MakeRequest(imageUrl)
 }
@@ -853,12 +868,12 @@ func listAll(l rpc.Logger, rs *rsf.Client, bucketName string, prefix string) {
 		entries, marker, err = rs.ListPrefix(l, bucketName,
 			prefix, marker, limit)
 		for _, item := range entries {
-			//处理 item
+			// 处理 item
 			log.Print("item:", item)
 		}
 	}
 	if err != io.EOF {
-		//非预期的错误
+		// 非预期的错误
 		log.Print("listAll failed:", err)
 	}
 }

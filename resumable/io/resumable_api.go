@@ -12,16 +12,16 @@ import (
 // ----------------------------------------------------------
 
 const (
-	defaultWorkers = 4
+	defaultWorkers   = 4
 	defaultChunkSize = 256 * 1024 // 256k
-	defaultTryTimes = 3
+	defaultTryTimes  = 3
 )
 
 type Settings struct {
-	TaskQsize   int     // 可选。任务队列大小。为 0 表示取 Workers * 4。 
-	Workers     int     // 并行 Goroutine 数目。
-	ChunkSize   int		// 默认的Chunk大小，不设定则为256k
-	TryTimes    int		// 默认的尝试次数，不设定则为3
+	TaskQsize int  // 可选。任务队列大小。为 0 表示取 Workers * 4。
+	Workers   int  // 并行 Goroutine 数目。
+	ChunkSize int  // 默认的Chunk大小，不设定则为256k
+	TryTimes  int  // 默认的尝试次数，不设定则为3
 }
 
 var settings = Settings{
@@ -93,20 +93,19 @@ type BlkputRet struct {
 
 // @gist PutExtra
 type PutExtra struct {
-	CallbackParams  string  // 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
-	Bucket          string
-	CustomMeta      string  // 可选。用户自定义 Meta，不能超过 256 字节
-	MimeType        string  // 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
-	ChunkSize	int	// 可选。每次上传的Chunk大小
-	TryTimes	int	// 可选。尝试次数
-	Progresses	[]BlkputRet // 可选。上传进度
-	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
-	NotifyErr	func(blkIdx int, blkSize int, err error)
+	Params     map[string]string // 可选。用户自定义参数，以"x:"开头 否则忽略
+	MimeType   string            // 可选。
+	ChunkSize  int               // 可选。每次上传的Chunk大小
+	TryTimes   int               // 可选。尝试次数
+	Progresses []BlkputRet       // 可选。上传进度
+	Notify	   func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
+	NotifyErr  func(blkIdx int, blkSize int, err error)
 }
 // @endgist
 
 type PutRet struct {
-    Hash string `json:"hash"` // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	Hash string `json:"hash"` // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	Key  string `json:"key"`
 }
 
 var ErrInvalidPutProgress = errors.New("invalid put progress")
@@ -114,13 +113,36 @@ var ErrPutFailed = errors.New("resumable put failed")
 
 var once sync.Once
 
-func Put(
-	l rpc.Logger, ret interface{}, uptoken string, key string, f io.ReaderAt, fsize int64, extra *PutExtra) error {
+// ----------------------------------------------------------
+
+func Put(l rpc.Logger, ret interface{}, uptoken string, key string, f io.ReaderAt, fsize int64, extra *PutExtra) error {
+	return put(l, ret, uptoken, key, true, f, fsize, extra)
+}
+
+func PutWithoutKey(l rpc.Logger, ret interface{}, uptoken string, f io.ReaderAt, fsize int64, extra *PutExtra) error {
+	return put(l, ret, uptoken, "", false, f, fsize, extra)
+}
+
+func PutFile(l rpc.Logger, ret interface{}, uptoken, key, localFile string, extra *PutExtra) (err error) {
+	return putFile(l, ret, uptoken, key, true, localFile, extra)
+}
+
+func PutFileWithoutKey(l rpc.Logger, ret interface{}, uptoken, localFile string, extra *PutExtra) (err error) {
+	return putFile(l, ret, uptoken, "", false, localFile, extra)
+}
+
+// ----------------------------------------------------------
+
+func put(
+	l rpc.Logger, ret interface{}, uptoken string, key string, hasKey bool, f io.ReaderAt, fsize int64, extra *PutExtra) error {
 
 	once.Do(initWorkers)
 
 	blockCnt := BlockCount(fsize)
 
+	if extra == nil {
+		extra = new(PutExtra)
+	}
 	if extra.Progresses == nil {
 		extra.Progresses = make([]BlkputRet, blockCnt)
 	} else if len(extra.Progresses) != blockCnt {
@@ -179,12 +201,10 @@ lzRetry:
 		return ErrPutFailed
 	}
 
-	return Mkfile(c, l, ret, key, fsize, extra)
+	return Mkfile(c, l, ret, key, hasKey, fsize, extra)
 }
 
-// ----------------------------------------------------------
-
-func PutFile(l rpc.Logger, ret interface{}, uptoken, key string, localFile string, extra *PutExtra) (err error) {
+func putFile(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, localFile string, extra *PutExtra) (err error) {
 
 	f, err := os.Open(localFile)
 	if err != nil {
@@ -197,8 +217,7 @@ func PutFile(l rpc.Logger, ret interface{}, uptoken, key string, localFile strin
 		return
 	}
 
-	return Put(l, ret, uptoken, key, f, fi.Size(), extra)
+	return put(l, ret, uptoken, key, hasKey, f, fi.Size(), extra)
 }
 
 // ----------------------------------------------------------
-
