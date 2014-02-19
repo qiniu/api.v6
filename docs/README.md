@@ -83,7 +83,7 @@ GO-SDK 以开源方式提供。开发者可以随时从本文档提供的下载�
 在获取到 Access Key 和 Secret Key 之后，您可以在您的程序中调用如下两行代码进行初始化对接, 要确保`ACCESS_KEY` 和 `SECRET_KEY` 在服务端调用 api/auth/digest,api/rs，api/rsf之前均已赋值：
 
 ```{go}
-import ."github.com/qiniu/api/conf"
+import . "github.com/qiniu/api/conf"
 
 ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
 SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
@@ -136,7 +136,7 @@ uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的�
 ```{go}
 func uptoken(bucketName string) string {
 	putPolicy := rs.PutPolicy{
-		Scope:           bucketName,
+		Scope: bucketName,
 		// CallbackUrl:  callbackUrl,
 		// CallbackBody: callbackBody,
 		// ReturnUrl:    returnUrl,
@@ -145,7 +145,7 @@ func uptoken(bucketName string) string {
 		// EndUser:      endUser,
 		// Expires:      expires,
 	}
-	return  putPolicy.Token(nil)
+	return putPolicy.Token(nil)
 }
 ```
 
@@ -180,10 +180,10 @@ type PutExtra struct {
 var err error
 var ret io.PutRet
 var extra = &io.PutExtra{
-	// Params:   params,
-	// MimeType: mieType,
-	// Crc32:    crc32,
-	// CheckCrc: CheckCrc,
+// Params:   params,
+// MimeType: mieType,
+// Crc32:    crc32,
+// CheckCrc: CheckCrc,
 }
 
 // ret       变量用于存取返回的信息，详情见 io.PutRet
@@ -194,7 +194,7 @@ var extra = &io.PutExtra{
 err = io.Put(nil, &ret, uptoken, key, r, extra)
 
 if err != nil {
-//上传产生错误
+	//上传产生错误
 	log.Print("io.Put failed:", err)
 	return
 }
@@ -211,10 +211,10 @@ log.Print(ret.Hash, ret.Key)
 var err error
 var ret io.PutRet
 var extra = &io.PutExtra{
-	// Params:   params,
-	// MimeType: mieType,
-	// Crc32:    crc32,
-	// CheckCrc: CheckCrc,
+// Params:   params,
+// MimeType: mieType,
+// Crc32:    crc32,
+// CheckCrc: CheckCrc,
 }
 
 // ret       变量用于存取返回的信息，详情见 io.PutRet
@@ -224,7 +224,7 @@ var extra = &io.PutExtra{
 err = io.PutWithoutKey(nil, &ret, uptoken, r, extra)
 
 if err != nil {
-//上传产生错误
+	//上传产生错误
 	log.Print("io.Put failed:", err)
 	return
 }
@@ -241,10 +241,10 @@ log.Print(ret.Hash, ret.Key)
 var err error
 var ret io.PutRet
 var extra = &io.PutExtra{
-	// Params:   params,
-	// MimeType: mieType,
-	// Crc32:    crc32,
-	// CheckCrc: CheckCrc,
+// Params:   params,
+// MimeType: mieType,
+// Crc32:    crc32,
+// CheckCrc: CheckCrc,
 }
 
 // ret       变量用于存取返回的信息，详情见 io.PutRet
@@ -255,7 +255,7 @@ var extra = &io.PutExtra{
 err = io.PutFile(nil, &ret, uptoken, key, localFile, extra)
 
 if err != nil {
-//上传产生错误
+	//上传产生错误
 	log.Print("io.PutFile failed:", err)
 	return
 }
@@ -272,10 +272,10 @@ log.Print(ret.Hash, ret.Key)
 var err error
 var ret io.PutRet
 var extra = &io.PutExtra{
-	// Params:   params,
-	// MimeType: mieType,
-	// Crc32:    crc32,
-	// CheckCrc: CheckCrc,
+// Params:   params,
+// MimeType: mieType,
+// Crc32:    crc32,
+// CheckCrc: CheckCrc,
 }
 
 // ret       变量用于存取返回的信息，详情见 io.PutRet
@@ -285,7 +285,7 @@ var extra = &io.PutExtra{
 err = io.PutFileWithoutKey(nil, &ret, uptoken, localFile, extra)
 
 if err != nil {
-//上传产生错误
+	//上传产生错误
 	log.Print("io.PutFile failed:", err)
 	return
 }
@@ -323,13 +323,13 @@ type PutExtra struct {
 var err error
 var ret rio.PutRet
 var extra = &rio.PutExtra{
-	// Params:     params,
-	// MimeType:   mieType,
-	// ChunkSize:  chunkSize,
-	// TryTimes:   tryTimes,
-	// Progresses: progresses,
-	// Notify:     notify,
-	// NotifyErr:  NotifyErr,
+// Params:     params,
+// MimeType:   mieType,
+// ChunkSize:  chunkSize,
+// TryTimes:   tryTimes,
+// Progresses: progresses,
+// Notify:     notify,
+// NotifyErr:  NotifyErr,
 }
 
 // ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
@@ -338,10 +338,10 @@ var extra = &rio.PutExtra{
 // r         为io.ReaderAt,用于读取数据
 // fsize     数据总字节数
 // extra     为上传文件的额外信息, 详情见 resumable.io.PutExtra
-err = rio.Put(nil, ret, uptoken, key, r, fsize, extra)
+err = rio.Put(nil, &ret, uptoken, key, r, fsize, extra)
 
 if err != nil {
-//上传产生错误
+	//上传产生错误
 	log.Print("resumable.io.Put failed:", err)
 	return
 }
@@ -358,13 +358,13 @@ log.Print(ret.Hash)
 var err error
 var ret rio.PutRet
 var extra = &rio.PutExtra{
-	// Params:     params,
-	// MimeType:   mieType,
-	// ChunkSize:  chunkSize,
-	// TryTimes:   tryTimes,
-	// Progresses: progresses,
-	// Notify:     notify,
-	// NotifyErr:  NotifyErr,
+// Params:     params,
+// MimeType:   mieType,
+// ChunkSize:  chunkSize,
+// TryTimes:   tryTimes,
+// Progresses: progresses,
+// Notify:     notify,
+// NotifyErr:  NotifyErr,
 }
 
 // ret       变量用于存取返回的信息，详情见 resumable.io.PutRet
@@ -372,10 +372,10 @@ var extra = &rio.PutExtra{
 // key       为文件存储的标识
 // localFile 为本地文件名
 // extra     为上传文件的额外信息,可为空， 详情见 resumable.io.PutExtra
-err = rio.PutFile(nil, ret, uptoken, key, localFile, extra)
+err = rio.PutFile(nil, &ret, uptoken, key, localFile, extra)
 
 if err != nil {
-//上传产生错误
+	//上传产生错误
 	log.Print("resumable.io.Put failed:", err)
 	return
 }
@@ -446,7 +446,7 @@ log.Print(ret.Hash)
 func downloadUrl(domain, key string) string {
 	baseUrl := rs.MakeBaseUrl(domain, key)
 	policy := rs.GetPolicy{}
-	return  policy.MakeRequest(baseUrl, nil)
+	return policy.MakeRequest(baseUrl, nil)
 }
 ```
 
@@ -481,10 +481,10 @@ func downloadUrl(domain, key string) string {
 函数`rs.Client.Stat`可获取文件信息。
 
 ```{go}
-var ret  rs.Entry
+var ret rs.Entry
 ret, err = rsCli.Stat(nil, bucket, key)
 if err != nil {
-// 产生错误
+	// 产生错误
 	log.Println("rs.Stat failed:", err)
 	return
 }
@@ -515,7 +515,7 @@ type Entry struct {
 ```{go}
 err = rsCli.Delete(nil, bucket, key)
 if err != nil {
-// 产生错误
+	// 产生错误
 	log.Println("rs.Copy failed:", err)
 	return
 }
@@ -531,7 +531,7 @@ if err != nil {
 ```{go}
 err = rsCli.Copy(nil, bucketSrc, keySrc, bucketDest, keyDest)
 if err != nil {
-// 产生错误
+	// 产生错误
 	log.Println("rs.Copy failed:", err)
 	return
 }
@@ -546,7 +546,7 @@ if err != nil {
 ```{go}
 err = rsCli.Move(nil, bucketSrc, keySrc, bucketDest, keyDest)
 if err != nil {
-//产生错误
+	//产生错误
 	log.Println("rs.Copy failed:", err)
 	return
 }
@@ -568,17 +568,17 @@ if err != nil {
 entryPathes := []rs.EntryPath{
 	rs.EntryPath{
 		Bucket: bucket1,
-		Key: key1,
+		Key:    key1,
 	},
 	rs.EntryPath{
 		Bucket: bucket2,
-		Key: key2,
+		Key:    key2,
 	},
 }
 var batchStatRets []rs.BatchStatItemRet
 batchStatRets, err = rsCli.BatchStat(nil, entryPathes) // []rs.BatchStatItemRet, error
 if err != nil {
-// 产生错误
+	// 产生错误
 	log.Println("rs.BatchStat failed:", err)
 	return
 }
@@ -617,22 +617,22 @@ type BatchStatItemRet struct {
 entryPathes := []rs.EntryPath{
 	rs.EntryPath{
 		Bucket: bucket1,
-		Key: key1,
+		Key:    key1,
 	},
 	rs.EntryPath{
 		Bucket: bucket2,
-		Key: key2,
+		Key:    key2,
 	},
 }
 var batchDeleteRets []rs.BatchItemRet
 batchDeleteRets, err = rsCli.BatchDelete(nil, entryPathes)
 if err != nil {
-// 产生错误
+	// 产生错误
 	log.Println("rs.BatchDelete failed:", err)
 	return
 }
 for _, item := range batchDeleteRets {
-// 遍历每个操作的返回结果
+	// 遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }
 ```
@@ -654,36 +654,36 @@ type BatchItemRet struct {
 
 ```{go}
 // 每个复制操作都含有源文件和目标文件
-entryPairs := []rs.EntryPathPair {
+entryPairs := []rs.EntryPathPair{
 	rs.EntryPathPair{
 		Src: rs.EntryPath{
 			Bucket: bucket1,
-			Key: key1,
+			Key:    key1,
 		},
 		Dest: rs.EntryPath{
 			Bucket: bucket2,
-			Key: key2,
+			Key:    key2,
 		},
 	}, rs.EntryPathPair{
 		Src: rs.EntryPath{
 			Bucket: bucket3,
-			Key: key3,
+			Key:    key3,
 		},
 		Dest: rs.EntryPath{
 			Bucket: bucket4,
-			Key: key4,
+			Key:    key4,
 		},
 	},
 }
 var batchCopyRets []rs.BatchItemRet
 batchCopyRets, err = rsCli.BatchCopy(nil, entryPairs)
 if err != nil {
-// 产生错误
+	// 产生错误
 	log.Println("rs.BatchCopy failed:", err)
 	return
 }
 for _, item := range batchCopyRets {
-// 遍历每个操作的返回结果
+	// 遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }
 ```
@@ -707,36 +707,36 @@ type EntryPathPair struct {
 
 ```{go}
 // 每个复制操作都含有源文件和目标文件
-entryPairs := []rs.EntryPathPair {
+entryPairs := []rs.EntryPathPair{
 	rs.EntryPathPair{
 		Src: rs.EntryPath{
 			Bucket: bucket1,
-			Key: key1,
+			Key:    key1,
 		},
 		Dest: rs.EntryPath{
 			Bucket: bucket2,
-			Key: key2,
+			Key:    key2,
 		},
 	}, rs.EntryPathPair{
 		Src: rs.EntryPath{
 			Bucket: bucket3,
-			Key: key3,
+			Key:    key3,
 		},
 		Dest: rs.EntryPath{
 			Bucket: bucket4,
-			Key: key4,
+			Key:    key4,
 		},
 	},
 }
 var batchMoveRets []rs.BatchItemRet
 batchMoveRets, err = rsCli.BatchMove(nil, entryPairs)
 if err != nil {
-// 产生错误
+	// 产生错误
 	log.Println("rs.BatchMove failed:", err)
 	return
 }
 for _, item := range batchMoveRets {
-// 遍历每个操作的返回结果
+	// 遍历每个操作的返回结果
 	log.Println(item.Code, item.Error)
 }
 ```
@@ -748,17 +748,17 @@ for _, item := range batchMoveRets {
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
 
 ```{go}
-ops := []string {
+ops := []string{
 	rs.URIStat(bucket, key1),
 	rs.URICopy(bucket, key1, bucket, key2), // 复制key1到key2
-	rs.URIDelete(bucket, key1), // 删除key1
+	rs.URIDelete(bucket, key1),             // 删除key1
 	rs.URIMove(bucket, key2, bucket, key1), //将key2移动到key1
 }
 
 rets := new([]rs.BatchItemRet)
 err = rsCli.Batch(nil, rets, ops)
 if err != nil {
-// 产生错误
+	// 产生错误
 	log.Println("rs.Batch failed:", err)
 	return
 }
@@ -791,7 +791,7 @@ func makeImageInfoUrl(imageUrl string) string {
 ```{go}
 infoRet, err = ii.Call(nil, imageUrl)
 if err != nil {
-// 产生错误
+	// 产生错误
 	log.Println("fop getImageInfo failed:", err)
 	return
 }
@@ -817,7 +817,7 @@ func makeExifUrl(imageUrl string) string {
 ```{go}
 exifRet, err = ie.Call(nil, imageUrl)
 if err != nil {
-// 产生错误
+	// 产生错误
 	log.Println("fop getExif failed:", err)
 	return
 }
@@ -837,11 +837,11 @@ for _, item := range exifRet {
 ```{go}
 func makeViewUrl(imageUrl string) string {
 	var view = fop.ImageView{
-		// Mode    int    缩略模式
-		// Width   int    Width = 0 表示不限定宽度
-		// Height  int    Height = 0 表示不限定高度
-		// Quality int    质量, 1-100
-		// Format  string 输出格式，如jpg, gif, png, tif等等
+	// Mode    int    缩略模式
+	// Width   int    Width = 0 表示不限定宽度
+	// Height  int    Height = 0 表示不限定高度
+	// Quality int    质量, 1-100
+	// Format  string 输出格式，如jpg, gif, png, tif等等
 	}
 	return view.MakeRequest(imageUrl)
 }
