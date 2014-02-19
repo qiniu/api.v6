@@ -1,6 +1,14 @@
 ## CHANGE LOG
 
+### v6.0.4
+
+2014-1-19 issues [#103](https://github.com/qiniu/api/pull/103)
+
+- 文档及一些细节调整
+
+
 ### v6.0.3
+
 2013-10-08 issues [#98](https://github.com/qiniu/api/pull/98)
 
 - 更新断点续上传到新接口
