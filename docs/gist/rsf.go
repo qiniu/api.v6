@@ -3,8 +3,10 @@ package gist
 import (
 	"io"
 	"log"
-	"github.com/qiniu/rpc"
+
 	"github.com/qiniu/api/rsf"
+	"github.com/qiniu/rpc"
+
 	. "github.com/qiniu/api/conf"
 )
 
@@ -36,5 +38,5 @@ func listAll(l rpc.Logger, rs *rsf.Client, bucketName string, prefix string) {
 		log.Print("listAll failed:", err)
 	}
 }
-// @endgist
 
+// @endgist

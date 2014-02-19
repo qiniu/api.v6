@@ -55,6 +55,9 @@ func testBatchStat(t *testing.T) {
 func testBatchMove(t *testing.T) {
 
 	stat0, err := client.Stat(nil, bucketName, key)
+	if err != nil {
+		t.Fatal("BathMove get stat failed:", err)
+	}
 	entryPair1 := EntryPathPair{
 		Src: EntryPath{
 			Bucket: bucketName,
@@ -83,10 +86,13 @@ func testBatchMove(t *testing.T) {
 	}
 	defer client.Move(nil, bucketName, newkey2, bucketName, key)
 
-	stat1, _ := client.Stat(nil, bucketName, newkey2)
+	stat1, err := client.Stat(nil, bucketName, newkey2)
+	if err != nil {
+		t.Fatal("BathMove get stat failed:", err)
+	}
 
-	if stat0 != stat1 {
-		t.Fatal("BatchMove failed : Move err")
+	if stat0.Hash != stat1.Hash {
+		t.Fatal("BatchMove failed : Move err", stat0, stat1)
 	}
 }
 

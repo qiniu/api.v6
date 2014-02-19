@@ -1,8 +1,10 @@
 package gist
 
 import "github.com/qiniu/api/rs"
+
 // @gist init-import
-import ."github.com/qiniu/api/conf"
+import . "github.com/qiniu/api/conf"
+
 // @endgist
 
 func init() {
@@ -15,7 +17,7 @@ func init() {
 // @gist uptoken
 func uptoken(bucketName string) string {
 	putPolicy := rs.PutPolicy{
-		Scope:           bucketName,
+		Scope: bucketName,
 		// CallbackUrl:  callbackUrl,
 		// CallbackBody: callbackBody,
 		// ReturnUrl:    returnUrl,
@@ -24,14 +26,16 @@ func uptoken(bucketName string) string {
 		// EndUser:      endUser,
 		// Expires:      expires,
 	}
-	return  putPolicy.Token(nil)
+	return putPolicy.Token(nil)
 }
+
 // @endgist
 
 // @gist downloadUrl
 func downloadUrl(domain, key string) string {
 	baseUrl := rs.MakeBaseUrl(domain, key)
 	policy := rs.GetPolicy{}
-	return  policy.MakeRequest(baseUrl, nil)
+	return policy.MakeRequest(baseUrl, nil)
 }
+
 // @endgist
