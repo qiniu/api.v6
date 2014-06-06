@@ -206,4 +206,3 @@ func EscapeEx(s string, mode Encoding) string {
 	}
 	return string(t)
 }
-

@@ -9,9 +9,9 @@ type ExifValType struct {
 	Type int    `json:"type"`
 }
 
-type ExifRet map[string] ExifValType
+type ExifRet map[string]ExifValType
 
-type Exif struct {}
+type Exif struct{}
 
 func (this Exif) MakeRequest(url string) string {
 	return url + "?exif"

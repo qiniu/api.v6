@@ -1,12 +1,13 @@
 package io
 
 import (
+	"errors"
 	"io"
 	"os"
 	"sync"
-	"errors"
-	"github.com/qiniu/rpc"
+
 	"github.com/qiniu/log"
+	"github.com/qiniu/rpc"
 )
 
 // ----------------------------------------------------------
@@ -18,17 +19,17 @@ const (
 )
 
 type Settings struct {
-	TaskQsize int  // 可选。任务队列大小。为 0 表示取 Workers * 4。
-	Workers   int  // 并行 Goroutine 数目。
-	ChunkSize int  // 默认的Chunk大小，不设定则为256k
-	TryTimes  int  // 默认的尝试次数，不设定则为3
+	TaskQsize int // 可选。任务队列大小。为 0 表示取 Workers * 4。
+	Workers   int // 并行 Goroutine 数目。
+	ChunkSize int // 默认的Chunk大小，不设定则为256k
+	TryTimes  int // 默认的尝试次数，不设定则为3
 }
 
 var settings = Settings{
 	TaskQsize: defaultWorkers * 4,
-	Workers: defaultWorkers,
+	Workers:   defaultWorkers,
 	ChunkSize: defaultChunkSize,
-	TryTimes: defaultTryTimes,
+	TryTimes:  defaultTryTimes,
 }
 
 func SetSettings(v *Settings) {
@@ -68,7 +69,7 @@ func initWorkers() {
 }
 
 func notifyNil(blkIdx int, blkSize int, ret *BlkputRet) {}
-func notifyErrNil(blkIdx int, blkSize int, err error) {}
+func notifyErrNil(blkIdx int, blkSize int, err error)   {}
 
 // ----------------------------------------------------------
 
@@ -93,14 +94,15 @@ type BlkputRet struct {
 
 // @gist PutExtra
 type PutExtra struct {
-	Params     map[string]string // 可选。用户自定义参数，以"x:"开头 否则忽略
-	MimeType   string            // 可选。
-	ChunkSize  int               // 可选。每次上传的Chunk大小
-	TryTimes   int               // 可选。尝试次数
-	Progresses []BlkputRet       // 可选。上传进度
-	Notify	   func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
+	Params     map[string]string                             // 可选。用户自定义参数，以"x:"开头 否则忽略
+	MimeType   string                                        // 可选。
+	ChunkSize  int                                           // 可选。每次上传的Chunk大小
+	TryTimes   int                                           // 可选。尝试次数
+	Progresses []BlkputRet                                   // 可选。上传进度
+	Notify     func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
 	NotifyErr  func(blkIdx int, blkSize int, err error)
 }
+
 // @endgist
 
 type PutRet struct {
@@ -180,7 +182,7 @@ func put(
 		task := func() {
 			defer wg.Done()
 			tryTimes := extra.TryTimes
-lzRetry:
+		lzRetry:
 			err := ResumableBlockput(c, l, &extra.Progresses[blkIdx], f, blkIdx, blkSize1, extra)
 			if err != nil {
 				if tryTimes > 1 {

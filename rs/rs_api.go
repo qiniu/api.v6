@@ -1,11 +1,12 @@
 package rs
 
 import (
-	"net/http"
 	"encoding/base64"
-	"github.com/qiniu/rpc"
+	"net/http"
+
 	"github.com/qiniu/api/auth/digest"
 	. "github.com/qiniu/api/conf"
+	"github.com/qiniu/rpc"
 )
 
 // ----------------------------------------------------------
@@ -35,23 +36,24 @@ type Entry struct {
 	MimeType string `json:"mimeType"`
 	Customer string `json:"customer"`
 }
+
 // @endgist
 
 func (rs Client) Stat(l rpc.Logger, bucket, key string) (entry Entry, err error) {
-	err = rs.Conn.Call(l, &entry, RS_HOST + URIStat(bucket, key))
+	err = rs.Conn.Call(l, &entry, RS_HOST+URIStat(bucket, key))
 	return
 }
 
 func (rs Client) Delete(l rpc.Logger, bucket, key string) (err error) {
-	return rs.Conn.Call(l, nil, RS_HOST + URIDelete(bucket, key))
+	return rs.Conn.Call(l, nil, RS_HOST+URIDelete(bucket, key))
 }
 
 func (rs Client) Move(l rpc.Logger, bucketSrc, keySrc, bucketDest, keyDest string) (err error) {
-	return rs.Conn.Call(l, nil, RS_HOST + URIMove(bucketSrc, keySrc, bucketDest, keyDest))
+	return rs.Conn.Call(l, nil, RS_HOST+URIMove(bucketSrc, keySrc, bucketDest, keyDest))
 }
 
 func (rs Client) Copy(l rpc.Logger, bucketSrc, keySrc, bucketDest, keyDest string) (err error) {
-	return rs.Conn.Call(l, nil, RS_HOST + URICopy(bucketSrc, keySrc, bucketDest, keyDest))
+	return rs.Conn.Call(l, nil, RS_HOST+URICopy(bucketSrc, keySrc, bucketDest, keyDest))
 }
 
 // ----------------------------------------------------------
@@ -61,20 +63,19 @@ func encodeURI(uri string) string {
 }
 
 func URIDelete(bucket, key string) string {
-	return "/delete/" + encodeURI(bucket + ":" + key)
+	return "/delete/" + encodeURI(bucket+":"+key)
 }
 
 func URIStat(bucket, key string) string {
-	return "/stat/" + encodeURI(bucket + ":" + key)
+	return "/stat/" + encodeURI(bucket+":"+key)
 }
 
 func URICopy(bucketSrc, keySrc, bucketDest, keyDest string) string {
-	return "/copy/" + encodeURI(bucketSrc + ":" + keySrc) + "/" + encodeURI(bucketDest + ":" + keyDest)
+	return "/copy/" + encodeURI(bucketSrc+":"+keySrc) + "/" + encodeURI(bucketDest+":"+keyDest)
 }
 
 func URIMove(bucketSrc, keySrc, bucketDest, keyDest string) string {
-	return "/move/" + encodeURI(bucketSrc + ":" + keySrc) + "/" + encodeURI(bucketDest + ":" + keyDest)
+	return "/move/" + encodeURI(bucketSrc+":"+keySrc) + "/" + encodeURI(bucketDest+":"+keyDest)
 }
 
 // ----------------------------------------------------------
-
