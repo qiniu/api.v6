@@ -2,11 +2,12 @@ package rs
 
 import (
 	"encoding/json"
-	"github.com/qiniu/api/auth/digest"
-	"github.com/qiniu/api/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/qiniu/api/auth/digest"
+	"github.com/qiniu/api/url"
 )
 
 // ----------------------------------------------------------
