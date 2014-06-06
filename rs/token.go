@@ -1,18 +1,19 @@
 package rs
 
 import (
-	"time"
-	"strings"
-	"strconv"
 	"encoding/json"
-	"github.com/qiniu/api/url"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/qiniu/api/auth/digest"
+	"github.com/qiniu/api/url"
 )
 
 // ----------------------------------------------------------
 
 type GetPolicy struct {
-	Expires	uint32
+	Expires uint32
 }
 
 func (r GetPolicy) MakeRequest(baseUrl string, mac *digest.Mac) (privateUrl string) {
@@ -41,20 +42,21 @@ func MakeBaseUrl(domain, key string) (baseUrl string) {
 // --------------------------------------------------------------------------------
 
 type PutPolicy struct {
-	Scope        string `json:"scope"`
-	Expires      uint32 `json:"deadline"` // 截止时间（以秒为单位）
-	InsertOnly   uint16 `json:"exclusive,omitempty"` // 若非0, 即使Scope为 Bucket:Key 的形式也是insert only
-	DetectMime   uint16 `json:"detectMime,omitempty"` // 若非0, 则服务端根据内容自动确定 MimeType
-	FsizeLimit   int64  `json:"fsizeLimit,omitempty"`
-	SaveKey      string `json:"saveKey,omitempty"`
-	CallbackUrl  string `json:"callbackUrl,omitempty"`
-	CallbackBody string `json:"callbackBody,omitempty"`
-	ReturnUrl    string `json:"returnUrl,omitempty"`
-	ReturnBody   string `json:"returnBody,omitempty"`
-	PersistentOps string `json:"persistentOps,omitempty"`
+	Scope               string `json:"scope"`
+	Expires             uint32 `json:"deadline"`             // 截止时间（以秒为单位）
+	InsertOnly          uint16 `json:"exclusive,omitempty"`  // 若非0, 即使Scope为 Bucket:Key 的形式也是insert only
+	DetectMime          uint16 `json:"detectMime,omitempty"` // 若非0, 则服务端根据内容自动确定 MimeType
+	FsizeLimit          int64  `json:"fsizeLimit,omitempty"`
+	SaveKey             string `json:"saveKey,omitempty"`
+	CallbackUrl         string `json:"callbackUrl,omitempty"`
+	CallbackBody        string `json:"callbackBody,omitempty"`
+	ReturnUrl           string `json:"returnUrl,omitempty"`
+	ReturnBody          string `json:"returnBody,omitempty"`
+	PersistentOps       string `json:"persistentOps,omitempty"`
 	PersistentNotifyUrl string `json:"persistentNotifyUrl,omitempty"`
-	AsyncOps     string `json:"asyncOps,omitempty"`
-	EndUser      string `json:"endUser,omitempty"`
+	PersistentPipeline  string `json:"persistentPipeline,omitempty"`
+	AsyncOps            string `json:"asyncOps,omitempty"`
+	EndUser             string `json:"endUser,omitempty"`
 }
 
 func (r *PutPolicy) Token(mac *digest.Mac) string {
@@ -69,4 +71,3 @@ func (r *PutPolicy) Token(mac *digest.Mac) string {
 }
 
 // ----------------------------------------------------------
-

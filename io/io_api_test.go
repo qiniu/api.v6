@@ -6,27 +6,28 @@ import (
 	"io"
 	"os"
 	"testing"
-	"github.com/qiniu/api/rs"
+
 	. "github.com/qiniu/api/conf"
+	"github.com/qiniu/api/rs"
 )
 
 var (
-	bucket string
-	upString = "hello qiniu world"
-	policy  rs.PutPolicy
+	bucket    string
+	upString  = "hello qiniu world"
+	policy    rs.PutPolicy
 	localFile = "io_api.go"
-	key1 = "test_put_1"
-	key2 = "test_put_2"
-	extra =  []*PutExtra {
-		&PutExtra {
+	key1      = "test_put_1"
+	key2      = "test_put_2"
+	extra     = []*PutExtra{
+		&PutExtra{
 			MimeType: "text/plain",
 			CheckCrc: 0,
 		},
-		&PutExtra {
+		&PutExtra{
 			MimeType: "text/plain",
 			CheckCrc: 1,
 		},
-		&PutExtra {
+		&PutExtra{
 			MimeType: "text/plain",
 			CheckCrc: 2,
 		},
@@ -101,7 +102,7 @@ func testPut(t *testing.T, key string) {
 	}
 }
 
-func testPutWithoutKey(t *testing.T) string{
+func testPutWithoutKey(t *testing.T) string {
 
 	buf := bytes.NewBuffer(nil)
 	ret := new(PutRet)
@@ -142,7 +143,7 @@ func testPutFileWithoutKey(t *testing.T, localFile string) string {
 			v.Crc32 = crc32File(localFile)
 		}
 
-		err := PutFileWithoutKey(nil, ret, policy.Token(nil),  localFile, v)
+		err := PutFileWithoutKey(nil, ret, policy.Token(nil), localFile, v)
 		if err != nil {
 			t.Fatal(err)
 		}

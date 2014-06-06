@@ -1,18 +1,19 @@
 package io
 
 import (
+	"math/rand"
 	"os"
 	"testing"
-	"math/rand"
-	"github.com/qiniu/api/rs"
+
 	. "github.com/qiniu/api/conf"
+	"github.com/qiniu/api/rs"
 )
 
 var (
-	bucket string
-	testKey = "resumableput_key"
+	bucket   string
+	testKey  = "resumableput_key"
 	testFile = "resumable_api_test.go"
-	mockerr = false
+	mockerr  = false
 )
 
 func init() {
@@ -31,16 +32,16 @@ func init() {
 
 func TestAll(t *testing.T) {
 
-	policy := rs.PutPolicy {
+	policy := rs.PutPolicy{
 		Scope: bucket,
 	}
 	token := policy.Token(nil)
 	params := map[string]string{"x:1": "1"}
-	extra := &PutExtra {
+	extra := &PutExtra{
 		ChunkSize: 128,
-		MimeType: "text/plain",
-		Notify: blockNotify,
-		Params: params,
+		MimeType:  "text/plain",
+		Notify:    blockNotify,
+		Params:    params,
 	}
 
 	testPut(t, token, nil)
@@ -128,7 +129,7 @@ func testXVar(t *testing.T, token string, extra *PutExtra) {
 
 	type Ret struct {
 		PutRet
-		X1 string`json:"x:1"`
+		X1 string `json:"x:1"`
 	}
 	var ret Ret
 	f, err := os.Open(testFile)
@@ -155,7 +156,7 @@ func testXVar(t *testing.T, token string, extra *PutExtra) {
 
 //------------------------------------------------
 
-func blockNotify (blkIdx int, blkSize int, ret *BlkputRet) {
+func blockNotify(blkIdx int, blkSize int, ret *BlkputRet) {
 	if rand.Int()%3 == 0 && mockerr == false {
 		if ret.Ctx != "" {
 			ret.Ctx = ""
