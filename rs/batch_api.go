@@ -1,8 +1,8 @@
 package rs
 
 import (
-	"github.com/qiniu/rpc"
 	. "github.com/qiniu/api/conf"
+	"github.com/qiniu/rpc"
 )
 
 // ----------------------------------------------------------
@@ -19,13 +19,15 @@ type BatchStatItemRet struct {
 	Error string `json:"error"`
 	Code  int    `json:"code"`
 }
+
 // @endgist
 
 // @gist entryPath
 type EntryPath struct {
 	Bucket string
-	Key string
+	Key    string
 }
+
 // @endgist
 
 func (rs Client) BatchStat(l rpc.Logger, entries []EntryPath) (ret []BatchStatItemRet, err error) {
@@ -45,6 +47,7 @@ type BatchItemRet struct {
 	Error string `json:"error"`
 	Code  int    `json:"code"`
 }
+
 // @endgist
 
 func (rs Client) BatchDelete(l rpc.Logger, entries []EntryPath) (ret []BatchItemRet, err error) {
@@ -61,9 +64,10 @@ func (rs Client) BatchDelete(l rpc.Logger, entries []EntryPath) (ret []BatchItem
 
 // @gist entryPathPair
 type EntryPathPair struct {
-	Src EntryPath
+	Src  EntryPath
 	Dest EntryPath
 }
+
 // @endgist
 
 func (rs Client) BatchMove(l rpc.Logger, entries []EntryPathPair) (ret []BatchItemRet, err error) {
@@ -87,4 +91,3 @@ func (rs Client) BatchCopy(l rpc.Logger, entries []EntryPathPair) (ret []BatchIt
 }
 
 // ----------------------------------------------------------
-

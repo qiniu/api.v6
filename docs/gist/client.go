@@ -1,8 +1,8 @@
 package gist
 
 import (
-	"log"
 	gio "io"
+	"log"
 
 	"github.com/qiniu/api/io"
 	rio "github.com/qiniu/api/resumable/io"

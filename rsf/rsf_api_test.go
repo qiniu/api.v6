@@ -5,16 +5,17 @@ import (
 	"os"
 	"strconv"
 	"testing"
-	"github.com/qiniu/api/rs"
-	qio "github.com/qiniu/api/io"
+
 	. "github.com/qiniu/api/conf"
+	qio "github.com/qiniu/api/io"
+	"github.com/qiniu/api/rs"
 )
 
 var (
 	bucketName string
-	client Client
-	maxNum = 1000
-	keys []string
+	client     Client
+	maxNum     = 1000
+	keys       []string
 )
 
 func init() {
@@ -35,8 +36,8 @@ func init() {
 
 func upFile(localFile, bucketName, key string) error {
 
-	policy := rs.PutPolicy {
-		Scope: bucketName+":"+key,
+	policy := rs.PutPolicy{
+		Scope: bucketName + ":" + key,
 	}
 	return qio.PutFile(nil, nil, policy.Token(nil), key, localFile, nil)
 }
@@ -52,7 +53,7 @@ func TestAll(t *testing.T) {
 		}
 		keys = append(keys, key)
 	}
-	defer func(){
+	defer func() {
 		for _, k := range keys {
 			rs.New(nil).Delete(nil, bucketName, k)
 		}

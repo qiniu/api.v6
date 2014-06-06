@@ -3,17 +3,18 @@ package rs
 import (
 	"os"
 	"testing"
-	"github.com/qiniu/api/io"
+
 	. "github.com/qiniu/api/conf"
+	"github.com/qiniu/api/io"
 )
 
 var (
-	key = "aa"
-	newkey1 = "bbbb"
-	newkey2 = "cccc"
+	key        = "aa"
+	newkey1    = "bbbb"
+	newkey2    = "cccc"
 	bucketName string
-	domain  string
-	client Client
+	domain     string
+	client     Client
 )
 
 func init() {
@@ -30,7 +31,7 @@ func init() {
 	}
 	client = New(nil)
 
-	// 删除 可能存在的 key 
+	// 删除 可能存在的 key
 	client.Delete(nil, bucketName, key)
 	client.Delete(nil, bucketName, newkey1)
 	client.Delete(nil, bucketName, newkey2)
@@ -38,12 +39,11 @@ func init() {
 
 func upFile(localFile, bucketName, key string) error {
 
-	policy := PutPolicy {
+	policy := PutPolicy{
 		Scope: bucketName + ":" + key,
 	}
 	return io.PutFile(nil, nil, policy.Token(nil), key, localFile, nil)
 }
-
 
 func TestEntry(t *testing.T) {
 

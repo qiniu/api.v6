@@ -1,17 +1,18 @@
 package io
 
 import (
-	"io"
-	"fmt"
-	"errors"
-	"strconv"
-	"net/http"
-	"hash/crc32"
 	"encoding/base64"
-	"github.com/qiniu/rpc"
-	"github.com/qiniu/log"
-	"github.com/qiniu/bytes"
+	"errors"
+	"fmt"
+	"hash/crc32"
+	"io"
+	"net/http"
+	"strconv"
+
 	. "github.com/qiniu/api/conf"
+	"github.com/qiniu/bytes"
+	"github.com/qiniu/log"
+	"github.com/qiniu/rpc"
 )
 
 // ----------------------------------------------------------
@@ -33,7 +34,7 @@ func encode(raw string) string {
 // ----------------------------------------------------------
 
 type Transport struct {
-	token string
+	token     string
 	transport http.RoundTripper
 }
 
@@ -104,7 +105,7 @@ func ResumableBlockput(
 
 	for int(ret.Offset) < blkSize {
 
-		if chunkSize < blkSize - int(ret.Offset) {
+		if chunkSize < blkSize-int(ret.Offset) {
 			bodyLength = chunkSize
 		} else {
 			bodyLength = blkSize - int(ret.Offset)
@@ -112,9 +113,9 @@ func ResumableBlockput(
 
 		tryTimes := extra.TryTimes
 
-lzRetry:
+	lzRetry:
 		h.Reset()
-		body1 := io.NewSectionReader(f, offbase + int64(ret.Offset), int64(bodyLength))
+		body1 := io.NewSectionReader(f, offbase+int64(ret.Offset), int64(bodyLength))
 		body := io.TeeReader(body1, h)
 
 		err = Blockput(c, l, ret, body, bodyLength)
@@ -160,7 +161,7 @@ func Mkfile(
 		url += fmt.Sprintf("/%s/%s", k, encode(v))
 	}
 
-	buf := make([]byte, 0, 176 * len(extra.Progresses))
+	buf := make([]byte, 0, 176*len(extra.Progresses))
 	for _, prog := range extra.Progresses {
 		buf = append(buf, prog.Ctx...)
 		buf = append(buf, ',')

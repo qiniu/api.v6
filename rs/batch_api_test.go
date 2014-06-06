@@ -7,7 +7,7 @@ import (
 func init() {
 
 	client = New(nil)
-	// 删除 可能存在的 newkey1  newkey2 
+	// 删除 可能存在的 newkey1  newkey2
 	client.Delete(nil, bucketName, key)
 	client.Delete(nil, bucketName, newkey1)
 	client.Delete(nil, bucketName, newkey2)

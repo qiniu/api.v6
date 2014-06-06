@@ -1,13 +1,14 @@
 package digest
 
 import (
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
 	"io"
 	"net/http"
-	"encoding/base64"
-	"crypto/sha1"
-	"crypto/hmac"
-	"github.com/qiniu/bytes/seekable"
+
 	. "github.com/qiniu/api/conf"
+	"github.com/qiniu/bytes/seekable"
 )
 
 // ----------------------------------------------------------
@@ -57,7 +58,7 @@ func (mac *Mac) SignRequest(req *http.Request, incbody bool) (token string, err 
 	if u.RawQuery != "" {
 		data += "?" + u.RawQuery
 	}
-	io.WriteString(h, data + "\n")
+	io.WriteString(h, data+"\n")
 
 	if incbody {
 		s2, err2 := seekable.New(req)
@@ -91,7 +92,7 @@ func SignWithData(mac *Mac, data []byte) string {
 // ---------------------------------------------------------------------------------------
 
 type Transport struct {
-	mac Mac
+	mac       Mac
 	transport http.RoundTripper
 }
 
@@ -141,4 +142,3 @@ func NewClient(mac *Mac, transport http.RoundTripper) *http.Client {
 }
 
 // ---------------------------------------------------------------------------------------
-
