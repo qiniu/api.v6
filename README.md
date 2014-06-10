@@ -1,8 +1,7 @@
 Qiniu Resource Storage SDK for Golang
 ===
 
-[![Build Status](https://api.travis-ci.org/qiniu/api.png?branch=master)](https://travis-ci.org/qiniu/api) [![Build Status](https://drone.io/github.com/qiniu/api/status.png)](https://drone.io/github.com/qiniu/api/latest)
-
+[![Build Status](https://api.travis-ci.org/qiniu/api.png?branch=master)](https://travis-ci.org/qiniu/api) 
 [![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
 
 ## 下载
