@@ -59,7 +59,7 @@ func TestEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	mime := "audio/mpeg"
+	mime := "text/plain"
 	err = client.ChangeMime(nil, bucketName, key, mime)
 	if err != nil {
 		t.Fatal(err)
