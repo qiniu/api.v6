@@ -60,7 +60,6 @@ func (rs Client) ChangeMime(l rpc.Logger, bucketSrc, key, mime string) (err erro
 	return rs.Conn.Call(l, nil, RS_HOST+URIChangeMime(bucketSrc, key, mime))
 }
 
-
 func encodeURI(uri string) string {
 	return base64.URLEncoding.EncodeToString([]byte(uri))
 }
@@ -83,3 +82,4 @@ func URIMove(bucketSrc, keySrc, bucketDest, keyDest string) string {
 
 func URIChangeMime(bucketSrc, key, mime string) string {
 	return "/chgm/" + encodeURI(bucketSrc+":"+key) + "/mime/" + mime
+}
