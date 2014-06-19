@@ -56,7 +56,10 @@ func (rs Client) Copy(l rpc.Logger, bucketSrc, keySrc, bucketDest, keyDest strin
 	return rs.Conn.Call(l, nil, RS_HOST+URICopy(bucketSrc, keySrc, bucketDest, keyDest))
 }
 
-// ----------------------------------------------------------
+func (rs Client) ChangeMime(l rpc.Logger, bucketSrc, key, mime string) (err error) {
+	return rs.Conn.Call(l, nil, RS_HOST+URIChangeMime(bucketSrc, key, mime))
+}
+
 
 func encodeURI(uri string) string {
 	return base64.URLEncoding.EncodeToString([]byte(uri))
@@ -78,4 +81,5 @@ func URIMove(bucketSrc, keySrc, bucketDest, keyDest string) string {
 	return "/move/" + encodeURI(bucketSrc+":"+keySrc) + "/" + encodeURI(bucketDest+":"+keyDest)
 }
 
-// ----------------------------------------------------------
+func URIChangeMime(bucketSrc, key, mime string) string {
+	return "/chgm/" + encodeURI(bucketSrc+":"+key) + "/mime/" + mime
