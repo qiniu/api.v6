@@ -59,6 +59,20 @@ func TestEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	mime := "text/plain"
+	err = client.ChangeMime(nil, bucketName, key, mime)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	einfo, err = client.Stat(nil, bucketName, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if einfo.MimeType != mime {
+		t.Fatal("mime type did not change")
+	}
+
 	err = client.Copy(nil, bucketName, key, bucketName, newkey1)
 	if err != nil {
 		t.Fatal(err)
