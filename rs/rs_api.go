@@ -81,5 +81,5 @@ func URIMove(bucketSrc, keySrc, bucketDest, keyDest string) string {
 }
 
 func URIChangeMime(bucket, key, mime string) string {
-	return "/chgm/" + encodeURI(bucket+":"+key) + "/mime/" + mime
+	return "/chgm/" + encodeURI(bucket+":"+key) + "/mime/" + encodeURI(mime)
 }
