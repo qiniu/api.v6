@@ -18,6 +18,7 @@ var (
 	localFile = "io_api.go"
 	key1      = "test_put_1"
 	key2      = "test_put_2"
+	key3      = "test_put_3"
 	extra     = []*PutExtra{
 		&PutExtra{
 			MimeType: "text/plain",
@@ -78,11 +79,16 @@ func TestAll(t *testing.T) {
 	testPutFile(t, localFile, key2)
 	k2 := testPutFileWithoutKey(t, localFile)
 
+	testPut(t, key3)
+	k3 := testPutWithoutKey2(t)
+
 	//clear all keys
 	rs.New(nil).Delete(nil, bucket, key1)
 	rs.New(nil).Delete(nil, bucket, key2)
+	rs.New(nil).Delete(nil, bucket, key3)
 	rs.New(nil).Delete(nil, bucket, k1)
 	rs.New(nil).Delete(nil, bucket, k2)
+	rs.New(nil).Delete(nil, bucket, k3)
 }
 
 func testPut(t *testing.T, key string) {
@@ -113,6 +119,41 @@ func testPutWithoutKey(t *testing.T) string {
 		}
 
 		err := PutWithoutKey(nil, ret, policy.Token(nil), buf, v)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	return ret.Key
+}
+
+func testPut2(t *testing.T, key string) {
+
+	buf := bytes.NewBuffer(nil)
+	ret := new(PutRet)
+	for _, v := range extra {
+		buf.WriteString(upString)
+		if v != nil {
+			v.Crc32 = crc32String(upString)
+		}
+
+		err := Put2(nil, ret, policy.Token(nil), key, buf, int64(len(upString)), v)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func testPutWithoutKey2(t *testing.T) string {
+
+	buf := bytes.NewBuffer(nil)
+	ret := new(PutRet)
+	for _, v := range extra {
+		buf.WriteString(upString)
+		if v != nil {
+			v.Crc32 = crc32String(upString)
+		}
+
+		err := PutWithoutKey2(nil, ret, policy.Token(nil), buf, int64(len(upString)), v)
 		if err != nil {
 			t.Fatal(err)
 		}

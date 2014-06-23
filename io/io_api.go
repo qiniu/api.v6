@@ -1,9 +1,11 @@
 package io
 
 import (
+	"bytes"
 	"fmt"
 	"hash/crc32"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net/textproto"
 	"os"
@@ -35,17 +37,62 @@ type PutRet struct {
 	Key  string `json:"key"`
 }
 
+var tmpFilePrefix = "qiniu-go-sdk-tmpfile"
+
 // ----------------------------------------------------------
+// !!! Deprecated !!!
+//
+// 1. 不推荐使用该组 API, 因为可能造成本地磁盘IO
+// 2. 如果只是纯粹上传一个 io.Reader, 请使用 Put2 或者 PutWithoutKey2
+// 3. 如果需要上传一个文件, 请使用 PutFile 或者 PutFileWithoutKey
 
 func Put(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, extra *PutExtra) error {
-	return put(l, ret, uptoken, key, true, data, extra)
+	return putReader(l, ret, uptoken, key, true, data, extra)
 }
 
 func PutWithoutKey(l rpc.Logger, ret interface{}, uptoken string, data io.Reader, extra *PutExtra) error {
-	return put(l, ret, uptoken, "", false, data, extra)
+	return putReader(l, ret, uptoken, "", false, data, extra)
 }
 
-func put(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, data io.Reader, extra *PutExtra) error {
+func putReader(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, data io.Reader, extra *PutExtra) error {
+
+	rs, ok := data.(io.ReadSeeker)
+	if ok {
+		// 通过 Seeker 接口获取大小
+		size, err := rs.Seek(0, 2)
+		if err != nil {
+			return err
+		}
+		_, err = rs.Seek(0, 0)
+		if err != nil {
+			return err
+		}
+		return put(l, ret, uptoken, key, hasKey, data, size, extra)
+	} else {
+		// 写临时文件
+		tmpf, err := ioutil.TempFile(os.TempDir(), tmpFilePrefix)
+		if err != nil {
+			return err
+		}
+		fname := tmpf.Name()
+		defer os.Remove(fname)
+
+		_, err = io.Copy(tmpf, data)
+		if err != nil {
+			tmpf.Close()
+			return err
+		}
+		tmpf.Close()
+
+		return putFile(l, ret, uptoken, key, hasKey, fname, extra)
+	}
+
+	return nil
+}
+
+// ----------------------------------------------------------
+
+func put(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, data io.Reader, size int64, extra *PutExtra) error {
 
 	// CheckCrc == 1: 对于 Put 和 PutWithoutKey 等同于 CheckCrc == 2
 	if extra != nil {
@@ -55,7 +102,15 @@ func put(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, data i
 			extra.CheckCrc = 2
 		}
 	}
-	return putWrite(l, ret, uptoken, key, hasKey, data, extra)
+	return putWrite(l, ret, uptoken, key, hasKey, data, size, extra)
+}
+
+func Put2(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, size int64, extra *PutExtra) error {
+	return put(l, ret, uptoken, key, true, data, size, extra)
+}
+
+func PutWithoutKey2(l rpc.Logger, ret interface{}, uptoken string, data io.Reader, size int64, extra *PutExtra) error {
+	return put(l, ret, uptoken, "", false, data, size, extra)
 }
 
 // ----------------------------------------------------------
@@ -76,25 +131,43 @@ func putFile(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, lo
 	}
 	defer f.Close()
 
-	return putWrite(l, ret, uptoken, key, hasKey, f, extra)
+	finfo, err := f.Stat()
+	if err != nil {
+		return
+	}
+	fsize := finfo.Size()
+
+	if extra != nil && extra.CheckCrc > 0 {
+		extra.Crc32, err = getFileCrc32(f)
+		if err != nil {
+			return
+		}
+		extra.CheckCrc = 2
+	}
+
+	return putWrite(l, ret, uptoken, key, hasKey, f, fsize, extra)
 }
 
 // ----------------------------------------------------------
 
-func putWrite(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, data io.Reader, extra *PutExtra) error {
+func putWrite(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, data io.Reader, size int64, extra *PutExtra) error {
 
-	r, w := io.Pipe()
-	defer r.Close()
-	writer := multipart.NewWriter(w)
+	var b bytes.Buffer
+	writer := multipart.NewWriter(&b)
 
-	go func() {
-		err := writeMultipart(writer, uptoken, key, hasKey, data, extra)
-		writer.Close()
-		w.CloseWithError(err)
-	}()
+	err := writeMultipart(writer, uptoken, key, hasKey, extra)
+	if err != nil {
+		return err
+	}
+
+	lastLine := fmt.Sprintf("\r\n--%s--\r\n", writer.Boundary())
+	r := bytes.NewReader([]byte(lastLine))
+
+	bodyLen := int64(b.Len()) + size + int64(len(lastLine))
+	mr := io.MultiReader(&b, data, r)
 
 	contentType := writer.FormDataContentType()
-	return rpc.DefaultClient.CallWith64(l, ret, UP_HOST, contentType, r, 0)
+	return rpc.DefaultClient.CallWith64(l, ret, UP_HOST, contentType, mr, bodyLen)
 }
 
 /*
@@ -104,7 +177,7 @@ func putWrite(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, d
  *      2:     以extra.Crc32的值，进行校验
  *      other: 和2一样， 以 extra.Crc32的值，进行校验
  */
-func writeMultipart(writer *multipart.Writer, uptoken, key string, hasKey bool, data io.Reader, extra *PutExtra) (err error) {
+func writeMultipart(writer *multipart.Writer, uptoken, key string, hasKey bool, extra *PutExtra) (err error) {
 
 	if extra == nil {
 		extra = &PutExtra{}
@@ -133,16 +206,17 @@ func writeMultipart(writer *multipart.Writer, uptoken, key string, hasKey bool, 
 	}
 
 	//extra.CheckCrc
-	h := crc32.NewIEEE()
-	data1 := data
-	if extra.CheckCrc == 1 {
-		data1 = io.TeeReader(data, h)
+	if extra.CheckCrc != 0 {
+		err = writer.WriteField("crc32", strconv.FormatInt(int64(extra.Crc32), 10))
+		if err != nil {
+			return
+		}
 	}
 
 	//file
 	head := make(textproto.MIMEHeader)
 
-	// default the filename is same as key , but  ""
+	// default the filename is same as key , but ""
 	var fileName = key
 	if fileName == "" {
 		fileName = "filename"
@@ -154,20 +228,8 @@ func writeMultipart(writer *multipart.Writer, uptoken, key string, hasKey bool, 
 		head.Set("Content-Type", extra.MimeType)
 	}
 
-	writerBuf, err := writer.CreatePart(head)
-	if err != nil {
-		return
-	}
-	_, err = io.Copy(writerBuf, data1)
-
-	//extra.CheckCrc
-	if extra.CheckCrc == 1 {
-		extra.Crc32 = h.Sum32()
-	}
-	if extra.CheckCrc != 0 {
-		err = writer.WriteField("crc32", strconv.FormatInt(int64(extra.Crc32), 10))
-	}
-	return
+	_, err = writer.CreatePart(head)
+	return err
 }
 
 // ----------------------------------------------------------
@@ -176,4 +238,13 @@ var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
 func escapeQuotes(s string) string {
 	return quoteEscaper.Replace(s)
+}
+
+func getFileCrc32(f *os.File) (uint32, error) {
+	defer f.Seek(0, 0)
+
+	h := crc32.NewIEEE()
+	_, err := io.Copy(h, f)
+
+	return h.Sum32(), err
 }
