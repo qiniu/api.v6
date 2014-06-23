@@ -40,7 +40,11 @@ type PutRet struct {
 var tmpFilePrefix = "qiniu-go-sdk-tmpfile"
 
 // ----------------------------------------------------------
-// put an io.Reader without tell the length
+// !!! Deprecated !!!
+//
+// 1. 不推荐使用该组 API, 因为可能造成本地磁盘IO
+// 2. 如果只是纯粹上传一个 io.Reader, 请使用 Put2 或者 PutWithoutKey2
+// 3. 如果需要上传一个文件, 请使用 PutFile 或者 PutFileWithoutKey
 
 func Put(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, extra *PutExtra) error {
 	return putReader(l, ret, uptoken, key, true, data, extra)
@@ -86,6 +90,8 @@ func putReader(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, 
 	return nil
 }
 
+// ----------------------------------------------------------
+
 func put(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, data io.Reader, size int64, extra *PutExtra) error {
 
 	// CheckCrc == 1: 对于 Put 和 PutWithoutKey 等同于 CheckCrc == 2
@@ -98,8 +104,6 @@ func put(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, data i
 	}
 	return putWrite(l, ret, uptoken, key, hasKey, data, size, extra)
 }
-
-// ----------------------------------------------------------
 
 func Put2(l rpc.Logger, ret interface{}, uptoken, key string, data io.Reader, size int64, extra *PutExtra) error {
 	return put(l, ret, uptoken, key, true, data, size, extra)
