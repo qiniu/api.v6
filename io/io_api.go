@@ -137,12 +137,11 @@ func putFile(l rpc.Logger, ret interface{}, uptoken, key string, hasKey bool, lo
 	}
 	fsize := finfo.Size()
 
-	if extra != nil && extra.CheckCrc > 0 {
+	if extra != nil && extra.CheckCrc == 1 {
 		extra.Crc32, err = getFileCrc32(f)
 		if err != nil {
 			return
 		}
-		extra.CheckCrc = 2
 	}
 
 	return putWrite(l, ret, uptoken, key, hasKey, f, fsize, extra)
