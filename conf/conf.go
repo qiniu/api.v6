@@ -21,7 +21,7 @@ var SECRET_KEY string
 
 var version = "6.0.6"
 
-var userPattern = regexp.MustCompile("[:word:]*")
+var userPattern = regexp.MustCompile("^[:word:]*$")
 
 // user should be [A-Za-z0-9]*
 func SetUser(user string) error {
