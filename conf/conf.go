@@ -28,7 +28,7 @@ func SetUser(user string) error {
 	if !userPattern.MatchString(user) {
 		return errors.New("invalid user format")
 	}
-	formatUserAgent(user)
+	rpc.UserAgent = formatUserAgent(user)
 }
 
 func formatUserAgent(user string) string {
