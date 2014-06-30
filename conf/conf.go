@@ -1,6 +1,11 @@
 package conf
 
 import (
+	"errors"
+	"fmt"
+	"regexp"
+	"runtime"
+
 	"github.com/qiniu/rpc"
 )
 
@@ -14,10 +19,22 @@ var IO_HOST = "http://iovip.qbox.me"
 var ACCESS_KEY string
 var SECRET_KEY string
 
-func SetUserAgent(userAgent string) {
-	rpc.UserAgent = userAgent
+var version = "6.0.6"
+
+var userPattern = regexp.MustCompile("[:word:]*")
+
+// user should be [A-Za-z0-9]*
+func SetUser(user string) error {
+	if !userPattern.MatchString(user) {
+		return errors.New("invalid user format")
+	}
+	formatUserAgent(user)
+}
+
+func formatUserAgent(user string) string {
+	return fmt.Sprintf("QiniuGo/%s (%s; %s; %s) %s", version, runtime.GOOS, runtime.GOARCH, user, runtime.Version())
 }
 
 func init() {
-	SetUserAgent("qiniu go-sdk v6.0.0")
+	SetUser("")
 }
