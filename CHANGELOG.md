@@ -1,5 +1,21 @@
 ## CHANGE LOG
 
+### v6.0.6
+
+2014-6-30 issues [#114](https://github.com/qiniu/api/pull/114)
+
+- [#111] 修改mimetype
+- [#112] 去除chunked 上传
+- [#115] 统一user agent
+
+
+### v6.0.5
+
+2014-6-06 issues [#108](https://github.com/qiniu/api/pull/108)
+
+- [#107] 增加pipeline, gofmt
+
+
 ### v6.0.4
 
 2014-1-19 issues [#103](https://github.com/qiniu/api/pull/103)
