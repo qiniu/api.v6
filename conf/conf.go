@@ -29,6 +29,7 @@ func SetUser(user string) error {
 		return errors.New("invalid user format")
 	}
 	rpc.UserAgent = formatUserAgent(user)
+	return nil
 }
 
 func formatUserAgent(user string) string {
