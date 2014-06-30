@@ -18,10 +18,10 @@ func TestUA(t *testing.T) {
 
 func TestFormat(t *testing.T) {
 	v := formatUserAgent("test")
-	if strings.Contains(v, "test") {
+	if !strings.Contains(v, "test") {
 		t.Fatal("should include user")
 	}
-	if strings.HasPrefix(v, "QiniuGo/"+version) {
+	if !strings.HasPrefix(v, "QiniuGo/"+version) {
 		t.Fatal("invalid format")
 	}
 }
