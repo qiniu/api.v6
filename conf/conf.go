@@ -9,7 +9,7 @@ import (
 	"github.com/qiniu/rpc"
 )
 
-var UP_HOST = "http://up.qiniu.com"
+var UP_HOST = "http://upload.qiniu.com"
 var RS_HOST = "http://rs.qbox.me"
 var RSF_HOST = "http://rsf.qbox.me"
 
