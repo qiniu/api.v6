@@ -12,6 +12,7 @@ var (
 	key        = "aa"
 	newkey1    = "bbbb"
 	newkey2    = "cccc"
+	fetchURL   = "http://www-static.u.qiniucdn.com/public/v1645/img/css-sprite.png"
 	bucketName string
 	domain     string
 	client     Client
@@ -84,7 +85,10 @@ func TestEntry(t *testing.T) {
 	if einfo.Hash != enewinfo.Hash {
 		t.Fatal("invalid entryinfo:", einfo, enewinfo)
 	}
-
+	err = client.Fetch(nil, bucketName, key, fetchURL)
+	if err != nil {
+		t.Fatal(err)
+	}
 	err = client.Move(nil, bucketName, newkey1, bucketName, newkey2)
 	if err != nil {
 		t.Fatal(err)
