@@ -1,5 +1,12 @@
 ## CHANGE LOG
 
+### v6.0.7
+
+2014-6-30 issues [#127](https://github.com/qiniu/api/pull/127)
+
+- rs.Client 增加 Fetch 方法
+- 增加了一个用户贡献的样例（感谢 [AsGz](https://github.com/AsGz) ）
+
 ### v6.0.6
 
 2014-6-30 issues [#114](https://github.com/qiniu/api/pull/114)
@@ -7,7 +14,6 @@
 - [#111] 修改mimetype
 - [#112] 去除chunked 上传
 - [#115] 统一user agent
-
 
 ### v6.0.5
 

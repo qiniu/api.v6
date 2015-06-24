@@ -56,6 +56,10 @@ func (rs Client) Copy(l rpc.Logger, bucketSrc, keySrc, bucketDest, keyDest strin
 	return rs.Conn.Call(l, nil, RS_HOST+URICopy(bucketSrc, keySrc, bucketDest, keyDest))
 }
 
+func (rs Client) Fetch(l rpc.Logger, bucket, key, url string) (err error) {
+	return rs.Conn.Call(l, nil, IO_HOST+URIFetch(bucket, key, url))
+}
+
 func (rs Client) ChangeMime(l rpc.Logger, bucket, key, mime string) (err error) {
 	return rs.Conn.Call(l, nil, RS_HOST+URIChangeMime(bucket, key, mime))
 }
@@ -78,6 +82,10 @@ func URICopy(bucketSrc, keySrc, bucketDest, keyDest string) string {
 
 func URIMove(bucketSrc, keySrc, bucketDest, keyDest string) string {
 	return "/move/" + encodeURI(bucketSrc+":"+keySrc) + "/" + encodeURI(bucketDest+":"+keyDest)
+}
+
+func URIFetch(bucket, key, url string) string {
+	return "/fetch/" + encodeURI(url) + "/to/" + encodeURI(bucket+":"+key)
 }
 
 func URIChangeMime(bucket, key, mime string) string {
