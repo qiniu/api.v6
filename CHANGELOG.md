@@ -2,14 +2,14 @@
 
 ### v6.0.8
 
-2015-6-24 issues [#127]
+2015-6-24 issues [#127](https://github.com/qiniu/api/pull/127)
 
 - rs.Client 增加 Fetch 方法
 - 增加了一个用户贡献的样例（感谢 [AsGz](https://github.com/AsGz) ）
 
 ### v6.0.7
 
-2015-7-11 issues [#119]
+2015-7-11 issues [#119](https://github.com/qiniu/api/pull/119)
 
 - 修改上传域名为 upload.qiniu.com
 
