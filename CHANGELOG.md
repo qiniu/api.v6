@@ -1,6 +1,6 @@
 ## CHANGE LOG
 
-### v6.0.7
+### v6.0.8
 
 2014-6-30 issues [#127](https://github.com/qiniu/api/pull/127)
 
