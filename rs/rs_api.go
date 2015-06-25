@@ -4,8 +4,8 @@ import (
 	"encoding/base64"
 	"net/http"
 
-	"github.com/qiniu/api/auth/digest"
-	. "github.com/qiniu/api/conf"
+	"github.com/qiniu/api.v6/auth/digest"
+	. "github.com/qiniu/api.v6/conf"
 	"github.com/qiniu/rpc"
 )
 
