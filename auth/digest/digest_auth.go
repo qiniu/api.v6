@@ -1,12 +1,13 @@
 package digest
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
 	"io"
+	"io/ioutil"
 	"net/http"
-	"net/url"
 
 	. "github.com/qiniu/api.v6/conf"
 	"github.com/qiniu/bytes/seekable"
@@ -74,16 +75,38 @@ func (mac *Mac) SignRequest(req *http.Request, incbody bool) (token string, err 
 	return
 }
 
-func (mac *Mac) VerifyCallback(auth string, u *url.URL, body string) bool {
+func (mac *Mac) VerifyCallback(req *http.Request) (bool, error) {
 
+	auth := req.Header.Get("Authorization")
+	if auth == "" {
+		return false, nil
+	}
+
+	h := hmac.New(sha1.New, mac.SecretKey)
+
+	u := req.URL
 	data := u.Path
 	if u.RawQuery != "" {
 		data += "?" + u.RawQuery
 	}
-	data += "\n" + body
-	token := "QBox " + mac.Sign([]byte(data))
+	io.WriteString(h, data+"\n")
 
-	return auth == token
+	if oldBody := req.Body; oldBody != nil {
+		buf := new(bytes.Buffer)
+		mw := io.MultiWriter(h, buf)
+
+		defer oldBody.Close()
+		_, err := io.Copy(mw, oldBody)
+		if err != nil {
+			return false, err
+		}
+		req.Body = ioutil.NopCloser(buf)
+	}
+
+	sign := base64.URLEncoding.EncodeToString(h.Sum(nil))
+	token := "QBox " + mac.AccessKey + ":" + sign[:27]
+
+	return auth == token, nil
 }
 
 func Sign(mac *Mac, data []byte) string {
