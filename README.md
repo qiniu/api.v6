@@ -5,6 +5,10 @@ Qiniu Resource Storage SDK for Golang
 
 [![Qiniu Logo](http://open.qiniudn.com/logo.png)](http://qiniu.com/)
 
+## 更新信息
+
+重要：如果您刚开始接入七牛，那么建议您采用 [Qiniu Go SDK v7.x](https://github.com/qiniu/api.v7)，而不是 v6.x 版本。
+
 ## 下载
 
 ### 从 release 版本下载
