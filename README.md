@@ -1,9 +1,9 @@
 Qiniu Resource Storage SDK for Golang
 ===
 
-[![Build Status](https://travis-ci.org/qiniu/api.v6.svg?branch=develop)](https://travis-ci.org/qiniu/api.v6) [![GoDoc](https://godoc.org/github.com/qiniu/api.v6?status.svg)](https://godoc.org/github.com/qiniu/api.v6)
+[![GoDoc](https://godoc.org/github.com/qiniu/api.v6?status.svg)](https://godoc.org/github.com/qiniu/api.v6)
 
-[![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
+[![Qiniu Logo](http://open.qiniudn.com/logo.png)](http://qiniu.com/)
 
 ## 下载
 
@@ -20,7 +20,7 @@ Qiniu Resource Storage SDK for Golang
 
 ## 使用
 
-参考文档：[七牛云存储 Go SDK 使用指南](https://developer.qiniu.com/docs/v6/sdk/go-sdk.html)
+参考文档：[七牛云存储 Go SDK 使用指南](http://developer.qiniu.com/docs/v6/sdk/go-sdk.html)
 
 ## 贡献代码
 
