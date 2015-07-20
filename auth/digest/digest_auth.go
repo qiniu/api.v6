@@ -1,12 +1,10 @@
 package digest
 
 import (
-	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	. "github.com/qiniu/api.v6/conf"
@@ -82,31 +80,12 @@ func (mac *Mac) VerifyCallback(req *http.Request) (bool, error) {
 		return false, nil
 	}
 
-	h := hmac.New(sha1.New, mac.SecretKey)
-
-	u := req.URL
-	data := u.Path
-	if u.RawQuery != "" {
-		data += "?" + u.RawQuery
-	}
-	io.WriteString(h, data+"\n")
-
-	if oldBody := req.Body; oldBody != nil {
-		buf := new(bytes.Buffer)
-		mw := io.MultiWriter(h, buf)
-
-		defer oldBody.Close()
-		_, err := io.Copy(mw, oldBody)
-		if err != nil {
-			return false, err
-		}
-		req.Body = ioutil.NopCloser(buf)
+	token, err := mac.SignRequest(req, true)
+	if err != nil {
+		return false, err
 	}
 
-	sign := base64.URLEncoding.EncodeToString(h.Sum(nil))
-	token := "QBox " + mac.AccessKey + ":" + sign[:27]
-
-	return auth == token, nil
+	return auth == "QBox "+token, nil
 }
 
 func Sign(mac *Mac, data []byte) string {
