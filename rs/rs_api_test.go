@@ -85,10 +85,16 @@ func TestEntry(t *testing.T) {
 	if einfo.Hash != enewinfo.Hash {
 		t.Fatal("invalid entryinfo:", einfo, enewinfo)
 	}
-	err = client.Fetch(nil, bucketName, key, fetchURL)
+
+	fRet, err := client.Fetch(nil, bucketName, key, fetchURL)
 	if err != nil {
 		t.Fatal(err)
 	}
+	if fRet.MimeType != "image/png" {
+		t.Fatal("invalid fetch result:", fRet)
+	}
+	t.Logf("%#v", fRet)
+
 	err = client.Move(nil, bucketName, newkey1, bucketName, newkey2)
 	if err != nil {
 		t.Fatal(err)
