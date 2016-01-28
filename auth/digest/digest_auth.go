@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	. "github.com/qiniu/api/conf"
+	. "github.com/qiniu/api.v6/conf"
 	"github.com/qiniu/bytes/seekable"
 )
 
@@ -71,6 +71,21 @@ func (mac *Mac) SignRequest(req *http.Request, incbody bool) (token string, err 
 	sign := base64.URLEncoding.EncodeToString(h.Sum(nil))
 	token = mac.AccessKey + ":" + sign
 	return
+}
+
+func (mac *Mac) VerifyCallback(req *http.Request) (bool, error) {
+
+	auth := req.Header.Get("Authorization")
+	if auth == "" {
+		return false, nil
+	}
+
+	token, err := mac.SignRequest(req, true)
+	if err != nil {
+		return false, err
+	}
+
+	return auth == "QBox "+token, nil
 }
 
 func Sign(mac *Mac, data []byte) string {

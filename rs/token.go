@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/qiniu/api/auth/digest"
-	"github.com/qiniu/api/url"
+	"github.com/qiniu/api.v6/auth/digest"
+	"github.com/qiniu/api.v6/url"
 )
 
 // ----------------------------------------------------------
@@ -57,6 +57,7 @@ type PutPolicy struct {
 	PersistentPipeline  string `json:"persistentPipeline,omitempty"`
 	AsyncOps            string `json:"asyncOps,omitempty"`
 	EndUser             string `json:"endUser,omitempty"`
+	MimeLimit           string `json:"mimeLimit,omitempty"`
 }
 
 func (r *PutPolicy) Token(mac *digest.Mac) string {
