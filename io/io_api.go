@@ -33,8 +33,9 @@ type PutExtra struct {
 // @endgist
 
 type PutRet struct {
-	Hash string `json:"hash"` // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key  string `json:"key"`
+	Hash         string `json:"hash"` // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	PersistentId string `json:"persistentId"`
+	Key          string `json:"key"`
 }
 
 var tmpFilePrefix = "qiniu-go-sdk-tmpfile"

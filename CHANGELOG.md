@@ -1,5 +1,12 @@
 ## CHANGE LOG
 
+### v6.0.9
+
+2015-7-30 issues[#140](https://github.com/qiniu/api.v6/pull/140)
+
+- verify callback
+- 上传返回参数PutRet增加PersistentId，用于获取上传对应的fop操作的id。
+
 ### v6.0.8
 
 2015-6-24 issues [#127](https://github.com/qiniu/api/pull/127)

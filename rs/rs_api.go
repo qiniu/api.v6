@@ -37,6 +37,13 @@ type Entry struct {
 	Customer string `json:"customer"`
 }
 
+type FetchRet struct {
+	Key      string `json:"key"`
+	Hash     string `json:"hash"`
+	Fsize    int64  `json:"fsize"`
+	MimeType string `json:"mimeType"`
+}
+
 // @endgist
 
 func (rs Client) Stat(l rpc.Logger, bucket, key string) (entry Entry, err error) {
@@ -56,8 +63,9 @@ func (rs Client) Copy(l rpc.Logger, bucketSrc, keySrc, bucketDest, keyDest strin
 	return rs.Conn.Call(l, nil, RS_HOST+URICopy(bucketSrc, keySrc, bucketDest, keyDest))
 }
 
-func (rs Client) Fetch(l rpc.Logger, bucket, key, url string) (err error) {
-	return rs.Conn.Call(l, nil, IO_HOST+URIFetch(bucket, key, url))
+func (rs Client) Fetch(l rpc.Logger, bucket, key, url string) (ret FetchRet, err error) {
+	err = rs.Conn.Call(l, &ret, IO_HOST+URIFetch(bucket, key, url))
+	return
 }
 
 func (rs Client) ChangeMime(l rpc.Logger, bucket, key, mime string) (err error) {

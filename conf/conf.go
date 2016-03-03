@@ -19,7 +19,7 @@ var IO_HOST = "http://iovip.qbox.me"
 var ACCESS_KEY string
 var SECRET_KEY string
 
-var version = "6.0.6"
+var version = "6.0.9"
 
 var userPattern = regexp.MustCompile("^[a-zA-Z0-9_.-]*$")
 

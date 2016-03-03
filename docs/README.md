@@ -2,7 +2,7 @@
 title: Go SDK 使用指南
 ---
 
-此 Golang SDK 适用于所有 >=go1 版本，基于 [七牛云存储官方API](http://docs.qiniu.com) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
+此 Golang SDK 适用于所有 >=go1 版本，基于 [七牛云存储官方API](http://developer.qiniu.com) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
 
 目录
 ----
@@ -51,7 +51,7 @@ title: Go SDK 使用指南
 
 GO-SDK 以开源方式提供。开发者可以随时从本文档提供的下载地址查看和下载 SDK 的源代码.
 
-由于 GO 语言的通用性，GO-SDK 被设计为同时适合服务器端和客户端使用。服务端是指开发者自己的业务服务器，客户端是指开发者的客户终端。服务端因为有七牛颁发的 AccessKey/SecretKey，可以做很多客户端做不了的事情，比如删除文件、移动/复制文件等操作。一般而言，客服端操作文件需要获得服务端的授权。客户端上传文件需要获得服务端颁发的 [uptoken（上传授权凭证）](http://docs.qiniu.com/api/put.html#uploadToken)，客户端下载文件（包括下载处理过的文件，比如下载图片的缩略图）需要获得服务端颁发的 [dntoken（下载授权凭证）](http://docs.qiniu.com/api/get.html#download-token)。但开发者也可以将 bucket 设置为公开，此时文件有永久有效的访问地址，不需要业务服务器的授权，这对网站的静态文件（如图片、js、css、html）托管非常方便。
+由于 GO 语言的通用性，GO-SDK 被设计为同时适合服务器端和客户端使用。服务端是指开发者自己的业务服务器，客户端是指开发者的客户终端。服务端因为有七牛颁发的 AccessKey/SecretKey，可以做很多客户端做不了的事情，比如删除文件、移动/复制文件等操作。一般而言，客服端操作文件需要获得服务端的授权。客户端上传文件需要获得服务端颁发的 [uptoken（上传授权凭证）](http://developer.qiniu.com/api/put.html#uploadToken)，客户端下载文件（包括下载处理过的文件，比如下载图片的缩略图）需要获得服务端颁发的 [dntoken（下载授权凭证）](http://developer.qiniu.com/api/get.html#download-token)。但开发者也可以将 bucket 设置为公开，此时文件有永久有效的访问地址，不需要业务服务器的授权，这对网站的静态文件（如图片、js、css、html）托管非常方便。
 
 从 v5.0.0 版本开始，我们对 SDK 的内容进行了精简。所有管理操作，比如：创建/删除 bucket、为 bucket 绑定域名（publish）、设置数据处理的样式分隔符（fop seperator）、新增数据处理样式（fop style）等都去除了，统一建议到[开发者平台](https://portal.qiniu.com/)来完成。另外，此前服务端还有自己独有的上传 API，现在也推荐统一成基于客户端上传的工作方式。
 
@@ -102,7 +102,7 @@ SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 
 客户端（终端用户）直接上传到七牛的服务器，通过DNS智能解析，七牛会选择到离终端用户最近的ISP服务商节点，速度会比本地存储快很多。文件上传成功以后，七牛的服务器使用回调功能，只需要将非常少的数据（比如Key）传给应用服务器，应用服务器进行保存即可。
 
-**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](http://docs.qiniu.com/tools/qrsync.html) 上传工具。
+**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](http://deveioper.qiniu.com/tools/qrsync.html) 上传工具。
 文件上传有两种方式，一种是以普通方式直传文件，简称普通上传，另一种方式是断点续上传，断点续上传在网络条件很一般的情况下也能有出色的上传速度，而且对大文件的传输非常友好。
 
 
@@ -112,16 +112,16 @@ SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 
 在七牛云存储中，整个上传流程大体分为这样几步：
 
-1. 业务服务器颁发 [uptoken（上传授权凭证）](http://docs.qiniu.com/api/put.html#uploadToken)给客户端（终端用户）
-2. 客户端凭借 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 上传文件到七牛
+1. 业务服务器颁发 [uptoken（上传授权凭证）](http://developer.qiniu.com/api/put.html#uploadToken)给客户端（终端用户）
+2. 客户端凭借 [uptoken](http://developer.qiniu.com/api/put.html#uploadToken) 上传文件到七牛
 3. 在七牛获得完整数据后，发起一个 HTTP 请求回调到业务服务器
 4. 业务服务器保存相关信息，并返回一些信息给七牛
 5. 七牛原封不动地将这些信息转发给客户端（终端用户）
 
-需要注意的是，回调到业务服务器的过程是可选的，它取决于业务服务器颁发的 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。如果没有回调，七牛会返回一些标准的信息（比如文件的 hash）给客户端。如果上传发生在业务服务器，以上流程可以自然简化为：
+需要注意的是，回调到业务服务器的过程是可选的，它取决于业务服务器颁发的 [uptoken](http://developer.qiniu.com/api/put.html#uploadToken)。如果没有回调，七牛会返回一些标准的信息（比如文件的 hash）给客户端。如果上传发生在业务服务器，以上流程可以自然简化为：
 
 1. 业务服务器生成 uptoken（不设置回调，自己回调到自己这里没有意义）
-2. 凭借 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 上传文件到七牛
+2. 凭借 [uptoken](http://developer.qiniu.com/api/put.html#uploadToken) 上传文件到七牛
 3. 善后工作，比如保存相关的一些信息
 
 
@@ -129,7 +129,7 @@ SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
 <a name="io-put-make-uptoken"></a>
 ### 3.2 生成上传授权uptoken
 
-uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的各个参数来生成[uptoken](http://docs.qiniu.com/api/put.html#uploadToken)的代码如下:
+uptoken是一个字符串,业务服务器根据(`rs.PutPolicy`)的结构体的各个参数来生成[uptoken](http://developer.qiniu.com/api/put.html#uploadToken)的代码如下:
 
 调用如下代码前，请确保Access Key 和 Secret Key已经被正确初始化
 
@@ -149,7 +149,7 @@ func uptoken(bucketName string) string {
 }
 ```
 
-参阅 `rs.PutPolicy` [policy参数](http://docs.qiniu.com/api/put.html#uploadToken-args)
+参阅 `rs.PutPolicy` [policy参数](http://developer.qiniu.com/api/put.html#uploadToken-args)
 
 <a name="io-put-upload-code"></a>
 ### 3.3 上传代码
@@ -394,9 +394,9 @@ log.Print(ret.Hash)
 <a name="io-put-policy"></a>
 ### 3.5 上传策略
 
-[uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 实际上是用 AccessKey/SecretKey 进行数字签名的上传策略(`rs.PutPolicy`)，它控制则整个上传流程的行为。让我们快速过一遍你都能够决策啥：
+[uptoken](http://developer.qiniu.com/api/put.html#uploadToken) 实际上是用 AccessKey/SecretKey 进行数字签名的上传策略(`rs.PutPolicy`)，它控制则整个上传流程的行为。让我们快速过一遍你都能够决策啥：
 
-* `Expires` 指定 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 有效期（默认1小时）。一个 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 可以被用于多次上传（只要它还没有过期）。
+* `Expires` 指定 [uptoken](http://developer.qiniu.com/api/put.html#uploadToken) 有效期（默认1小时）。一个 [uptoken](http://developer.qiniu.com/api/put.html#uploadToken) 可以被用于多次上传（只要它还没有过期）。
 * `Scope` 限定客户端的权限。如果 `scope` 是 bucket，则客户端只能新增文件到指定的 bucket，不能修改文件。如果 `scope` 为 bucket:key，则客户端可以修改指定的文件。**注意： key必须采用utf8编码，如使用非utf8编码访问七牛云存储将反馈错误**
 * `CallbackUrl` 设定业务服务器的回调地址，这样业务服务器才能感知到上传行为的发生。可选。
 * `AsyncOps` 可指定上传完成后，需要自动执行哪些数据处理。这是因为有些数据处理操作（比如音视频转码）比较慢，如果不进行预转可能第一次访问的时候效果不理想，预转可以很大程度改善这一点。
@@ -404,7 +404,7 @@ log.Print(ret.Hash)
 * `Escape` 为真（非0）时，表示客户端传入的 `CallbackParams` 中含有转义符。通过这个特性，可以很方便地把上传文件的某些元信息如 `fsize`（文件大小）、`ImageInfo.width/height`（图片宽度/高度）、`exif`（图片EXIF信息）等传给业务服务器。
 * `DetectMime` 为真（非0）时，表示服务端忽略客户端传入的 `MimeType`，自己自行检测。
 
-关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
+关于上传策略更完整的说明，请参考 [uptoken](http://developer.qiniu.com/api/put.html#uploadToken)。
 
 <a name="io-get"></a>
 
@@ -438,7 +438,7 @@ log.Print(ret.Hash)
 
 注意，尖括号不是必需，代表替换项。
 
-其中 dntoken 是由业务服务器签发的一个[临时下载授权凭证](http://docs.qiniu.com/api/get.html#download-token)，deadline 是 dntoken 的有效期。dntoken不需要生成，GO-SDK 提供了生成完整 downloadUrl 的方法（包含了 dntoken），示例代码如下：
+其中 dntoken 是由业务服务器签发的一个[临时下载授权凭证](http://developer.qiniu.com/api/get.html#download-token)，deadline 是 dntoken 的有效期。dntoken不需要生成，GO-SDK 提供了生成完整 downloadUrl 的方法（包含了 dntoken），示例代码如下：
 
 `downloadToken` 可以使用 SDK 提供的如下方法生成：
 
